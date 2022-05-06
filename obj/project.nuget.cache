@@ -1,8 +1,21 @@
 {
   "version": 2,
-  "dgSpecHash": "JyPmZ5EcdPvc8baJPwjI73lKw410j6CgcwVYNXctimnJ070J8ZL7ZTB4uRCKIHgNpMowM4/WlhTZAEINmpI1IQ==",
+  "dgSpecHash": "d+TMwcTjkXRAH5qZ+O2C154VOarAyJMQ4Rq20qzO+sZr3MwHmR1I5N4Ie10QEMeKJ8C9zJPYl1SY+pFVTvFQdQ==",
   "success": true,
   "projectFilePath": "/Users/crackbargains/owobot-chsarp/owobot-csharp.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "/Users/crackbargains/.nuget/packages/microsoft.extensions.dependencyinjection/6.0.0/microsoft.extensions.dependencyinjection.6.0.0.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/6.0.0/microsoft.extensions.dependencyinjection.abstractions.6.0.0.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/microsoft.extensions.logging/6.0.0/microsoft.extensions.logging.6.0.0.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/microsoft.extensions.logging.abstractions/6.0.0/microsoft.extensions.logging.abstractions.6.0.0.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/microsoft.extensions.options/6.0.0/microsoft.extensions.options.6.0.0.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/microsoft.extensions.primitives/6.0.0/microsoft.extensions.primitives.6.0.0.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/newtonsoft.json/12.0.2/newtonsoft.json.12.0.2.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/system.diagnostics.diagnosticsource/6.0.0/system.diagnostics.diagnosticsource.6.0.0.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/system.runtime.compilerservices.unsafe/6.0.0/system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/system.threading.channels/6.0.0/system.threading.channels.6.0.0.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/telegram.bot/17.0.0/telegram.bot.17.0.0.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/telegram.bot.extensions.polling/1.0.2/telegram.bot.extensions.polling.1.0.2.nupkg.sha512"
+  ],
   "logs": []
 }
