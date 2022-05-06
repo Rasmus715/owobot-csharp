@@ -1,8 +1,18 @@
-FROM gradle:latest AS build
-COPY --chown=gradle:gradle . /home/gradle/src
-WORKDIR /home/gradle/src
-RUN gradle shadowJar --no-daemon
+﻿FROM mcr.microsoft.com/dotnet/runtime:6.0 AS base
+WORKDIR /app
 
-FROM openjdk:latest
-COPY --from=build /home/gradle/src/build/libs/owobot-java-*-all.jar /owobot-java.jar
-ENTRYPOINT ["java","-jar","/owobot-java.jar"]
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src
+COPY ["owobot-csharp.csproj", "./"]
+RUN dotnet restore "owobot-csharp.csproj"
+COPY . .
+WORKDIR "/src/"
+RUN dotnet build "owobot-csharp.csproj" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish "owobot-csharp.csproj" -c Release -o /app/publish
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "owobot-csharp.dll"]
