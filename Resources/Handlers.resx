@@ -58,4 +58,11 @@ At this moment language is English.Here is what you can do:
 /language_en to switch to English
 /language_ru чтобы переключится на русский</value>
     </data>
+    <data name="ReturnPic" xml:space="preserve">
+        <value>Pam! Here's your picture from {0}
+Post title: {1}
+NSFW: {2}
+Link to the original: {3}
+Post Link: {4}</value>
+    </data>
 </root>

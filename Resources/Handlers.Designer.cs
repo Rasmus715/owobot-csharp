@@ -91,6 +91,19 @@ namespace owobot_csharp.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Pam! Here&apos;s your picture from {0}
+        ///Post title: {1}
+        ///NSFW: {2}
+        ///Link to the original: {3}
+        ///Post Link: {4}.
+        /// </summary>
+        internal static string ReturnPic {
+            get {
+                return ResourceManager.GetString("ReturnPic", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Understood! From now, I&apos;ll answer you in english language!.
         /// </summary>
         internal static string SetLanguage {

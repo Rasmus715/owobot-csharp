@@ -4,6 +4,8 @@ using System.Reflection;
 using System.Resources;
 using Microsoft.EntityFrameworkCore;
 using owobot_csharp.Data;
+using Reddit;
+using Reddit.Controllers;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
@@ -37,7 +39,7 @@ public static class Handlers
     public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
         CancellationToken cancellationToken)
     { 
-        
+        var redditClient = new RedditClient(Configuration.Reddit.RedditAppId, appSecret: Configuration.Reddit.RedditSecret, refreshToken: Configuration.Reddit.RedditRefreshToken);
         var applicationContext = new ApplicationContext();
         
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
@@ -85,6 +87,7 @@ public static class Handlers
                 "/info" => Info(botClient, message, applicationContext),
                 "/status" => Status(botClient, message, applicationContext),
                 "/language" => LanguageInfo(botClient, message,applicationContext),
+                "/get_shorthairswaifu" => GetShorthairsWaifu(botClient,message,applicationContext,redditClient),
                 
                 //Unite this two methods by parsind "ru" and "en" value
                 "/language_ru" => SetLanguageRu(botClient, message,applicationContext,resourceManager),
@@ -184,7 +187,7 @@ public static class Handlers
                 var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
                     Assembly.GetExecutingAssembly());
 
-                var info = string.Format(resourceManager.GetString("Info")!, Configuration.Version);
+                var info = string.Format(resourceManager.GetString("Info")!, Configuration.Telegram.BotVersion);
 
                 return await botClient.SendTextMessageAsync(message.Chat.Id,
                     info,
@@ -299,11 +302,45 @@ public static class Handlers
                     user.Nsfw
                         ? "ON"
                         : "OFF",
-                    Configuration.Version);
+                    Configuration.Telegram.BotVersion);
 
                 return await botClient.SendTextMessageAsync(message.Chat.Id,
                     status,
                     replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
+        
+        async Task<Message> GetShorthairsWaifu(ITelegramBotClient botClient, Message message,ApplicationContext context, RedditClient redditClient)
+        {
+            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
+            
+            
+            var subreddit = redditClient.Subreddit("shorthairedwaifus");
+            var random = new Random();
+            var randomValue = random.Next(0, 999);
+            Console.WriteLine("randomvalue: " + randomValue);
+            List<Post> posts;
+            var totalPosts = new List<Post>();
+            var lastPostName = "";
+            do
+            {
+                posts = subreddit.Posts.GetNew(lastPostName, limit:25);
+                totalPosts.AddRange(posts);
+                lastPostName = posts.Last().Fullname;
+                Console.WriteLine(totalPosts.Count);
+            } while (totalPosts.Count < randomValue);
+            var post = totalPosts[randomValue];
+            
+            var returnPicMessage = string.Format(resourceManager.GetString("ReturnPic",
+                    CultureInfo.GetCultureInfo(user!.Language ?? "en-US"))!,
+                $"r/{post.Subreddit}" ,
+                post.Title,
+                post.NSFW,
+                post.Listing.URL,
+                $"reddit.com{post.Permalink}");
+            
+            return await botClient.SendTextMessageAsync(message.Chat.Id,
+                returnPicMessage,
+                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+        }
         }
     }

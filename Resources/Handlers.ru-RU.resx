@@ -156,4 +156,11 @@ NSFW для этого чата: {3}
 /language_en to switch to english
 /language_ru чтобы переключится на русский</value>
   </data>
+  <data name="ReturnPic" xml:space="preserve">
+    <value>Пам! Вот вам картинка с {0}
+Название поста: {1}
+NSFW: {2}
+Ссылка на оригинал: {3}
+Ссылка на пост: {4}</value>
+  </data>
 </root>

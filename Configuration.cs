@@ -2,6 +2,17 @@ namespace owobot_csharp;
 
 public class Configuration
 {
-    public const string Token = "5378235767:AAGNBiePIq5UqZVUKx4-qdeaF7QOZeVI5FM";
-    public const string Version = "v0.1";
+    public class Telegram
+    {
+        public const string TelegramToken = "";
+        public const string BotVersion = "v0.1";
+    }
+
+    public class Reddit
+    {
+        public const string RedditAppId = "";
+        public const string RedditSecret = "";
+        public const string RedditRefreshToken = "";
+    }
+    
 }

@@ -96,3 +96,5 @@ C:\Users\crack\Documents\owobot-csharp\bin\Debug\net6.0\runtimes\win-x64\native\
 C:\Users\crack\Documents\owobot-csharp\bin\Debug\net6.0\runtimes\win-x86\native\e_sqlite3.dll
 C:\Users\crack\Documents\owobot-csharp\obj\Debug\net6.0\en-US\owobot-csharp.resources.cs
 C:\Users\crack\Documents\owobot-csharp\obj\Debug\net6.0\ru-RU\owobot-csharp.resources.cs
+C:\Users\crack\Documents\owobot-csharp\bin\Debug\net6.0\Reddit.NET.dll
+C:\Users\crack\Documents\owobot-csharp\bin\Debug\net6.0\RestSharp.dll
