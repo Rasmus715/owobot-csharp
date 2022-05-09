@@ -2,6 +2,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Resources;
+using Microsoft.EntityFrameworkCore;
+using owobot_csharp.Data;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
@@ -9,11 +11,13 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.InlineQueryResults;
 using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
+using User = owobot_csharp.Models.User;
 
 namespace owobot_csharp;
 
-public class Handlers
+public static class Handlers
 {
+    
     public static Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception,
         CancellationToken cancellationToken)
     {
@@ -29,11 +33,16 @@ public class Handlers
     }
 
 
-
-
+  
     public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
         CancellationToken cancellationToken)
-    {
+    { 
+        
+        var applicationContext = new ApplicationContext();
+        
+        var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
+            Assembly.GetExecutingAssembly());
+        
         var handler = update.Type switch
         {
             // UpdateType.Unknown:
@@ -42,8 +51,8 @@ public class Handlers
             // UpdateType.ShippingQuery:
             // UpdateType.PreCheckoutQuery:
             // UpdateType.Poll:
-            UpdateType.Message => BotOnMessageReceived(botClient, update.Message!),
-            UpdateType.EditedMessage => BotOnMessageReceived(botClient, update.EditedMessage!),
+            UpdateType.Message => BotOnMessageReceived(botClient, update.Message!, applicationContext,resourceManager),
+            UpdateType.EditedMessage => BotOnMessageReceived(botClient, update.EditedMessage!,applicationContext,resourceManager),
             UpdateType.CallbackQuery => BotOnCallbackQueryReceived(botClient, update.CallbackQuery!),
             UpdateType.InlineQuery => BotOnInlineQueryReceived(botClient, update.InlineQuery!),
             UpdateType.ChosenInlineResult => BotOnChosenInlineResultReceived(botClient, update.ChosenInlineResult!),
@@ -59,7 +68,7 @@ public class Handlers
             await HandleErrorAsync(botClient, exception, cancellationToken);
         }
 
-        async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message)
+        async Task BotOnMessageReceived(ITelegramBotClient botClient, Message message, ApplicationContext applicationContext, ResourceManager resourceManager)
         {
             Console.WriteLine($"Receive message type: {message.Type}");
             if (message.Type != MessageType.Text)
@@ -72,46 +81,18 @@ public class Handlers
                 // "/remove" => RemoveKeyboard(botClient, message),
                 // "/photo" => SendFile(botClient, message),
                 // "/request" => RequestContactAndLocation(botClient, message),
-                "/start" => Start(botClient, message),
-                "/info" => Info(botClient, message),
-                "/status" => Status(botClient, message),
-                "/language" => LanguageInfo(botClient, message),
-                "/language_ru" => SetLanguageRu(botClient, message),
+                "/start" => Start(botClient, message, applicationContext),
+                "/info" => Info(botClient, message, applicationContext),
+                "/status" => Status(botClient, message, applicationContext),
+                "/language" => LanguageInfo(botClient, message,applicationContext),
+                
+                //Unite this two methods by parsind "ru" and "en" value
+                "/language_ru" => SetLanguageRu(botClient, message,applicationContext,resourceManager),
+                "/language_en" => SetLanguageEn(botClient, message,applicationContext,resourceManager),
                 _ => UnknownCommand(botClient, message)
             };
-            Message sentMessage = await action;
+            var sentMessage = await action;
             Console.WriteLine($"The message was sent with id: {sentMessage.MessageId}");
-
-            // Send inline keyboard
-            // You can process responses in BotOnCallbackQueryReceived handler
-            static async Task<Message> SendInlineKeyboard(ITelegramBotClient botClient, Message message)
-            {
-                await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing);
-
-                // Simulate longer running task
-                await Task.Delay(500);
-
-                InlineKeyboardMarkup inlineKeyboard = new(
-                    new[]
-                    {
-                        // first row
-                        new[]
-                        {
-                            InlineKeyboardButton.WithCallbackData("1.1", "11"),
-                            InlineKeyboardButton.WithCallbackData("1.2", "12"),
-                        },
-                        // second row
-                        new[]
-                        {
-                            InlineKeyboardButton.WithCallbackData("2.1", "21"),
-                            InlineKeyboardButton.WithCallbackData("2.2", "22"),
-                        },
-                    });
-
-                return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                    text: "Choose",
-                    replyMarkup: inlineKeyboard);
-            }
 
             static async Task<Message> SendReplyKeyboard(ITelegramBotClient botClient, Message message)
             {
@@ -164,29 +145,46 @@ public class Handlers
                     replyMarkup: RequestReplyKeyboard);
             }
 
-            async Task<Message> Start(ITelegramBotClient botClient, Message message)
+            async Task<Message> Start(ITelegramBotClient botClient, Message message, ApplicationContext context)
             {
-                var usage = $"Welcome, {message.From?.FirstName}!\n \n" +
-                            "To get more information type /info\n" +
-                            "For a quick start, just type /get\n\n" +
-                            "Also click on the slash icon at the keyboard to see command list.\n";
+                
+                var user = await context.Users.FirstOrDefaultAsync(c => message.From != null && c.Id == message.From.Id,
+                    cancellationToken);
+                
+                if (user == null)
+                {
+                    var entity = new User
+                    {
+                        Id = message.From?.Id,
+                        Nsfw = false,
+                        Language = "en-US"
+                    };
+                    
+                    await context.Users.AddAsync(entity, cancellationToken);
+                    await context.SaveChangesAsync(cancellationToken);
+                    
+                }
 
+                
+                var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
+                    Assembly.GetExecutingAssembly());
+
+                var start = string.Format(resourceManager.GetString("Start",CultureInfo.GetCultureInfo(user!.Language ?? "en-US"))!, message.From?.FirstName);
+                
                 return await botClient.SendTextMessageAsync(message.Chat.Id,
-                    usage,
+                    start,
                     replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
 
 
-            async Task<Message> Info(ITelegramBotClient botClient, Message message)
+            async Task<Message> Info(ITelegramBotClient botClient, Message message, ApplicationContext context)
             {
-                const string info = $"Hellowo! I'm owobot {Configuration.Version} - a bot that sends cute girls!\n\n" +
-                                    "I am written in C# using .NET 6, taking data from reddit, multi-threaded and fully compatible with group chats. Do not be afraid to send me 25-50 requests at a time, I can handle it!\n\n" +
-                                    "If you’re tired of reading and you want to see anime girls already, then you are here: /get\n" +
-                                    "By default, I will not send you NSFW content, however you can configure this here: /nsfw\n" +
-                                    "You can also change the language here: /language\n\n" +
-                                    "A few words about privacy - I save the settings for each user and chat, as well as the total number of requests.\n\n" +
-                                    "My github page: https://github.com/Rasmus715/owobot-csharp\n\n" +
-                                    "I hope that I will be useful to you, master!! (☆ω☆)";
+                Console.WriteLine(Thread.CurrentThread.CurrentUICulture.Name);
+                
+                var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
+                    Assembly.GetExecutingAssembly());
+
+                var info = string.Format(resourceManager.GetString("Info")!, Configuration.Version);
 
                 return await botClient.SendTextMessageAsync(message.Chat.Id,
                     info,
@@ -198,8 +196,8 @@ public class Handlers
         async Task BotOnCallbackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
         {
             await botClient.AnswerCallbackQueryAsync(
-                callbackQueryId: callbackQuery.Id,
-                text: $"Received {callbackQuery.Data}");
+                callbackQuery.Id,
+                $"Received {callbackQuery.Data}");
 
             if (callbackQuery.Message != null)
                 await botClient.SendTextMessageAsync(
@@ -250,41 +248,58 @@ public class Handlers
                 replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
         }
 
-        async Task<Message> LanguageInfo(ITelegramBotClient botClient, Message message)
+        async Task<Message> LanguageInfo(ITelegramBotClient botClient, Message message, ApplicationContext context)
         {
-            var languageInfo = "Oa! Are you decided to change language?\n\n" +
-                               "At this moment language is English. Here is what you can do:\n" +
-                               "/language_eng to switch to English\n" +
-                               "/language_rus чтобы переключится на русский";
-
+            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
+            var languageInfo =  string.Format(resourceManager.GetString("LanguageInfo",CultureInfo.GetCultureInfo(user!.Language ?? "en-US"))!);
+            
             return await botClient.SendTextMessageAsync(message.Chat.Id,
                 languageInfo,
                 replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
         }
 
-        async Task<Message> SetLanguageRu(ITelegramBotClient botClient, Message message)
+        async Task<Message> SetLanguageRu(ITelegramBotClient botClient, Message message, ApplicationContext context, ResourceManager resourceManager)
         {
+
+            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
+            user!.Language = "ru-RU";
+            await context.SaveChangesAsync(cancellationToken);
+
+            var setLanguageMessage =  string.Format(resourceManager.GetString("SetLanguage",CultureInfo.GetCultureInfo(user!.Language ?? "en-US"))!);
             
-            Thread.CurrentThread.CurrentUICulture = CultureInfo.CreateSpecificCulture("ru-RU");
-            Console.WriteLine(Thread.CurrentThread.CurrentUICulture.Name);
-            var resourceManager = new ResourceManager("Resources.Handler",
-                Assembly.GetExecutingAssembly());
-            var info = resourceManager.GetString("Info");
             return await botClient.SendTextMessageAsync(message.Chat.Id,
-                info,
+                setLanguageMessage,
+                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+        }
+        
+        async Task<Message> SetLanguageEn(ITelegramBotClient botClient, Message message, ApplicationContext context,ResourceManager resourceManager)
+        {
+            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
+            user!.Language = "en-US";
+            await context.SaveChangesAsync(cancellationToken);
+
+            var setLanguageMessage =  string.Format(resourceManager.GetString("SetLanguage",CultureInfo.GetCultureInfo(user!.Language ?? "en-US"))!);
+            
+            return await botClient.SendTextMessageAsync(message.Chat.Id,
+                setLanguageMessage,
                 replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
         }
 
-        async Task<Message> Status(ITelegramBotClient botClient, Message message)
+        async Task<Message> Status(ITelegramBotClient botClient, Message message, ApplicationContext context)
             {
                 var x = DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime();
+                
+                var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
 
-                var status = "I'm alive!\n\n" +
-                             $"Uptime: {x.Days} Days " +
-                             $"{x:hh\\:mm\\:ss}. " +
-                             $"Total requests: {message.MessageId}\n" +
-                             "NSFW for this chat: OFF\n" +
-                             $"Bot version: {Configuration.Version}";
+                var status = string.Format(resourceManager.GetString("Status",
+                        CultureInfo.GetCultureInfo(user!.Language ?? "en-US"))!,
+                    x.Days,
+                    $"{x:hh\\:mm\\:ss}",
+                    message.MessageId,
+                    user.Nsfw
+                        ? "ON"
+                        : "OFF",
+                    Configuration.Version);
 
                 return await botClient.SendTextMessageAsync(message.Chat.Id,
                     status,

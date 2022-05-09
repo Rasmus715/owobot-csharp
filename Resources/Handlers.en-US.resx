@@ -118,7 +118,44 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="Info" xml:space="preserve">
-    <value>Приветик! Я owobot {0} - бот, который прислылает милых девочек!\n\nЯ написана на C# с использованием .NET 6, беру картинки с reddit, мультипоточна и полностью совместима с групповыми чатами. Не бойтесь отправлять мне по 25-50 запросов за раз, я справлюсь с этим!\n\nЕсли надоело читать и хочется уже видеть аниме девочек, то вам сюда: /get По умолчанию я не буду присылать вам NSFW контент, однако Вы можете настроить это тут: /nsfw Также вы можете поменять язык здесь: /language\n\nПару слов по поводу приватности - Я сохраняю настройки для каждого пользователя и чата, а также общее число запросов.\n\nМоя страничка на GitHub:https://github.com/Rasmus715/owobot-csharp\n\nЯ надеюсь, что буду полезной вам! (☆ω☆)</value>
-    <comment>0 - Configure.Version</comment>
+    <value>Hellowo! I'm owobot {0} - a bot that sends cute girls!
+
+I am written in C# using .NET 6, taking data from reddit, multi-threaded and fully compatible with group chats. Do not be afraid to send me 25-50 requests at a time, I can handle it!
+
+If you’re tired of reading and you want to see anime girls already, then you are here: /get
+By default, I will not send you NSFW content, however you can configure this here: /nsfw
+You can also change the language here: /language
+
+A few words about privacy - I save the settings for each user and chat, as well as the total number of requests.
+
+My github page: https://github.com/Rasmus715/owobot-csharp
+
+I hope that I will be useful to you, master!! (☆ω☆)</value>
+    <comment>0 - Configuration.Version</comment>
+  </data>
+  <data name="SetLanguage" xml:space="preserve">
+    <value>Understood! From now, I'll answer you in english language!</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>Welcome, {0}!
+ 
+To get more information type /info
+For a quick start, just type /get
+
+Also click on the slash icon at the keyboard to see command list.</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>I'm alive!
+
+Uptime: {0} Days {1}. Total requests: {2}
+NSFW for this chat: {3}
+Bot version: {4}</value>
+  </data>
+  <data name="LanguageInfo" xml:space="preserve">
+    <value>Oa! Are you decided to change language?
+
+At this moment language is English.Here is what you can do:
+/language_en to switch to English
+/language_ru чтобы переключится на русский</value>
   </data>
 </root>

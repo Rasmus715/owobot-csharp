@@ -10,32 +10,52 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.4" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.4">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.4" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.4">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
       <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+      <PackageReference Include="Reddit" Version="1.5.0" />
       <PackageReference Include="Telegram.Bot" Version="17.0.0" />
       <PackageReference Include="Telegram.Bot.Extensions.Polling" Version="1.0.2" />
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Update="Resources\Handler.en-US.resx">
+      <EmbeddedResource Update="Resources\Handlers.en-US.resx">
         <Generator>ResXFileCodeGenerator</Generator>
-        <LastGenOutput>Handler.en-US.Designer.cs</LastGenOutput>
+        <LastGenOutput>Handlers.en-US.Designer.cs</LastGenOutput>
       </EmbeddedResource>
-      <EmbeddedResource Update="Resources\Handler.ru-RU.resx">
+      <EmbeddedResource Update="Resources\Handlers.ru-RU.resx">
         <Generator>ResXFileCodeGenerator</Generator>
-        <LastGenOutput>Handler.ru-RU.Designer.cs</LastGenOutput>
+        <LastGenOutput>Handlers.ru-RU.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Update="Resources\Handlers.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Handlers.Designer.cs</LastGenOutput>
       </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Resources\Handler.en-US.Designer.cs">
+      <Compile Update="Resources\Handlers.en-US.Designer.cs">
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
         <DependentUpon>Handler.sr-Cyrl.resx</DependentUpon>
       </Compile>
-      <Compile Update="Resources\Handler.ru-RU.Designer.cs">
+      <Compile Update="Resources\Handlers.ru-RU.Designer.cs">
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
         <DependentUpon>Handler.ru-RU.resx</DependentUpon>
+      </Compile>
+      <Compile Update="Resources\Handlers.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Handler.resx</DependentUpon>
       </Compile>
     </ItemGroup>
 
