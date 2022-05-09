@@ -87,15 +87,14 @@ public static class Handlers
                 "/info" => Info(botClient, message, applicationContext),
                 "/status" => Status(botClient, message, applicationContext),
                 "/language" => LanguageInfo(botClient, message,applicationContext),
-                "/get_shorthairswaifu" => GetShorthairsWaifu(botClient,message,applicationContext,redditClient),
+                "/get_shorthairswaifu" => GetShorthairsWaifu(message,applicationContext,redditClient),
                 
                 //Unite this two methods by parsind "ru" and "en" value
                 "/language_ru" => SetLanguageRu(botClient, message,applicationContext,resourceManager),
                 "/language_en" => SetLanguageEn(botClient, message,applicationContext,resourceManager),
                 _ => UnknownCommand(botClient, message)
             };
-            var sentMessage = await action;
-            Console.WriteLine($"The message was sent with id: {sentMessage.MessageId}");
+            
 
             static async Task<Message> SendReplyKeyboard(ITelegramBotClient botClient, Message message)
             {
@@ -172,7 +171,7 @@ public static class Handlers
                 var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
                     Assembly.GetExecutingAssembly());
 
-                var start = string.Format(resourceManager.GetString("Start",CultureInfo.GetCultureInfo(user!.Language ?? "en-US"))!, message.From?.FirstName);
+                var start = string.Format(resourceManager.GetString("Start",CultureInfo.GetCultureInfo(user == null ? "en-US" : user.Language)), message.From?.FirstName);
                 
                 return await botClient.SendTextMessageAsync(message.Chat.Id,
                     start,
@@ -182,12 +181,12 @@ public static class Handlers
 
             async Task<Message> Info(ITelegramBotClient botClient, Message message, ApplicationContext context)
             {
-                Console.WriteLine(Thread.CurrentThread.CurrentUICulture.Name);
-                
+                var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From.Id);
+
                 var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
                     Assembly.GetExecutingAssembly());
 
-                var info = string.Format(resourceManager.GetString("Info")!, Configuration.Telegram.BotVersion);
+                var info = string.Format(resourceManager.GetString("Info",CultureInfo.GetCultureInfo(user == null ? "en-US" : user.Language)), Configuration.Telegram.BotVersion);
 
                 return await botClient.SendTextMessageAsync(message.Chat.Id,
                     info,
@@ -308,30 +307,26 @@ public static class Handlers
                     status,
                     replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
-        
-        async Task<Message> GetShorthairsWaifu(ITelegramBotClient botClient, Message message,ApplicationContext context, RedditClient redditClient)
+
+
+        async Task<Message> GetSpecificPost(Message message, Subreddit subreddit, int randomValue,User user)
         {
-            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
-            
-            
-            var subreddit = redditClient.Subreddit("shorthairedwaifus");
-            var random = new Random();
-            var randomValue = random.Next(0, 999);
-            Console.WriteLine("randomvalue: " + randomValue);
             List<Post> posts;
             var totalPosts = new List<Post>();
             var lastPostName = "";
             do
             {
+                botClient.SendChatActionAsync(message.From.Id,ChatAction.Typing);
                 posts = subreddit.Posts.GetNew(lastPostName, limit:25);
                 totalPosts.AddRange(posts);
                 lastPostName = posts.Last().Fullname;
                 Console.WriteLine(totalPosts.Count);
             } while (totalPosts.Count < randomValue);
-            var post = totalPosts[randomValue];
+
+            var post =  totalPosts[randomValue];
             
             var returnPicMessage = string.Format(resourceManager.GetString("ReturnPic",
-                    CultureInfo.GetCultureInfo(user!.Language ?? "en-US"))!,
+                    CultureInfo.GetCultureInfo(user?.Language ?? "en-US"))!,
                 $"r/{post.Subreddit}" ,
                 post.Title,
                 post.NSFW,
@@ -341,6 +336,22 @@ public static class Handlers
             return await botClient.SendTextMessageAsync(message.Chat.Id,
                 returnPicMessage,
                 replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+        }
+        
+        async Task GetShorthairsWaifu(Message message,ApplicationContext context, RedditClient redditClient)
+        {
+            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
+            
+            var subreddit = redditClient.Subreddit("shorthairedwaifus");
+            var random = new Random();
+            var randomValue = random.Next(0, 999);
+            Console.WriteLine("randomvalue: " + randomValue);
+            
+            var newThread = new Thread(async ()=>
+            {
+                await GetSpecificPost(message, subreddit, randomValue, user);
+            });
+            newThread.Start();
         }
         }
     }
