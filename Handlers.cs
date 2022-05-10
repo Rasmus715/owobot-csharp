@@ -421,6 +421,8 @@ public static class Handlers
                 } while (totalPosts.Count < randomValue);
 
                 var post = totalPosts[randomValue];
+                
+                
                 if (user.Nsfw == false)
                 {
                     while (post.NSFW)
@@ -516,9 +518,25 @@ public static class Handlers
 
         }
 
+        async Task RegisterUser(ApplicationContext context,Message message)
+        {
+            var entity = new User
+            {
+                Id = message.From?.Id,
+                Nsfw = false,
+                Language = "en-US"
+            };
+
+                    
+            await context.Users.AddAsync(entity, cancellationToken);
+            Console.WriteLine("Succesfully added " + message.From.Id + " to DB");
+            await context.SaveChangesAsync(cancellationToken);
+        }
         async Task GetPicFromReddit(Message message, ApplicationContext context)
         {
             var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
+            if (user == null)
+                RegisterUser(context, message);
             Console.WriteLine(message.Text?[5..]);
             var random = new Random();
             var randomValue = random.Next(0, 999);

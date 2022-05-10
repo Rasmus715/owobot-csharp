@@ -130,4 +130,3 @@ C:/Users/crack/Documents/owobot-csharp/bin/Debug/net6.0/RestSharp.dll
 /Users/crackbargains/owobot-chsarp/obj/Debug/net6.0/owobot_csharp.Resources.Handlers.resources
 /Users/crackbargains/owobot-chsarp/obj/Debug/net6.0/owobot_csharp.Resources.Handlers.en-US.resources
 /Users/crackbargains/owobot-chsarp/obj/Debug/net6.0/owobot_csharp.Resources.Handlers.ru-RU.resources
-/Users/crackbargains/owobot-chsarp/bin/Debug/net6.0/Serilog.dll

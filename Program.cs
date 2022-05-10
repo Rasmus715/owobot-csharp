@@ -10,11 +10,13 @@ var me = await bot.GetMeAsync();
 Console.Title = me.Username ?? "Owobot Jr.";
 
 using var cts = new CancellationTokenSource();
-var context = new ApplicationContext();
 
 bot.StartReceiving(Handlers.HandleUpdateAsync,
     Handlers.HandleErrorAsync,
-    new ReceiverOptions(),
+    new ReceiverOptions()
+    {
+        ThrowPendingUpdates = true
+    },
     cts.Token);
 
 Console.WriteLine($"Start listening for @{me.Username}");
