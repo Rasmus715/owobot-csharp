@@ -65,4 +65,67 @@ NSFW: {2}
 Link to the original: {3}
 Post Link: {4}</value>
     </data>
+    <data name="GetStatus" xml:space="preserve">
+        <value>Write to the bot /get_*subreddit tittle* and it will send you a random picture from there.
+Here is my little compilation:
+/get_AnimeART - The biggest place with anime pics.
+/get_awwnime - All kinds of moe art.
+/get_wholesomeyuri - Yuri. Everyone loves yuri.
+/get_Joshi_Kosei - Cute high school students.
+/get_AnimeBlush - Shy girls.
+/get_tsunderes - Cute tsunderes!
+/get_Usagimimi - Bunny girls!
+/get_kitsunemimi - Cat girls!
+/get_animeponytails - Cute ponytail girls.
+/get_tyingherhairup - Anime girls tying their hair up.
+/get_OfficialSenpaiHeat - Compilation of pictures.
+/get_ChurchofBelly - Tummies!
+/get_Moescape - Cute arts with cute girls.
+/get_MoeStash - More cute girls!
+/get_TwoDeeArt - Just 2D Art.
+/get_headpats - Girls getting a pat.
+/get_cutelittlefangs - Teeth and fangs and cute girls.
+/get_kemonomimi - Cute girls and animal ears!
+/get_twintails - Anime girls with twintails.
+/get_pouts - Cute girls with pouting cheeks.
+/get_gao - Girls make scary sounds!
+/get_animelegs - Legs!
+/get_ZettaiRyouiki - Thighs owo!
+/get_thighdeology - More thighs, but more open!
+/get_Animewallpaper - Beautiful wallpapers with cute girls.
+/get_pantsu - Pantsu shots owo!
+/get_Patchuu - Abstract, surreal, or just beautiful girls!
+/get_animehotbeverages - Girls drink hot drinks.
+/get_AnimeLounging - Cute girls are resting.
+/get_silverhair - Girls with silver hair.
+/get_longhairedwaifus - Cuties with long hair.
+/get_shorthairedwaifus - Girls with short hairstyles.
+/get_Smugs - Smug girls.
+/get_manga - Manga pages.
+/get_Lain - W̺̹̆̒ͪ͌̒ͦe͂̈́ ̜͕̮͉̥̔ͪ̃͗ͣa͛ͤ̌ŕ̭̈́̎̈ͯ͋e̠̤̫̪͙ͩͨ ͉̘̱͔̥͊͂́̍ͦ́ẃ̰̼̰͌̇iͧ̀̉ͫr͖̗̙̫̓e̥̣̲ͨ̄͌̑d̲͉̭̩̟̙̝͆ͥ</value>
+    </data>
+    <data name="NsfwStatus" xml:space="preserve">
+        <value>Oagh! Have you decided to change the NSFW content settings?
+
+Currently NSFW is: {0}. Here is what you can do:
+/nsfw_on to turn on the lewds
+/nsfw_off to turn off all the erotic
+
+*No guarantee that all NSFW tags in reddit is correct!</value>
+    </data>
+    <data name="SetNsfwOn" xml:space="preserve">
+        <value>Got it! Now the lewds are enabled in this chat! ( ͡° ͜ʖ ͡°)</value>
+    </data>
+    <data name="SetNsfwOff" xml:space="preserve">
+        <value>Understood! No more vulgarity in this chat!</value>
+    </data>
+    <data name="NsfwSettingException" xml:space="preserve">
+        <value>Ehmm... You should read carefully about the commands in /nsfw</value>
+    </data>
+    <data name="LewdDetected" xml:space="preserve">
+        <value>Oh! Request {0} contains LEWDS!
+
+I was told not to post NSFW posts!
+I can not show you this picture, sorry (｡ŏ﹏ŏ)</value>
+    </data>
 </root>

@@ -163,4 +163,67 @@ NSFW: {2}
 Ссылка на оригинал: {3}
 Ссылка на пост: {4}</value>
   </data>
+  <data name="GetStatus" xml:space="preserve">
+    <value>Напиши боту /get_*название сабреддита*, и он отправит вам случайную картинку оттуда.
+Вот вам моя подборочка:
+/get_AnimeART - Самый большой раздел с картинками.
+/get_awwnime - Что-то милое.
+/get_wholesomeyuri - Юри. Все любят юри.
+/get_Joshi_Kosei - Милые старшеклассницы.
+/get_AnimeBlush - Стесняющиеся девочки.
+/get_tsunderes - Милые цундеры!
+/get_Usagimimi - Девочки кролики!
+/get_kitsunemimi - Кошкодевочки!
+/get_animeponytails - Милые девочки с конским хвостиком.
+/get_tyingherhairup - Девочки поправляют свои волосы.
+/get_OfficialSenpaiHeat - Сборник картиночек.
+/get_ChurchofBelly - Животики!
+/get_Moescape - Милые арты с милыми девочками.
+/get_MoeStash - Еще милые девочки!
+/get_TwoDeeArt - Просто 2д артики.
+/get_headpats - Девочек гладят по голове.
+/get_cutelittlefangs - Зубки и клыки у милых девочек.
+/get_kemonomimi - Опять ушки!
+/get_twintails - Девочки с прическами из 2 хвостиков.
+/get_pouts - Милые девочки с надутыми щёчками.
+/get_gao - Девочки делают страшные звуки!
+/get_animelegs - Ножки!
+/get_ZettaiRyouiki - Бедра ово!
+/get_thighdeology - Еще бедра, но открытее!
+/get_Animewallpaper - Красивые обои с милыми девочками.
+/get_pantsu - Панцушоты owo!
+/get_Patchuu - Абстрактные, сюрреалистические или просто красивые девушки!
+/get_animehotbeverages - Девочки пьют горячие напитки.
+/get_AnimeLounging - Милые девочки отдыхают.
+/get_silverhair - Девочки с серебряными волосами.
+/get_longhairedwaifus - Милашки с длинными волосами.
+/get_shorthairedwaifus - Девочки с короткими прическами.
+/get_Smugs - Самодовольные девочки.
+/get_manga - Странички из манги.
+/get_Lain - W̺̹̆̒ͪ͌̒ͦe͂̈́ ̜͕̮͉̥̔ͪ̃͗ͣa͛ͤ̌ŕ̭̈́̎̈ͯ͋e̠̤̫̪͙ͩͨ ͉̘̱͔̥͊͂́̍ͦ́ẃ̰̼̰͌̇iͧ̀̉ͫr͖̗̙̫̓e̥̣̲ͨ̄͌̑d̲͉̭̩̟̙̝͆ͥ</value>
+  </data>
+  <data name="NsfwStatus" xml:space="preserve">
+    <value>Оа! Ты решил поменять настройки NSFW контента?
+
+В данный момент NSFW:  {0}. Вот что Вы можете сделать:
+/nsfw_on чтобы включить левды
+/nsfw_off чтобы выключить всю похабщину
+
+*Не гарантирую, что все NSFW теги с реддита верны!</value>
+  </data>
+  <data name="SetNsfwOn" xml:space="preserve">
+    <value>Поняла вас! Теперь в этом чате левды включены! ( ͡° ͜ʖ ͡°)</value>
+  </data>
+  <data name="SetNsfwOff" xml:space="preserve">
+    <value>Поняла вас! Больше никакой пошлятины в этом чате!</value>
+  </data>
+  <data name="NsfwSettingException" xml:space="preserve">
+    <value>Эм... Вам стоит внимательнее прочитать о командах в /nsfw</value>
+  </data>
+  <data name="LewdDetected" xml:space="preserve">
+    <value>Ох! Запрос {0} содержит ЛЕВДЫ!
+
+Мне было сказано не отправлять NSFW посты!
+Я не могу показать вам эту картинку, простите (｡ŏ﹏ŏ)</value>
+  </data>
 </root>

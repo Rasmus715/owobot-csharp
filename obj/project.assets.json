@@ -1438,26 +1438,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\crack\\.nuget\\packages\\": {}
+    "/Users/crackbargains/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\crack\\Documents\\owobot-csharp\\owobot-csharp.csproj",
+      "projectUniqueName": "/Users/crackbargains/owobot-chsarp/owobot-csharp.csproj",
       "projectName": "owobot-csharp",
-      "projectPath": "C:\\Users\\crack\\Documents\\owobot-csharp\\owobot-csharp.csproj",
-      "packagesPath": "C:\\Users\\crack\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\crack\\Documents\\owobot-csharp\\obj\\",
+      "projectPath": "/Users/crackbargains/owobot-chsarp/owobot-csharp.csproj",
+      "packagesPath": "/Users/crackbargains/.nuget/packages/",
+      "outputPath": "/Users/crackbargains/owobot-chsarp/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\crack\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/Users/crackbargains/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -1528,7 +1526,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.202\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.202/RuntimeIdentifierGraph.json"
       }
     }
   }
