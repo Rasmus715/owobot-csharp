@@ -116,5 +116,11 @@ namespace owobot_csharp.Resources {
                 return ResourceManager.GetString("LewdDetected", resourceCulture);
             }
         }
+        
+        internal static string UnknownCommand {
+            get {
+                return ResourceManager.GetString("UnknownCommand", resourceCulture);
+            }
+        }
     }
 }

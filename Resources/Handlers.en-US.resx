@@ -228,4 +228,7 @@ Currently NSFW is: {0}. Here is what you can do:
 I was told not to post NSFW posts!
 I can not show you this picture, sorry (｡ŏ﹏ŏ)</value>
   </data>
+  <data name="UnknownCommand" xml:space="preserve">
+    <value>Eaah? I don't understand you!</value>
+  </data>
 </root>

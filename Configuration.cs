@@ -14,5 +14,4 @@ public class Configuration
         public const string RedditSecret = "";
         public const string RedditRefreshToken = "";
     }
-    
 }

@@ -22,7 +22,6 @@ public enum Implicit
     twintails,
     pouts,
     gao,
-    animelegs,
     ZettaiRyouiki,
     Animewallpaper,
     Patchuu,

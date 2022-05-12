@@ -226,4 +226,7 @@ NSFW: {2}
 Мне было сказано не отправлять NSFW посты!
 Я не могу показать вам эту картинку, простите (｡ŏ﹏ŏ)</value>
   </data>
+  <data name="UnknownCommand" xml:space="preserve">
+    <value>Эаа? Я не поняла вас!</value>
+  </data>
 </root>

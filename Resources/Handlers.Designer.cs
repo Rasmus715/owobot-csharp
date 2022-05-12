@@ -116,5 +116,17 @@ namespace owobot_csharp.Resources {
                 return ResourceManager.GetString("LewdDetected", resourceCulture);
             }
         }
+        
+        internal static string Handlers_HandleUpdateAsync_ {
+            get {
+                return ResourceManager.GetString("Handlers_HandleUpdateAsync_", resourceCulture);
+            }
+        }
+        
+        internal static string UnknownCommand {
+            get {
+                return ResourceManager.GetString("UnknownCommand", resourceCulture);
+            }
+        }
     }
 }

@@ -11,8 +11,6 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.InlineQueryResults;
-using Telegram.Bot.Types.InputFiles;
 using Telegram.Bot.Types.ReplyMarkups;
 using User = owobot_csharp.Models.User;
 
@@ -42,24 +40,17 @@ public static class Handlers
     {
         var redditClient = new RedditClient(Configuration.Reddit.RedditAppId,
             appSecret: Configuration.Reddit.RedditSecret, refreshToken: Configuration.Reddit.RedditRefreshToken);
+        
         var applicationContext = new ApplicationContext();
+        Console.WriteLine("applicationContext created");
 
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
             Assembly.GetExecutingAssembly());
 
         var handler = update.Type switch
         {
-            // UpdateType.Unknown:
-            // UpdateType.ChannelPost:
-            // UpdateType.EditedChannelPost:
-            // UpdateType.ShippingQuery:
-            // UpdateType.PreCheckoutQuery:
-            // UpdateType.Poll:
-            UpdateType.Message => BotOnMessageReceived(botClient, update.Message!, applicationContext, resourceManager),
-            UpdateType.CallbackQuery => BotOnCallbackQueryReceived(botClient, update.CallbackQuery!),
-            UpdateType.InlineQuery => BotOnInlineQueryReceived(botClient, update.InlineQuery!),
-            UpdateType.ChosenInlineResult => BotOnChosenInlineResultReceived(botClient, update.ChosenInlineResult!),
-            _ => UnknownUpdateHandlerAsync(botClient, update)
+            UpdateType.Message => BotOnMessageReceived(botClient, update.Message!),
+            _ => UnknownUpdateHandlerAsync(update)
         };
 
         try
@@ -71,11 +62,13 @@ public static class Handlers
             await HandleErrorAsync(botClient, exception, cancellationToken);
         }
 
-        async Task BotOnMessageReceived(ITelegramBotClient bot, Message message,
-            ApplicationContext appDbContext, ResourceManager resources)
+        async Task BotOnMessageReceived(ITelegramBotClient bot, Message message)
         {
-            Console.WriteLine(
-                $"Receive message type: {message.Type} \nFrom: {message.From?.Id} \nBody: {message.Text}");
+            var user = await applicationContext.Users.FirstOrDefaultAsync(c => message.From != null && c.Id == message.From.Id,
+                cancellationToken) ?? await RegisterUser();
+            
+            Console.WriteLine(Resources.Handlers.Handlers_HandleUpdateAsync_, message.Type, message.From?.Id, message.Text);
+            
             if (message.Type != MessageType.Text)
                 return;
 
@@ -92,335 +85,161 @@ public static class Handlers
                         replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
                     break;
                 case "/start":
-                    Start(bot, message, appDbContext);
+                    await Start();
                     break;
                 case "/info":
-                    Info(bot, message, appDbContext);
+                    await Info();
                     break;
                 case "/status":
-                    Status(bot, message, appDbContext);
+                    await Status();
                     break;
                 case "/language":
-                    LanguageInfo(bot, message, appDbContext);
+                    await LanguageInfo();
                     break;
                 case "/get":
-                    GetStatus(message, appDbContext);
+                    await GetStatus();
                     break;
                 case "/nsfw":
-                    NsfwStatus(message, appDbContext);
+                    await NsfwStatus();
                     break;
                 case "/random":
-                    GetRandomPic(message, appDbContext);
+                    await GetRandomPic();
                     break;
                 default:
                     if (message.Text.Contains("/get"))
                     {
-                        GetPicFromReddit(message, appDbContext);
+                        GetPicFromReddit();
                         break;
                     }
 
                     if (message.Text.Contains("/language"))
                     {
-                        var language = message.Text[10..];
-                        SetLanguage(bot, message, appDbContext, resources, language);
+                        await SetLanguage(message.Text[10..]);
                         break;
                     }
 
                     if (message.Text.Contains("/nsfw"))
                     {
-                        TurnNsfw(message, appDbContext, message.Text[6..]);
+                        await TurnNsfw(message.Text[6..]);
                         Console.WriteLine(message.Text[6..]);
                         break;
                     }
                     else
                     {
-                        UnknownCommand(bot, message);
+                        await UnknownCommand();
                         break;
                     }
             }
 
-            // var action = message.Text!.ToLower().Split(' ')[0] switch
-            // {
-            //     // "/inline" => SendInlineKeyboard(botClient, message),
-            //     // "/keyboard" => SendReplyKeyboard(botClient, message),
-            //     // "/remove" => RemoveKeyboard(botClient, message),
-            //     // "/photo" => SendFile(botClient, message),
-            //     // "/request" => RequestContactAndLocation(botClient, message),
-            //     "owo" => Owo(message), //Too bad can't return SendTextMessageAsync here :(
-            //     "uwu" => Uwu(message),
-            //     "/start" => Start(botClient, message, applicationContext),
-            //     "/info" => Info(botClient, message, applicationContext),
-            //     "/status" => Status(botClient, message, applicationContext),
-            //     "/language" => LanguageInfo(botClient, message,applicationContext),
-            //     "/get"=> GetStatus(message,applicationContext,redditClient),
-            //     
-            //     //Unite this two methods by parsind "ru" and "en" value
-            //     "/language_ru" => SetLanguageRu(botClient, message,applicationContext,resourceManager),
-            //     "/language_en" => SetLanguageEn(botClient, message,applicationContext,resourceManager),
-            //     
-            // };
 
-
-            static async Task<Message> SendReplyKeyboard(ITelegramBotClient botClient, Message message)
+            async Task Start()
             {
-                ReplyKeyboardMarkup replyKeyboardMarkup = new(
-                    new[]
-                    {
-                        new KeyboardButton[] {"1.1", "1.2"},
-                        new KeyboardButton[] {"2.1", "2.2"},
-                    })
-                {
-                    ResizeKeyboard = true
-                };
-
-                return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                    text: "Choose",
-                    replyMarkup: replyKeyboardMarkup);
-            }
-
-            static async Task<Message> RemoveKeyboard(ITelegramBotClient botClient, Message message)
-            {
-                return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                    text: "Removing keyboard",
-                    replyMarkup: new ReplyKeyboardRemove());
-            }
-
-            static async Task<Message> SendFile(ITelegramBotClient botClient, Message message)
-            {
-                await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.UploadPhoto);
-
-                const string filePath = @"Files/tux.png";
-                using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
-                var fileName = filePath.Split(Path.DirectorySeparatorChar).Last();
-
-                return await botClient.SendPhotoAsync(chatId: message.Chat.Id,
-                    photo: new InputOnlineFile(fileStream, fileName),
-                    caption: "Nice Picture");
-            }
-
-            static async Task<Message> RequestContactAndLocation(ITelegramBotClient botClient, Message message)
-            {
-                ReplyKeyboardMarkup RequestReplyKeyboard = new(
-                    new[]
-                    {
-                        KeyboardButton.WithRequestLocation("Location"),
-                        KeyboardButton.WithRequestContact("Contact"),
-                    });
-
-                return await botClient.SendTextMessageAsync(chatId: message.Chat.Id,
-                    text: "Who or Where are you?",
-                    replyMarkup: RequestReplyKeyboard);
-            }
-
-            async Task<Message> Start(ITelegramBotClient botClient, Message message, ApplicationContext context)
-            {
-
-                var user = await context.Users.FirstOrDefaultAsync(c => message.From != null && c.Id == message.From.Id,
-                    cancellationToken);
-
-                if (user == null)
-                {
-                    var entity = new User
-                    {
-                        Id = message.From?.Id,
-                        Nsfw = false,
-                        Language = "en-US"
-                    };
-
-                    
-                    await context.Users.AddAsync(entity, cancellationToken);
-                    Console.WriteLine("Succesfully added " + message.From.Id + " to DB");
-                    await context.SaveChangesAsync(cancellationToken);
-
-                }
-
-
-                var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
-                    Assembly.GetExecutingAssembly());
-
-                var start = string.Format(
-                    resourceManager.GetString("Start",
-                        CultureInfo.GetCultureInfo(user == null ? "en-US" : user.Language)), message.From?.FirstName);
-
-                return await botClient.SendTextMessageAsync(message.Chat.Id,
-                    start,
+                var firstName = message.From?.FirstName ?? "User";
+                await botClient.SendTextMessageAsync(message.Chat.Id,
+                    string.Format(
+                        resourceManager.GetString("Start",
+                            CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty, firstName),
                     replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
 
 
-            async Task<Message> Info(ITelegramBotClient botClient, Message message, ApplicationContext context)
+            async Task Info()
             {
-                var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From.Id);
-
-                var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
-                    Assembly.GetExecutingAssembly());
-
-                var info = string.Format(
-                    resourceManager.GetString("Info",
-                        CultureInfo.GetCultureInfo(user == null ? "en-US" : user.Language)),
-                    Configuration.Telegram.BotVersion);
-
-                return await botClient.SendTextMessageAsync(message.Chat.Id,
-                    info,
-                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-            }
-        }
-
-        // Process Inline Keyboard callback data
-        async Task BotOnCallbackQueryReceived(ITelegramBotClient botClient, CallbackQuery callbackQuery)
-        {
-            await botClient.AnswerCallbackQueryAsync(
-                callbackQuery.Id,
-                $"Received {callbackQuery.Data}");
-
-            if (callbackQuery.Message != null)
-                await botClient.SendTextMessageAsync(
-                    chatId: callbackQuery.Message.Chat.Id,
-                    text: $"Received {callbackQuery.Data}");
-        }
-
-        async Task BotOnInlineQueryReceived(ITelegramBotClient botClient, InlineQuery inlineQuery)
-        {
-            Console.WriteLine($"Received inline query from: {inlineQuery.From.Id}");
-
-            InlineQueryResult[] results =
-            {
-                // displayed result
-                new InlineQueryResultArticle(
-                    id: "3",
-                    title: "TgBots",
-                    inputMessageContent: new InputTextMessageContent(
-                        "hello"
-                    )
-                )
-            };
-
-            await botClient.AnswerInlineQueryAsync(inlineQueryId: inlineQuery.Id,
-                results: results,
-                isPersonal: true,
-                cacheTime: 0);
-        }
-
-        Task BotOnChosenInlineResultReceived(ITelegramBotClient botClient,
-            ChosenInlineResult chosenInlineResult)
-        {
-            Console.WriteLine($"Received inline result: {chosenInlineResult.ResultId}");
-            return Task.CompletedTask;
-        }
-
-        Task UnknownUpdateHandlerAsync(ITelegramBotClient botClient, Update update)
-        {
-            Console.WriteLine($"Unknown update type: {update.Type}");
-            return Task.CompletedTask;
-        }
-
-        async Task<Message> UnknownCommand(ITelegramBotClient botClient, Message message)
-        {
-            const string unknownCommand = "Eaah? I don't understand you!";
-            return await botClient.SendTextMessageAsync(message.Chat.Id,
-                unknownCommand,
-                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-        }
-
-        async Task<Message> LanguageInfo(ITelegramBotClient botClient, Message message, ApplicationContext context)
-        {
-            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
-            var languageInfo = string.Format(resourceManager.GetString("LanguageInfo",
-                CultureInfo.GetCultureInfo(user!.Language ?? "en-US"))!);
-
-            return await botClient.SendTextMessageAsync(message.Chat.Id,
-                languageInfo,
-                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-        }
-
-        async Task<Message> SetLanguage(ITelegramBotClient botClient, Message message, ApplicationContext context,
-            ResourceManager resourceManager, string language)
-        {
-
-            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
-            switch (language)
-            {
-                case "ru":
-                    user!.Language = "ru-RU";
-                    await context.SaveChangesAsync(cancellationToken);
-                    break;
-                case "en":
-                    user!.Language = "en-US";
-                    await context.SaveChangesAsync(cancellationToken);
-                    break;
-                default:
-                    return await botClient.SendTextMessageAsync(message.Chat.Id,
-                        "This language is currently not supported",
+                await botClient.SendTextMessageAsync(message.Chat.Id,
+                        string.Format(
+                            resourceManager.GetString("Info",
+                                CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty,
+                            Configuration.Telegram.BotVersion),
                         replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
+            
+            async Task LanguageInfo()
+            {
+                await botClient.SendTextMessageAsync(message.Chat.Id,
+                    string.Format(resourceManager.GetString("LanguageInfo",
+                        CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!),
+                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+            }
+            
+            async Task UnknownCommand()
+            {
+                await botClient.SendTextMessageAsync(message.Chat.Id,
+                    string.Format(
+                        resourceManager.GetString("UnknownCommand",
+                            CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty,
+                        Configuration.Telegram.BotVersion),
+                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+            }
+            
+            async Task SetLanguage(string language)
+            {
+                switch (language)
+                {
+                    case "ru":
+                        user.Language = "ru-RU";
+                        await applicationContext.SaveChangesAsync(cancellationToken);
+                        break;
+                    case "en":
+                        user.Language = "en-US";
+                        await applicationContext.SaveChangesAsync(cancellationToken);
+                        break;
+                    default:
+                        await botClient.SendTextMessageAsync(message.Chat.Id,
+                            "This language is currently not supported",
+                            replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                        return;
+                }
 
-            var setLanguageMessage = string.Format(resourceManager.GetString("SetLanguage",
-                CultureInfo.GetCultureInfo(user!.Language ?? "en-US"))!);
+                var setLanguageMessage = string.Format(resourceManager.GetString("SetLanguage",
+                    CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!);
 
-            return await botClient.SendTextMessageAsync(message.Chat.Id,
-                setLanguageMessage,
-                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-        }
+                await botClient.SendTextMessageAsync(message.Chat.Id,
+                    setLanguageMessage,
+                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+            }
 
-        async Task<Message> SetLanguageEn(ITelegramBotClient botClient, Message message, ApplicationContext context,
-            ResourceManager resourceManager)
+            async Task Status()
+            {
+                var x = DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime();
+
+                var status = string.Format(resourceManager.GetString("Status",
+                        CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
+                    x.Days,
+                    $"{x:hh\\:mm\\:ss}",
+                    message.MessageId,
+                    user.Nsfw
+                        ? "ON"
+                        : "OFF",
+                    Configuration.Telegram.BotVersion);
+
+                await botClient.SendTextMessageAsync(message.Chat.Id,
+                    status,
+                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+            }
+            
+            async Task GetPicNewThread(string? subredditString, int randomValue)
         {
-            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
-            user!.Language = "en-US";
-            await context.SaveChangesAsync(cancellationToken);
-
-            var setLanguageMessage = string.Format(resourceManager.GetString("SetLanguage",
-                CultureInfo.GetCultureInfo(user!.Language ?? "en-US"))!);
-
-            return await botClient.SendTextMessageAsync(message.Chat.Id,
-                setLanguageMessage,
-                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-        }
-
-        async Task<Message> Status(ITelegramBotClient botClient, Message message, ApplicationContext context)
-        {
-            var x = DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime();
-
-            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
-
-            var status = string.Format(resourceManager.GetString("Status",
-                    CultureInfo.GetCultureInfo(user!.Language ?? "en-US"))!,
-                x.Days,
-                $"{x:hh\\:mm\\:ss}",
-                message.MessageId,
-                user.Nsfw
-                    ? "ON"
-                    : "OFF",
-                Configuration.Telegram.BotVersion);
-
-            return await botClient.SendTextMessageAsync(message.Chat.Id,
-                status,
-                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-        }
-
-
-        
-        async Task<Message> GetPicNewThread(Message message, string subredditString, int randomValue, User user)
-        {
-            List<Post> posts;
-            Console.WriteLine("randomValue:" + randomValue);
-            Console.WriteLine("subredditString: " + subredditString);
-            var totalPosts = new List<Post>();
+            Console.WriteLine(@"randomValue:" + randomValue);
+            Console.WriteLine(@"subredditString: " + subredditString);
+            var totalPosts = new List<string>();
             var lastPostName = "";
+            randomValue = 999;
+            var subreddit = redditClient.Subreddit(subredditString);
             try
             {
                 do
                 {
-                    var subreddit = redditClient.Subreddit(subredditString);
-                    //await botClient.SendChatActionAsync(message.From.Id, ChatAction.Typing, cancellationToken);
-                    posts = subreddit.Posts.GetNew(lastPostName, limit: 25);
+                    //await client.SendChatActionAsync(message.From.Id, ChatAction.Typing, cancellationToken);
+                    var posts = subreddit.Posts.GetNew(lastPostName, limit: 25).Select(c => c.Permalink);
                     totalPosts.AddRange(posts);
-                    lastPostName = posts.Last().Fullname;
-                    Thread.Sleep(5);
-                    Console.WriteLine("Total Posts in collection: " + totalPosts.Count);
+                    lastPostName = posts.Last();
+                    Console.WriteLine(@"Total Posts in collection: " + totalPosts.Count);
                 } while (totalPosts.Count < randomValue);
 
-                var post = totalPosts[randomValue];
+                foreach(var x in totalPosts)
+                    Console.WriteLine(x);
+                
+                var post = redditClient.Post($"t3_{totalPosts.Last()}").About();
                 
                 
                 if (user.Nsfw == false)
@@ -428,8 +247,8 @@ public static class Handlers
                     while (post.NSFW)
                     {
                         randomValue -= 1;
-                        Console.WriteLine("randomValue after decrement:" + randomValue);
-                        post = totalPosts[randomValue];
+                        Console.WriteLine(@"randomValue after decrement:" + randomValue);
+                        post = redditClient.Post(totalPosts[randomValue]);
                     }
                 }
 
@@ -448,39 +267,39 @@ public static class Handlers
                     _ => "No"
                 };
                 var returnPicMessage = string.Format(resourceManager.GetString("ReturnPic",
-                        CultureInfo.GetCultureInfo(user?.Language ?? "en-US"))!,
+                        CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
                     $"r/{post.Subreddit}",
                     post.Title,
                     nsfwStatus,
                     post.Listing.URL,
                     $"https://reddit.com{post.Permalink}");
 
-                return await botClient.SendTextMessageAsync(message.Chat.Id,
+                await botClient.SendTextMessageAsync(message.Chat.Id,
                     returnPicMessage,
                     replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
             catch (RedditForbiddenException)
             {
-                return await botClient.SendTextMessageAsync(message.Chat.Id,
+                await botClient.SendTextMessageAsync(message.Chat.Id,
                     $"Whoops! Something went wrong!!\nThis subreddit is banned.",
                     replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
             catch (RedditNotFoundException)
             {
-                return await botClient.SendTextMessageAsync(message.Chat.Id,
+                await botClient.SendTextMessageAsync(message.Chat.Id,
                     $"Whoops! Something went wrong!!\nThere is no such subreddit.",
                     replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
             catch (ApiRequestException)
             {
-                return await botClient.SendTextMessageAsync(message.Chat.Id,
+                await botClient.SendTextMessageAsync(message.Chat.Id,
                     $"Whoops! Bot is overheating!!!\nPlease, try again.",
                     replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
             catch (InvalidOperationException)
             {
                 var random = new Random();
-                var post = totalPosts[random.Next(totalPosts.Count)];
+                var post = redditClient.Post(totalPosts.Last());
                 var nsfwStatus = user.Language switch
                 {
                     "en-US" => post.NSFW switch
@@ -496,70 +315,70 @@ public static class Handlers
                     _ => "No"
                 };
                 var returnPicMessage = string.Format(resourceManager.GetString("ReturnPic",
-                        CultureInfo.GetCultureInfo(user?.Language ?? "en-US"))!,
+                        CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
                     $"r/{post.Subreddit}",
                     post.Title,
                     nsfwStatus,
                     post.Listing.URL,
                     $"https://reddit.com{post.Permalink}");
 
-                return await botClient.SendTextMessageAsync(message.Chat.Id,
+                await botClient.SendTextMessageAsync(message.Chat.Id,
                     returnPicMessage,
                     replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
             catch (ArgumentException)
             {
                 var response = string.Format(resourceManager.GetString("LewdDetected",
-                    CultureInfo.GetCultureInfo(user?.Language ?? "en-US")),message.Text);
-                return await botClient.SendTextMessageAsync(message.Chat.Id,
+                    CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty,message.Text);
+                await botClient.SendTextMessageAsync(message.Chat.Id,
                     response,
                     replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
 
         }
 
-        async Task RegisterUser(ApplicationContext context,Message message)
-        {
-            var entity = new User
+            async Task<User> RegisterUser()
             {
-                Id = message.From?.Id,
-                Nsfw = false,
-                Language = "en-US"
-            };
+                var entity = new User
+                {
+                    Id = message.From?.Id,
+                    Nsfw = false,
+                    Language = "en-US"
+                };
 
-                    
-            await context.Users.AddAsync(entity, cancellationToken);
-            Console.WriteLine("Succesfully added " + message.From.Id + " to DB");
-            await context.SaveChangesAsync(cancellationToken);
+
+                await applicationContext.Users.AddAsync(entity, cancellationToken);
+                Console.WriteLine(@"Successfully added " + message.From?.Id + @" to DB");
+                await applicationContext.SaveChangesAsync(cancellationToken);
+                return entity;
+            }
+
+            void GetPicFromReddit() 
+            { 
+                Console.WriteLine(message.Text?[5..]);
+                var random = new Random();
+                var randomValue = random.Next(0, 999);
+                Console.WriteLine(@"Random value: " + randomValue);
+
+            async void StartNewThread()
+            {
+                await GetPicNewThread(message.Text?[5..], randomValue);
+            }
+            
+            new Thread(StartNewThread).Start();
         }
-        async Task GetPicFromReddit(Message message, ApplicationContext context)
-        {
-            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
-            if (user == null)
-                RegisterUser(context, message);
-            Console.WriteLine(message.Text?[5..]);
-            var random = new Random();
-            var randomValue = random.Next(0, 999);
-            Console.WriteLine("randomvalue: " + randomValue);
 
-            var newThread = new Thread(async () => { await GetPicNewThread(message, message.Text?[5..], randomValue, user); });
-            newThread.Start();
-        }
-
-        async Task<Message> GetStatus(Message message, ApplicationContext context)
+        async Task GetStatus()
         {
-            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
-            var getStatus = string.Format(resourceManager.GetString("GetStatus",
-                CultureInfo.GetCultureInfo(user == null ? "en-US" : user.Language)));
-            return await botClient.SendTextMessageAsync(message.Chat.Id,
-                getStatus,
+            await botClient.SendTextMessageAsync(message.Chat.Id,
+                string.Format(resourceManager.GetString("GetStatus",
+                    CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty),
                 replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
 
         }
 
-        async Task NsfwStatus(Message message, ApplicationContext context)
+        async Task NsfwStatus()
         {
-            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
             var nsfwStatus = user.Language switch
             {
                 "en-US" => user.Nsfw switch
@@ -574,17 +393,15 @@ public static class Handlers
                 },
                 _ => "Unknown. Please, type /start"
             };
-            var nsfwStatusMessage =
-                string.Format(
-                    resourceManager.GetString("NsfwStatus",
-                        CultureInfo.GetCultureInfo(user == null ? "en-US" : user.Language)), nsfwStatus);
             Console.WriteLine(nsfwStatus);
             await botClient.SendTextMessageAsync(message.Chat.Id,
-                nsfwStatusMessage,
+                string.Format(
+                    resourceManager.GetString("NsfwStatus",
+                        CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty, nsfwStatus),
                 replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
         }
 
-        async Task<Message> TurnNsfw(Message message, ApplicationContext context, string param)
+        async Task TurnNsfw(string param)
         {
             bool nsfwSetting;
             switch (param)
@@ -596,50 +413,58 @@ public static class Handlers
                     nsfwSetting = false;
                     break;
                 default:
-                    return await NsfwException(message,context,resourceManager);
+                    await NsfwSettingException();
+                    return;
             }
            
-
-            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
-            if (user != null)
-            {
-                user.Nsfw = nsfwSetting;
-                await context.SaveChangesAsync(cancellationToken);
-            }
-
-            var responseMessage = nsfwSetting switch
-            {
-                true => resourceManager.GetString("SetNsfwOn",
-                    CultureInfo.GetCultureInfo(user == null ? "en-US" : user.Language)),
-                false => resourceManager.GetString("SetNsfwOff",
-                    CultureInfo.GetCultureInfo(user == null ? "en-US" : user.Language))
-            };
             
-            return await botClient.SendTextMessageAsync(message.Chat.Id,
-                responseMessage,
+            user.Nsfw = nsfwSetting;
+            await applicationContext.SaveChangesAsync(cancellationToken);
+
+            await botClient.SendTextMessageAsync(message.Chat.Id,
+                nsfwSetting switch
+                {
+                    true => resourceManager.GetString("SetNsfwOn",
+                        CultureInfo.GetCultureInfo(user.Language ?? "en-US")),
+                    false => resourceManager.GetString("SetNsfwOff",
+                        CultureInfo.GetCultureInfo(user.Language ?? "en-US"))
+                } ?? string.Empty,
                 replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             
         }
 
-        async Task GetRandomPic(Message message, ApplicationContext context)
+        async Task GetRandomPic()
         {
-            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
             var values = Enum.GetValues(user.Nsfw ? typeof(Subreddits.Explicit) : typeof(Subreddits.Implicit));
             var random = new Random();
             var randomSubreddit = values.GetValue(random.Next(values.Length));
-            var newThread = new Thread(async () => { await GetPicNewThread(message, randomSubreddit.ToString(), random.Next(0, 999), user); });
-            await botClient.SendChatActionAsync(message.From.Id, ChatAction.Typing, cancellationToken);
+
+            async void StartNewThread()
+            {
+                await GetPicNewThread(randomSubreddit?.ToString(), random.Next(0, 999));
+            }
+
+            var newThread = new Thread(StartNewThread);
+
+            if (user.Id != null) 
+                await botClient.SendChatActionAsync(user.Id, ChatAction.Typing, cancellationToken);
             newThread.Start();
         }
 
-        async Task<Message> NsfwException(Message message, ApplicationContext context,ResourceManager resourceManager)
+        async Task NsfwSettingException()
         {
-            var user = await context.Users.FirstOrDefaultAsync(c => c.Id == message.From!.Id, cancellationToken);
-            var responseMessage = resourceManager.GetString("NsfwException",
-                CultureInfo.GetCultureInfo(user == null ? "en-US" : user.Language));
-            return await botClient.SendTextMessageAsync(message.Chat.Id,
-                responseMessage,
+            await botClient.SendTextMessageAsync(message.Chat.Id,
+                resourceManager.GetString("NsfwSettingException",
+                    CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty,
                 replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+        }
+            
+        }
+        
+        Task UnknownUpdateHandlerAsync(Update x)
+        {
+            //Console.WriteLine($"Unknown update type: {update.Type}");
+            return Task.CompletedTask;
         }
     }
 }

@@ -1,13 +1,21 @@
-﻿using owobot_csharp;
+﻿using Microsoft.EntityFrameworkCore;
+using owobot_csharp;
 using owobot_csharp.Data;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 
+
 var bot = new TelegramBotClient(Configuration.Telegram.TelegramToken);
+
+Console.WriteLine("Initialize migration...");
+var applicationContext = new ApplicationContext();
+applicationContext.Database.Migrate();
+applicationContext.Dispose();
+Console.WriteLine("Migration successful");
+
 
 var me = await bot.GetMeAsync();
 
-Console.Title = me.Username ?? "Owobot Jr.";
 
 using var cts = new CancellationTokenSource();
 
