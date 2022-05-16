@@ -1,0 +1,11 @@
+version: "3.2"
+services:
+    owobot:
+        build: .
+        networks:
+            - local-prod 
+
+networks:
+  local-prod:
+    external: true
+

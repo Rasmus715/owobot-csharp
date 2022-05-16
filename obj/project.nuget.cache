@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "fW+ZTGG0FJos5v9Eufnk5/R0eFPOwlVUqWUVoUPbs8iQ89wfeZXxjZsxMBZR68PCpkSBLRxRWLWyQbNv+JVAIg==",
+  "dgSpecHash": "harh6h3pCc9c4teE5S4jl+ye9WHNdv8HBqP0z/9QXwQCZumaj6ylyxBCBlwDd6U0RXdkSTe4mlIhENL6/9bCpQ==",
   "success": true,
-  "projectFilePath": "/Users/crackbargains/owobot-chsarp/owobot-csharp.csproj",
+  "projectFilePath": "/Users/crackbargains/owobot-csharp/owobot-csharp.csproj",
   "expectedPackageFiles": [
     "/Users/crackbargains/.nuget/packages/humanizer.core/2.8.26/humanizer.core.2.8.26.nupkg.sha512",
     "/Users/crackbargains/.nuget/packages/microsoft.csharp/4.5.0/microsoft.csharp.4.5.0.nupkg.sha512",

@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/crackbargains/owobot-chsarp/owobot-csharp.csproj": {}
+    "/Users/crackbargains/owobot-csharp/owobot-csharp.csproj": {}
   },
   "projects": {
-    "/Users/crackbargains/owobot-chsarp/owobot-csharp.csproj": {
+    "/Users/crackbargains/owobot-csharp/owobot-csharp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/crackbargains/owobot-chsarp/owobot-csharp.csproj",
+        "projectUniqueName": "/Users/crackbargains/owobot-csharp/owobot-csharp.csproj",
         "projectName": "owobot-csharp",
-        "projectPath": "/Users/crackbargains/owobot-chsarp/owobot-csharp.csproj",
+        "projectPath": "/Users/crackbargains/owobot-csharp/owobot-csharp.csproj",
         "packagesPath": "/Users/crackbargains/.nuget/packages/",
-        "outputPath": "/Users/crackbargains/owobot-chsarp/obj/",
+        "outputPath": "/Users/crackbargains/owobot-csharp/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/crackbargains/.nuget/NuGet/NuGet.Config"
