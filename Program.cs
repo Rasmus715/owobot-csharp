@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using owobot_csharp;
 using owobot_csharp.Data;
 using Telegram.Bot;
@@ -17,19 +18,12 @@ Console.WriteLine("Migration successful");
 var me = await bot.GetMeAsync();
 
 
-using var cts = new CancellationTokenSource();
+    Console.WriteLine($"Start listening for @{me.Username}");
 
-bot.StartReceiving(Handlers.HandleUpdateAsync,
+await bot.ReceiveAsync(Handlers.HandleUpdateAsync,
     Handlers.HandleErrorAsync,
     new ReceiverOptions()
     {
         ThrowPendingUpdates = true
-    },
-    cts.Token);
+    });
 
-Console.WriteLine($"Start listening for @{me.Username}");
-
-Console.ReadLine();
-
-// Send cancellation request to stop bot
-cts.Cancel();
