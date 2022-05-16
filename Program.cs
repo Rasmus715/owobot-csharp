@@ -7,7 +7,7 @@ using Telegram.Bot.Extensions.Polling;
 
 var bot = new TelegramBotClient(Configuration.Telegram.TelegramToken);
 
-Console.WriteLine("Initialize migration...");
+Console.WriteLine("Initializing migration...");
 var applicationContext = new ApplicationContext();
 applicationContext.Database.Migrate();
 applicationContext.Dispose();
