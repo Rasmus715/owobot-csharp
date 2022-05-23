@@ -9,3 +9,6 @@ build/
 *.iml
 
 owobot-java-config.properties
+
+[Bb]in/
+[Oo]bj/

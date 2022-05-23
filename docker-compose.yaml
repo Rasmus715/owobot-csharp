@@ -4,6 +4,10 @@ services:
         build: .
         networks:
             - local-prod 
+        volumes:
+          - type: bind
+            source: ./Database.db
+            target: /root/.aspnet/Database.db
 
 networks:
   local-prod:
