@@ -33,7 +33,7 @@ docker-compose up -d
 I'm a C# newbie
 
 ### TODO
-1. Add configuration file
+1. Add external, user-friendly configuration file
 2. Add chats compatibility
 3. Add more sources (such as yande.re, konachan)
 
