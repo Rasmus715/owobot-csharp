@@ -66,7 +66,7 @@ public static class Handlers
             var user = await applicationContext.Users.FirstOrDefaultAsync(c => message.From != null && c.Id == message.From.Id,
                 cancellationToken) ?? await RegisterUser();
             
-            Console.WriteLine(Resources.Handlers.Handlers_HandleUpdateAsync_, message.Type, message.From?.Id, message.Text);
+            //Console.WriteLine(Resources.Handlers.Handlers_HandleUpdateAsync_, message.Type, message.From?.Id, message.Text);
             
             if (message.Type != MessageType.Text)
                 return;
@@ -102,7 +102,7 @@ public static class Handlers
                     await NsfwStatus();
                     break;
                 case "/random":
-                    await GetRandomPic();
+                    GetRandomPic();
                     break;
                 default:
                     if (message.Text.Contains("/get"))
@@ -217,142 +217,143 @@ public static class Handlers
             }
             
             async Task GetPicNewThread(string? subredditString, int randomValue)
-        {
-            
-            Console.WriteLine(@"randomValue:" + randomValue);
-            Console.WriteLine(@"subredditString: " + subredditString);
-            var lastPostName = "";
-            var randomValueMinimized = randomValue;
-            var postsCounter = 0;
-            
-            //In order not to collect the whole collection of [randomValue] posts, minimize this number to specific one in pack of 25.
-            while (randomValueMinimized > 25)
-                randomValueMinimized -= 25; 
-            Console.WriteLine(@"RandomValue Minimized = " + randomValueMinimized);
-
-            var posts = new List<Post>();
-            var subreddit = redditClient.Subreddit(subredditString);
-            try
             {
-                do
+            
+                await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing, cancellationToken);
+                // Console.WriteLine(@"randomValue:" + randomValue);
+                // Console.WriteLine(@"subredditString: " + subredditString);
+                var lastPostName = "";
+                var randomValueMinimized = randomValue;
+                var postsCounter = 0;
+            
+                //In order not to collect the whole collection of [randomValue] posts, minimize this number to specific one in pack of 25.
+                while (randomValueMinimized > 25)
+                    randomValueMinimized -= 25; 
+                Console.WriteLine(@"RandomValue Minimized = " + randomValueMinimized);
+
+                var posts = new List<Post>();
+                var subreddit = redditClient.Subreddit(subredditString);
+                try
                 {
-                    //If there is no more posts in subreddit
-                    var testPosts = subreddit.Posts.GetNew(lastPostName, limit: 25);
-                    if (testPosts.Count == 0)
-                    {
-                        break;
-                    }
-                    posts = testPosts;
-                    postsCounter += posts.Count;
-                    lastPostName = posts.Last().Fullname;
-                } while (postsCounter < randomValue);
+                 do
+                 {
+                     //If there is no more posts in subreddit
+                     var testPosts = subreddit.Posts.GetNew(lastPostName, limit: 25);
+                     if (testPosts.Count == 0)
+                     {
+                         break;
+                     }
+                     posts = testPosts;
+                     postsCounter += posts.Count;
+                     lastPostName = posts.Last().Fullname;
+                 } while (postsCounter < randomValue);
                 
-                var post = posts.Last();
+                 var post = posts.Last();
 
-                //If post is marked as NSFW, try to get the previous one in collection and see, if it tagged as nsfw 
-                if (user.Nsfw == false)
-                {
-                    var postsInCollection = posts.Count;
-                    while (post.NSFW)
-                    {
-                        postsInCollection -= 1;
-                        Console.WriteLine(@"randomValueMinimized after decrement:" + postsInCollection);
-                        post = posts[postsInCollection];
-                    }
+                 //If post is marked as NSFW, try to get the previous one in collection and see, if it tagged as nsfw 
+                 if (user.Nsfw == false)
+                 {
+                     var postsInCollection = posts.Count;
+                     while (post.NSFW)
+                     {
+                         postsInCollection -= 1;
+                         Console.WriteLine(@"randomValueMinimized after decrement:" + postsInCollection);
+                         post = posts[postsInCollection];
+                     }
+                 }
+
+                 var nsfwStatus = user.Language switch
+                 {
+                     "en-US" => post.NSFW switch
+                     {
+                         true => "Yes",
+                         _ => "No"
+                     },
+                     "ru-RU" => post.NSFW switch
+                     {
+                         true => "Да",
+                         _ => "Нет"
+                     },
+                     _ => "No"
+                 };
+                 var returnPicMessage = string.Format(resourceManager.GetString("ReturnPic",
+                         CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
+                     $"r/{post.Subreddit}",
+                     post.Title,
+                     nsfwStatus,
+                     post.Listing.URL,
+                     $"https://reddit.com{post.Permalink}");
+
+                 await botClient.SendTextMessageAsync(message.Chat.Id,
+                     returnPicMessage,
+                     replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
                 }
-
-                var nsfwStatus = user.Language switch
+                //Different reddit exceptions handlers
+                catch (RedditForbiddenException)
                 {
-                    "en-US" => post.NSFW switch
-                    {
-                        true => "Yes",
-                        _ => "No"
-                    },
-                    "ru-RU" => post.NSFW switch
-                    {
-                        true => "Да",
-                        _ => "Нет"
-                    },
-                    _ => "No"
-                };
-                var returnPicMessage = string.Format(resourceManager.GetString("ReturnPic",
-                        CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
-                    $"r/{post.Subreddit}",
-                    post.Title,
-                    nsfwStatus,
-                    post.Listing.URL,
-                    $"https://reddit.com{post.Permalink}");
-
-                await botClient.SendTextMessageAsync(message.Chat.Id,
-                    returnPicMessage,
-                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-            }
-            //Different reddit exceptions handlers
-            catch (RedditForbiddenException)
-            {
-                await botClient.SendTextMessageAsync(message.Chat.Id,
-                    $"Whoops! Something went wrong!!\nThis subreddit is banned.",
-                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-            }
-            catch (RedditNotFoundException)
-            {
-                await botClient.SendTextMessageAsync(message.Chat.Id,
-                    $"Whoops! Something went wrong!!\nThere is no such subreddit.",
-                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-            }
-            catch (ApiRequestException)
-            {
-                await botClient.SendTextMessageAsync(message.Chat.Id,
-                    $"Whoops! Bot is overheating!!!\nPlease, try again later.",
-                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-            }
-            //Previous exception handler, if there was no posts in subreddit. Don't need it anymore
-            // catch (InvalidOperationException)
-            // {
-            //     var random = new Random();
-            //     Console.WriteLine("Post.Count in exception: " + posts.Count);
-            //     var post = posts[random.Next(1, randomValueMinimized)];
-            //     var nsfwStatus = user.Language switch
-            //     {
-            //         "en-US" => post.NSFW switch
-            //         {
-            //             true => "Yes",
-            //             _ => "No"
-            //         },
-            //         "ru-RU" => post.NSFW switch
-            //         {
-            //             true => "Да",
-            //             _ => "Нет"
-            //         },
-            //         _ => "No"
-            //     };
-            //     var returnPicMessage = string.Format(resourceManager.GetString("ReturnPic",
-            //             CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
-            //         $"r/{post.Subreddit}",
-            //         post.Title,
-            //         nsfwStatus,
-            //         post.Listing.URL,
-            //         $"https://reddit.com{post.Permalink}");
-            //
-            //     return await botClient.SendTextMessageAsync(message.Chat.Id,
-            //         returnPicMessage,
-            //         replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-            // }
-            //If there is no non-NSFW post in collection.
-            catch (ArgumentException)
-            {
-                await botClient.SendTextMessageAsync(message.Chat.Id,
-                    string.Format(resourceManager.GetString("LewdDetected",
-                        CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty, message.Text),
-                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-            }
-            //General handler is something goes wrong
-            catch (Exception ex)
-            {
-                await botClient.SendTextMessageAsync(message.Chat.Id,
-                    $"Whoops! Something went wrong!!!\n{ex.Message}.",
-                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-            }
+                    await botClient.SendTextMessageAsync(message.Chat.Id,
+                        $"Whoops! Something went wrong!!\nThis subreddit is banned.",
+                        replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                }
+                catch (RedditNotFoundException)
+                {
+                    await botClient.SendTextMessageAsync(message.Chat.Id,
+                        $"Whoops! Something went wrong!!\nThere is no such subreddit.",
+                        replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                }
+                catch (ApiRequestException)
+                {
+                    await botClient.SendTextMessageAsync(message.Chat.Id,
+                        $"Whoops! Bot is overheating!!!\nPlease, try again later.",
+                        replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                }
+                //Previous exception handler, if there was no posts in subreddit. Don't need it anymore
+                // catch (InvalidOperationException)
+                // {
+                //     var random = new Random();
+                //     Console.WriteLine("Post.Count in exception: " + posts.Count);
+                //     var post = posts[random.Next(1, randomValueMinimized)];
+                //     var nsfwStatus = user.Language switch
+                //     {
+                //         "en-US" => post.NSFW switch
+                //         {
+                //             true => "Yes",
+                //             _ => "No"
+                //         },
+                //         "ru-RU" => post.NSFW switch
+                //         {
+                //             true => "Да",
+                //             _ => "Нет"
+                //         },
+                //         _ => "No"
+                //     };
+                //     var returnPicMessage = string.Format(resourceManager.GetString("ReturnPic",
+                //             CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
+                //         $"r/{post.Subreddit}",
+                //         post.Title,
+                //         nsfwStatus,
+                //         post.Listing.URL,
+                //         $"https://reddit.com{post.Permalink}");
+                //
+                //     return await botClient.SendTextMessageAsync(message.Chat.Id,
+                //         returnPicMessage,
+                //         replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                // }
+                //If there is no non-NSFW post in collection.
+                catch (ArgumentException)
+                {
+                    await botClient.SendTextMessageAsync(message.Chat.Id,
+                        string.Format(resourceManager.GetString("LewdDetected",
+                            CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty, message.Text),
+                        replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                }
+                //General handler is something goes wrong
+                catch (Exception ex)
+                {
+                    await botClient.SendTextMessageAsync(message.Chat.Id,
+                        $"Whoops! Something went wrong!!!\n{ex.Message}.",
+                        replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                }
 
         }
 
@@ -447,20 +448,15 @@ public static class Handlers
             
         }
 
-        async Task GetRandomPic()
+        void GetRandomPic()
         {
            
             var values = Enum.GetValues(user.Nsfw ? typeof(Subreddits.Explicit) : typeof(Subreddits.Implicit));
             var random = new Random();
             var randomSubreddit = values.GetValue(random.Next(values.Length));
-
             
             async void NewThread() =>  await GetPicNewThread(randomSubreddit?.ToString(), random.Next(0, 999));
             new Thread(NewThread).Start();
-
-            await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing, cancellationToken);
-
-
         }
 
         async Task NsfwSettingException()

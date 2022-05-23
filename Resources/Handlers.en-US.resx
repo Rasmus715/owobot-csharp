@@ -120,14 +120,13 @@
   <data name="Info" xml:space="preserve">
     <value>Hellowo! I'm owobot {0} - a bot that sends cute girls!
 
-I am written in C# using .NET 6, taking data from reddit, multi-threaded and fully compatible with group chats. Do not be afraid to send me 25-50 requests at a time, I can handle it!
+I am written in C# using .NET 6, taking data from reddit, and multi-threaded. Do not be afraid to send me 25-50 requests at a time, I can handle it!
 
 If you’re tired of reading and you want to see anime girls already, then you are here: /get
 By default, I will not send you NSFW content, however you can configure this here: /nsfw
 You can also change the language here: /language
 
-A few words about privacy - I save the settings for each user and chat, as well as the total number of requests.
-
+A few words about privacy - I save only the settings for each user.
 My github page: https://github.com/Rasmus715/owobot-csharp
 
 I hope that I will be useful to you, master!! (☆ω☆)</value>
