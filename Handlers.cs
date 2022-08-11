@@ -12,6 +12,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using File = System.IO.File;
 using User = owobot_csharp.Models.User;
 
 namespace owobot_csharp;
@@ -33,13 +34,25 @@ public static class Handlers
         return Task.CompletedTask;
     }
 
-
-
+    
     public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
         CancellationToken cancellationToken)
     {
-        var redditClient = new RedditClient(Configuration.Reddit.RedditAppId,
-            appSecret: Configuration.Reddit.RedditSecret, refreshToken: Configuration.Reddit.RedditRefreshToken);
+        var deserializedJson = await System.Text.Json.JsonSerializer.DeserializeAsync<Dictionary<string, string>>(File.OpenRead($"{Directory.GetCurrentDirectory()}/Configuration.json"), cancellationToken: cancellationToken);
+        int totalRequests;
+        try
+        {
+            totalRequests =
+                int.Parse(await File.ReadAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt",
+                    cancellationToken));
+        }
+        catch (Exception)
+        {
+            await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", "0", cancellationToken);
+            totalRequests = 0;
+        }
+        var redditClient = new RedditClient(deserializedJson!["RedditAppId"],
+            appSecret: deserializedJson!["RedditSecret"], refreshToken: deserializedJson["RedditRefreshToken"]);
         
         var applicationContext = new ApplicationContext();
 
@@ -71,6 +84,9 @@ public static class Handlers
             if (message.Type != MessageType.Text)
                 return;
 
+            totalRequests++;
+            await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
+            
             switch (message.Text!.ToLower().Split(' ')[0])
             {
                 case "owo":
@@ -120,14 +136,9 @@ public static class Handlers
                     if (message.Text.Contains("/nsfw"))
                     {
                         await TurnNsfw(message.Text[6..]);
-                        Console.WriteLine(message.Text[6..]);
-                        break;
                     }
-                    else
-                    {
-                        await UnknownCommand();
-                        break;
-                    }
+
+                    break;
             }
 
 
@@ -148,7 +159,7 @@ public static class Handlers
                         string.Format(
                             resourceManager.GetString("Info",
                                 CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty,
-                            Configuration.Telegram.BotVersion),
+                            deserializedJson["BotVersion"]),
                         replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
             
@@ -166,7 +177,7 @@ public static class Handlers
                     string.Format(
                         resourceManager.GetString("UnknownCommand",
                             CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty,
-                        Configuration.Telegram.BotVersion),
+                        deserializedJson["BotVersion"]),
                     replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
             }
             
@@ -205,11 +216,11 @@ public static class Handlers
                         CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
                     x.Days,
                     $"{x:hh\\:mm\\:ss}",
-                    message.MessageId,
+                    totalRequests,
                     user.Nsfw
                         ? "ON"
                         : "OFF",
-                    Configuration.Telegram.BotVersion);
+                    deserializedJson["BotVersion"]);
 
                 await botClient.SendTextMessageAsync(message.Chat.Id,
                     status,
@@ -229,7 +240,7 @@ public static class Handlers
                 //In order not to collect the whole collection of [randomValue] posts, minimize this number to specific one in pack of 25.
                 while (randomValueMinimized > 25)
                     randomValueMinimized -= 25; 
-                Console.WriteLine(@"RandomValue Minimized = " + randomValueMinimized);
+                //Console.WriteLine(@"RandomValue Minimized = " + randomValueMinimized);
 
                 var posts = new List<Post>();
                 var subreddit = redditClient.Subreddit(subredditString);
@@ -378,7 +389,7 @@ public static class Handlers
                 Console.WriteLine(message.Text?[5..]);
                 var random = new Random();
                 var randomValue = random.Next(0, 999);
-                Console.WriteLine(@"Random value: " + randomValue);
+                //Console.WriteLine(@"Random value: " + randomValue);
 
                 async void NewThread() => await GetPicNewThread(message.Text?[5..], randomValue);
                 new Thread(NewThread).Start();

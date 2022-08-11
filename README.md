@@ -1,7 +1,7 @@
 # owobot-csharp
 
-An anime pics bot for Telegram, written on C# using .NET6, taking data from reddit.   
-Бот для Telegram, присылающий аниме девочек, написанный на C# с использованием .NET6, берущий данные с Reddit.
+An anime pics bot for Telegram, written on C# using .NET 6, taking data from reddit.   
+Бот для Telegram, присылающий аниме девочек, написанный на C# с использованием .NET 6, берущий данные с Reddit.
 
 Bot link:  [@owopics_junior_bot](https://t.me/owopics_junior_bot)
 
@@ -18,9 +18,9 @@ Bot link:  [@owopics_junior_bot](https://t.me/owopics_junior_bot)
 If for some reason you want to run it by yourself:
 
 1. Clone code somewhere
-2. Fill `Configuration.cs` with your credentials
-3. Install .NET 6 SDK and type `dotnet run` or just use Docker
-6. Run again and enjoy
+2. Install .NET 6 Runtime and type `dotnet run` to run the program for the first time
+3. It'll create `Configuration.txt` file. You'll need to fill it in order to start the bot
+4. Run again and enjoy
 
 Or if you want to use Docker:
 
@@ -33,7 +33,7 @@ docker-compose up -d
 I'm a C# newbie
 
 ### TODO
-1. Add external, user-friendly configuration file
+1. ~~Add external, user-friendly configuration file!~~ Done
 2. Add chats compatibility
 3. Add more sources (such as yande.re, konachan)
 
