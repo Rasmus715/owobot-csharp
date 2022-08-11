@@ -19,7 +19,7 @@ If for some reason you want to run it by yourself:
 
 1. Clone code somewhere
 2. Install .NET 6 Runtime and type `dotnet run` to run the program for the first time
-3. It'll create `Configuration.txt` file. You'll need to fill it in order to start the bot
+3. It'll create `Configuration.json` file. You need to fill it in order to start the bot
 4. Run again and enjoy
 
 Or if you want to use Docker:

@@ -5,7 +5,7 @@ namespace owobot_csharp.Models;
 public class Chat
 {
     [Key] 
-    public long? ChatId { get; set; }
+    public long? Id { get; set; }
 
     public bool Nsfw { get; set; }
 }

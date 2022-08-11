@@ -11,13 +11,27 @@ using owobot_csharp.Data;
 namespace owobot_csharp.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20220516122425_Init")]
-    partial class Init
+    [Migration("20220811112844_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.4");
+
+            modelBuilder.Entity("owobot_csharp.Models.Chat", b =>
+                {
+                    b.Property<long?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("Nsfw")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Chats");
+                });
 
             modelBuilder.Entity("owobot_csharp.Models.User", b =>
                 {
