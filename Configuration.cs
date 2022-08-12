@@ -4,38 +4,38 @@ namespace owobot_csharp;
 public class Configuration
 {
     [JsonProperty("BotVersion")]
-    public string? BotVersion { get; set; }
+    public string BotVersion { get; set; } = "";
 
     [JsonProperty("TelegramToken")]
-    public string? TelegramToken { get; set; }
+    public string TelegramToken { get; set; } = "";
 
-    [JsonProperty("RedditAppId")]
-    public string? RedditAppId { get; set; }
+    [JsonProperty("RedditAppId")] 
+    public string RedditAppId { get; set; } = "";
 
     [JsonProperty("RedditSecret")]
-    public string? RedditSecret { get; set; }
+    public string RedditSecret { get; set; } = "";
 
     [JsonProperty("RedditRefreshToken")]
-    public string? RedditRefreshToken { get; set; }
+    public string RedditRefreshToken { get; set; } = "";
 
-    [JsonProperty("ProxyHTTP")]
-    public Proxy? ProxyHttp { get; set; }
+    [JsonProperty("ProxyHTTP")] 
+    public Proxy ProxyHttp { get; set; } = new();
 
     [JsonProperty("ProxySOCKS5")]
-    public Proxy? ProxySocks5 { get; set; }
+    public Proxy ProxySocks5 { get; set; } = new();
 }
 
 public class Proxy
 {
     [JsonProperty("Address")]
-    public string? Address { get; set; }
+    public string Address { get; set; } = "";
 
     [JsonProperty("Port")]
-    public string? Port { get; set; }
+    public string Port { get; set; } = "";
 
     [JsonProperty("Username")]
-    public string? Username { get; set; }
+    public string Username { get; set; } = "";
 
     [JsonProperty("Password")]
-    public string? Password { get; set; }
+    public string Password { get; set; } = "";
 }

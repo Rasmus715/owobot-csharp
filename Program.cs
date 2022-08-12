@@ -11,7 +11,7 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 
 
 Configuration deserializedJson;
-var configurationPath = $"{Directory.GetCurrentDirectory()}/Configuration.json";
+var configurationPath = $"{Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName}/Configuration.json";
 try
 {
     var parseSuccessful = true;

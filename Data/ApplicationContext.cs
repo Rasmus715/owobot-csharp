@@ -8,9 +8,9 @@ public class ApplicationContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite("DataSource=Database.db");
-        //optionsBuilder.UseSqlite(
-          //  $"DataSource={Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName}/Database.db");
+        //optionsBuilder.UseSqlite("DataSource=Database.db");
+        optionsBuilder.UseSqlite(
+            $"DataSource={Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName}/Database.db");
         base.OnConfiguring(optionsBuilder);
     }
 

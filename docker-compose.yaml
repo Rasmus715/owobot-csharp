@@ -4,16 +4,6 @@ services:
         build: .
         networks:
             - external-network
-        volumes:
-          - type: bind
-            source: ./Database.db
-            target: /root/.aspnet/Database.db
-          - type: bind
-            source: ./TotalRequests.txt
-            target: /root/.aspnet/TotalRequests.txt
-          - type: bind
-            source: ./Configuration.json
-            target: /root/.aspnet/Configuration.json
 
 networks:
   external-network:
