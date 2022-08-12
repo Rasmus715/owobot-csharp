@@ -36,7 +36,7 @@ I hope that I will be useful to you, master!! (☆ω☆)</value>
         <value>Understood! From now, I'll answer you in english language!</value>
     </data>
     <data name="Start" xml:space="preserve">
-        <value>Welcome, {0}!
+        <value>Konichiwa, {0}!
  
 To get more information type /info
 For a quick start, just type /get
@@ -201,7 +201,7 @@ I was told not to post NSFW posts!
 I can not show you this picture, sorry (｡ŏ﹏ŏ)</value>
     </data>
     <data name="NsfwSettingException_Chat" xml:space="preserve">
-        <value>Ehmm, {0}... You should read carefully about the commands in /nsfw or </value>
+        <value>Ehmm, {0}... You should read carefully about the commands in /nsfw{1}</value>
     </data>
     <data name="NsfwStatus_Chat" xml:space="preserve">
         <value>Oagh, {0}! Have you decided to change the NSFW content settings?

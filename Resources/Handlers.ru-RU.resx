@@ -132,10 +132,10 @@
     <comment>0 - Configure.Version</comment>
   </data>
   <data name="SetLanguage" xml:space="preserve">
-    <value>Поняла вас! Теперь я буду отвечать вам на русском языке!</value>
+    <value>Поняла тебя! Теперь я буду отвечать вам на русском языке!</value>
   </data>
   <data name="Start" xml:space="preserve">
-    <value>Добро пожаловать, {0}!
+    <value>Привет-привет, {0}!
 
 Чтобы получить больше информации напишите /info
 Для быстрого начала, просто напишите /get
@@ -215,7 +215,7 @@ NSFW: {2}
     <value>Поняла вас! Теперь в этом чате левды включены! ( ͡° ͜ʖ ͡°)</value>
   </data>
   <data name="SetNsfwOff" xml:space="preserve">
-    <value>Поняла вас! Больше никакой пошлятины в этом чате!</value>
+    <value>Поняла тебя! Больше никакой пошлятины в этом чате!</value>
   </data>
   <data name="NsfwSettingException" xml:space="preserve">
     <value>Эм... Вам стоит внимательнее прочитать о командах в /nsfw</value>
@@ -227,6 +227,107 @@ NSFW: {2}
 Я не могу показать вам эту картинку, простите (｡ŏ﹏ŏ)</value>
   </data>
   <data name="UnknownCommand" xml:space="preserve">
-    <value>Эаа? Я не поняла вас!</value>
+    <value>Эаа? Я не поняла тебя!</value>
+  </data>
+  <data name="SetNsfwOn_Chat" xml:space="preserve">
+    <value>Поняла вас, {0}! Теперь в этом чате левды включены! ( ͡° ͜ʖ ͡°)</value>
+  </data>
+  <data name="UnknowsCommand_Chat" xml:space="preserve">
+    <value>Эаа, {0}? Я не поняла тебя!</value>
+  </data>
+  <data name="SetNsfwOff_Chat" xml:space="preserve">
+    <value>Поняла тебя, {0}! Больше никакой пошлятины в этом чате!</value>
+  </data>
+  <data name="SetLanguage_Chat" xml:space="preserve">
+    <value>Поняла тебя, {0}! Теперь я буду отвечать вам на русском языке!</value>
+  </data>
+  <data name="ReturnPic_Chat" xml:space="preserve">
+    <value>Пам, {0}! Вот вам картинка с {1}
+Название поста: {2}
+NSFW: {3}
+Ссылка на оригинал: {4}
+Ссылка на пост: {5}</value>
+  </data>
+  <data name="NsfwStatus_Chat" xml:space="preserve">
+    <value>Оа, {0}! Ты решил поменять настройки NSFW контента?
+
+В данный момент NSFW:  {1}. Вот что ты можешь сделать:
+/nsfw_on@{2} чтобы включить левды
+/nsfw_off@{2} чтобы выключить всю похабщину
+
+Обрати внимание на то, что данную настройку может изменять искчительно админ чата.
+
+*Не гарантирую, что все NSFW теги с реддита верны!</value>
+  </data>
+  <data name="NsfwSettingException_Chat" xml:space="preserve">
+    <value>Эмм, {0}... Вам стоит внимательнее прочитать о командах в /nsfw{1}</value>
+  </data>
+  <data name="NsfwSettingException_NotEnoughRights_Chat" xml:space="preserve">
+    <value>Прости, {0}, но эту настройку чата может изменять только админ.</value>
+  </data>
+  <data name="LewdDetected_Chat" xml:space="preserve">
+    <value>Ох, {0}! Запрос {1} содержит ЛЕВДЫ!
+
+Мне было сказано не отправлять NSFW посты!
+Я не могу показать вам эту картинку, простите (｡ŏ﹏ŏ)</value>
+  </data>
+  <data name="LanguageInfo_Chat" xml:space="preserve">
+    <value>Oa, {0}! Вы решили сменить язык?
+
+На данный момент установлен русский язык. Вот что Вы можете сделать:
+/language_en{1} to switch to english
+/language_ru{1} чтобы переключится на русский</value>
+  </data>
+  <data name="Info_Chat" xml:space="preserve">
+    <value>Приветик, {0}! Я owobot {1} - бот, который прислылает милых девочек!
+
+Я написана на C# с использованием .NET 6, беру картинки с reddit, а так же мультипоточна. Не бойтесь отправлять мне по 25-50 запросов за раз, я справлюсь с этим!
+
+Если надоело читать и хочется уже видеть аниме девочек, то вам сюда: /get{2} По умолчанию я не буду присылать вам NSFW контент, однако Вы можете настроить это тут: /nsfw{2} Также вы можете поменять язык здесь: /language{2}
+
+Пару слов по поводу приватности - Я сохраняю только настройки для каждого пользователя.
+
+Моя страничка на GitHub:https://github.com/Rasmus715/owobot-csharp
+
+Я надеюсь, что буду полезной вам! (☆ω☆)</value>
+  </data>
+  <data name="GetStatus_Chat" xml:space="preserve">
+    <value>{0}, напиши боту /get_*название сабреддита*, и он отправит вам случайную картинку оттуда.
+Вот вам моя подборочка:
+/get_AnimeART - Самый большой раздел с картинками.
+/get_awwnime - Что-то милое.
+/get_wholesomeyuri - Юри. Все любят юри.
+/get_Joshi_Kosei - Милые старшеклассницы.
+/get_AnimeBlush - Стесняющиеся девочки.
+/get_tsunderes - Милые цундеры!
+/get_Usagimimi - Девочки кролики!
+/get_kitsunemimi - Кошкодевочки!
+/get_animeponytails - Милые девочки с конским хвостиком.
+/get_tyingherhairup - Девочки поправляют свои волосы.
+/get_OfficialSenpaiHeat - Сборник картиночек.
+/get_ChurchofBelly - Животики!
+/get_Moescape - Милые арты с милыми девочками.
+/get_MoeStash - Еще милые девочки!
+/get_TwoDeeArt - Просто 2д артики.
+/get_headpats - Девочек гладят по голове.
+/get_cutelittlefangs - Зубки и клыки у милых девочек.
+/get_kemonomimi - Опять ушки!
+/get_twintails - Девочки с прическами из 2 хвостиков.
+/get_pouts - Милые девочки с надутыми щёчками.
+/get_gao - Девочки делают страшные звуки!
+/get_animelegs - Ножки!
+/get_ZettaiRyouiki - Бедра ово!
+/get_thighdeology - Еще бедра, но открытее!
+/get_Animewallpaper - Красивые обои с милыми девочками.
+/get_pantsu - Панцушоты owo!
+/get_Patchuu - Абстрактные, сюрреалистические или просто красивые девушки!
+/get_animehotbeverages - Девочки пьют горячие напитки.
+/get_AnimeLounging - Милые девочки отдыхают.
+/get_silverhair - Девочки с серебряными волосами.
+/get_longhairedwaifus - Милашки с длинными волосами.
+/get_shorthairedwaifus - Девочки с короткими прическами.
+/get_Smugs - Самодовольные девочки.
+/get_manga - Странички из манги.
+/get_Lain - W̺̹̆̒ͪ͌̒ͦe͂̈́ ̜͕̮͉̥̔ͪ̃͗ͣa͛ͤ̌ŕ̭̈́̎̈ͯ͋e̠̤̫̪͙ͩͨ ͉̘̱͔̥͊͂́̍ͦ́ẃ̰̼̰͌̇iͧ̀̉ͫr͖̗̙̫̓e̥̣̲ͨ̄͌̑d̲͉̭̩̟̙̝͆ͥ</value>
   </data>
 </root>

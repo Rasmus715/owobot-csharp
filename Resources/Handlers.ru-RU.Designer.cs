@@ -122,5 +122,77 @@ namespace owobot_csharp.Resources {
                 return ResourceManager.GetString("UnknownCommand", resourceCulture);
             }
         }
+        
+        internal static string SetNsfwOn_Chat {
+            get {
+                return ResourceManager.GetString("SetNsfwOn_Chat", resourceCulture);
+            }
+        }
+        
+        internal static string UnknowsCommand_Chat {
+            get {
+                return ResourceManager.GetString("UnknowsCommand_Chat", resourceCulture);
+            }
+        }
+        
+        internal static string SetNsfwOff_Chat {
+            get {
+                return ResourceManager.GetString("SetNsfwOff_Chat", resourceCulture);
+            }
+        }
+        
+        internal static string SetLanguage_Chat {
+            get {
+                return ResourceManager.GetString("SetLanguage_Chat", resourceCulture);
+            }
+        }
+        
+        internal static string ReturnPic_Chat {
+            get {
+                return ResourceManager.GetString("ReturnPic_Chat", resourceCulture);
+            }
+        }
+        
+        internal static string NsfwStatus_Chat {
+            get {
+                return ResourceManager.GetString("NsfwStatus_Chat", resourceCulture);
+            }
+        }
+        
+        internal static string NsfwSettingException_Chat {
+            get {
+                return ResourceManager.GetString("NsfwSettingException_Chat", resourceCulture);
+            }
+        }
+        
+        internal static string NsfwSettingException_NotEnoughRights_Chat {
+            get {
+                return ResourceManager.GetString("NsfwSettingException_NotEnoughRights_Chat", resourceCulture);
+            }
+        }
+        
+        internal static string LewdDetected_Chat {
+            get {
+                return ResourceManager.GetString("LewdDetected_Chat", resourceCulture);
+            }
+        }
+        
+        internal static string LanguageInfo_Chat {
+            get {
+                return ResourceManager.GetString("LanguageInfo_Chat", resourceCulture);
+            }
+        }
+        
+        internal static string Info_Chat {
+            get {
+                return ResourceManager.GetString("Info_Chat", resourceCulture);
+            }
+        }
+        
+        internal static string GetStatus_Chat {
+            get {
+                return ResourceManager.GetString("GetStatus_Chat", resourceCulture);
+            }
+        }
     }
 }
