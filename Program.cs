@@ -10,7 +10,7 @@ using JsonException = System.Text.Json.JsonException;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 
-var deserializedJson = new Configuration();
+Configuration deserializedJson;
 var configurationPath = $"{Directory.GetCurrentDirectory()}/Configuration.json";
 try
 {
@@ -21,7 +21,7 @@ try
     if (deserializedJson == null)
         throw new FileNotFoundException();
 
-    if (deserializedJson.ProxyHttp.Address != "" && deserializedJson.ProxySocks5.Address != "")
+    if (deserializedJson.ProxyHttp?.Address != "" && deserializedJson.ProxySocks5?.Address != "")
     {
         Console.WriteLine(@"Both ProxyHTTP and ProxySOCKS5 fields are filled.");
         Console.WriteLine(@"Please, remove one of the proxy server.");
@@ -52,21 +52,21 @@ try
         parseSuccessful = false;
     }
     
-    if (deserializedJson.ProxyHttp.Address != "")
+    if (deserializedJson.ProxyHttp?.Address != "")
     {
-        if (deserializedJson.ProxyHttp.Username != "")
+        if (deserializedJson.ProxyHttp?.Username != "")
         {
              Console.WriteLine(@"Proxy field is filled but no username was provided.");
              parseSuccessful = false;
         }
 
-        if (deserializedJson.ProxyHttp.Password != "")
+        if (deserializedJson.ProxyHttp?.Password != "")
         {
             Console.WriteLine(@"Proxy field is filled but no password was provided.");
             parseSuccessful = false;
         }
         
-        if (deserializedJson.ProxyHttp.Port != "")
+        if (deserializedJson.ProxyHttp?.Port != "")
         {
             Console.WriteLine(@"Proxy field is filled but no port was provided.");
             parseSuccessful = false;
@@ -75,19 +75,19 @@ try
     
     if (deserializedJson.ProxySocks5?.Address != "")
     {
-        if (deserializedJson.ProxySocks5.Username != "")
+        if (deserializedJson.ProxySocks5?.Username != "")
         {
             Console.WriteLine(@"Proxy field is filled but no username was provided.");
             parseSuccessful = false;
         }
 
-        if (deserializedJson.ProxySocks5.Password != "")
+        if (deserializedJson.ProxySocks5?.Password != "")
         {
             Console.WriteLine(@"Proxy field is filled but no password was provided.");
             parseSuccessful = false;
         }
         
-        if (deserializedJson.ProxySocks5.Port != "")
+        if (deserializedJson.ProxySocks5?.Port != "")
         {
             Console.WriteLine(@"Proxy field is filled but no port was provided.");
             parseSuccessful = false;
@@ -128,17 +128,17 @@ catch (JsonException)
 var usingProxyHttp = false;
 var usingProxySocks5 = false;
 
-if (deserializedJson.ProxyHttp.Address != "")
+if (deserializedJson.ProxyHttp?.Address != "")
 {
-    Console.WriteLine(@"Using proxies, huh? Cool");
-    Console.WriteLine(@"I was too lazy to test their functionality so expect this function to work incorrectly.");
+    Console.WriteLine(@"Using proxies, huh? Cool...");
+    Console.WriteLine(@"I was too lazy to test their functionality so expect this function to work incorrectly or don't work at all.");
     
     usingProxyHttp = true;
 }
-else if (deserializedJson.ProxySocks5.Address != "")
+else if (deserializedJson.ProxySocks5?.Address != "")
 {
-    Console.WriteLine(@"Using proxies, huh? Cool");
-    Console.WriteLine(@"I was too lazy to test their functionality so expect this function to work incorrectly.");
+    Console.WriteLine(@"Using proxies, huh? Cool...");
+    Console.WriteLine(@"I was too lazy to test their functionality so expect this function to work incorrectly or don't work at all.");
 
     usingProxySocks5 = true;
 }
@@ -154,7 +154,7 @@ if (usingProxyHttp)
 {
     try
     {
-        var webProxy = new WebProxy(deserializedJson.ProxyHttp.Address, int.Parse(deserializedJson.ProxyHttp.Port)) {
+        var webProxy = new WebProxy(deserializedJson.ProxyHttp!.Address!, int.Parse(deserializedJson.ProxyHttp!.Port!)) {
                 // Credentials if needed:
                 Credentials = new NetworkCredential(deserializedJson.ProxyHttp.Username, deserializedJson.ProxyHttp.Password)
             };
@@ -164,7 +164,7 @@ if (usingProxyHttp)
         
             Console.WriteLine(@"Attempting to start the bot...");
             
-            var botClient = new TelegramBotClient(deserializedJson.TelegramToken, httpClient);
+            var botClient = new TelegramBotClient(deserializedJson.TelegramToken!, httpClient);
             
             var me = await botClient.GetMeAsync(); 
             Console.WriteLine($@"Start listening for @{me.Username}");
@@ -190,9 +190,9 @@ if (usingProxySocks5)
 {
     try
     {
-         var proxy = new WebProxy($"{deserializedJson.ProxySocks5.Address}:{deserializedJson.ProxySocks5.Port}")
+         var proxy = new WebProxy($"{deserializedJson.ProxySocks5?.Address}:{deserializedJson.ProxySocks5?.Port}")
             {
-                Credentials = new NetworkCredential(deserializedJson.ProxySocks5.Username, deserializedJson.ProxySocks5.Password)
+                Credentials = new NetworkCredential(deserializedJson.ProxySocks5?.Username, deserializedJson.ProxySocks5?.Password)
             };
             var httpClient = new HttpClient(
                 new SocketsHttpHandler { Proxy = proxy, UseProxy = true, }
@@ -200,7 +200,7 @@ if (usingProxySocks5)
             
             Console.WriteLine(@"Attempting to start the bot...");
             
-            var botClient = new TelegramBotClient(deserializedJson.TelegramToken, httpClient);
+            var botClient = new TelegramBotClient(deserializedJson.TelegramToken!, httpClient);
             
             var me = await botClient.GetMeAsync(); 
             Console.WriteLine($@"Start listening for @{me.Username}");
@@ -227,7 +227,7 @@ if (usingProxySocks5)
 try
 {
     Console.WriteLine(@"Attempting to start the bot...");
-    var bot = new TelegramBotClient(deserializedJson.TelegramToken);
+    var bot = new TelegramBotClient(deserializedJson.TelegramToken!);
     
     var me = await bot.GetMeAsync(); 
     

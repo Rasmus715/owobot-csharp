@@ -41,7 +41,6 @@ public static class Handlers
     {
         var deserializedJson = JsonConvert.DeserializeObject<Configuration>(await File.ReadAllTextAsync($"{Directory.GetCurrentDirectory()}/Configuration.json", cancellationToken));
         
-        //TODO: FIX COUNTER!!
         int totalRequests;
         try
         {
@@ -79,13 +78,10 @@ public static class Handlers
 
         async Task BotOnMessageReceived(ITelegramBotClient bot, Message message)
         {
-            Chat chat;
-            
-            if (message.Chat.Id < 0)
-            {
-                chat = await applicationContext.Chats.FirstOrDefaultAsync(c => c.Id == message.Chat.Id,
-                    cancellationToken) ?? await RegisterChat();
-            }
+            var chat = message.Chat.Id < 0
+                ? await applicationContext.Chats.FirstOrDefaultAsync(c => c.Id == message.Chat.Id,
+                    cancellationToken) ?? await RegisterChat()
+                : null;
 
             var user = await applicationContext.Users.FirstOrDefaultAsync(c => message.From != null && c.Id == message.From.Id,
                 cancellationToken) ?? await RegisterUser();
@@ -95,8 +91,6 @@ public static class Handlers
             if (message.Type != MessageType.Text)
                 return;
 
-            totalRequests++;
-            await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
             
             switch (message.Text!.ToLower().Split("@")[0])
             {
@@ -129,10 +123,10 @@ public static class Handlers
                     await NsfwStatus();
                     break;
                 case "/random":
-                    GetRandomPic();
+                    await GetRandomPic();
                     break;
                 default:
-                    if (message.Text.Contains("/get"))
+                    if (message.Text.Contains("/get_"))
                     {
                         GetPicFromReddit();
                         break;
@@ -146,7 +140,10 @@ public static class Handlers
 
                     if (message.Text.Contains("/nsfw"))
                     {
-                        await TurnNsfw(message.Text[6..]);
+                        if (message.Chat.Id < 0 && message.Text.EndsWith($"@{bot.GetMeAsync(cancellationToken).Result.Username}"))
+                            await TurnNsfw(message.Text[6..].Split("@")[0]);
+                        if (message.Chat.Id > 0)
+                            await TurnNsfw(message.Text[6..]);
                         break;
                     }
                     else
@@ -162,7 +159,7 @@ public static class Handlers
                 switch (message.Chat.Id)
                 {
                     case < 0:
-                        if (message.Text!.Equals("/start@owopics_junior_bot"))
+                        if (message.Text!.Equals($"/start@{bot.GetMeAsync(cancellationToken).Result.Username}"))
                         { 
                             var name = $"@{message.From?.Username}"; 
                             await botClient.SendTextMessageAsync(message.Chat.Id, 
@@ -183,6 +180,9 @@ public static class Handlers
                         break;
                     }
                 }
+                
+                totalRequests++;
+                await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
             }
 
 
@@ -191,14 +191,17 @@ public static class Handlers
                 switch (message.Chat.Id)
                 {
                     case < 0:
-                        if (message.Text!.Equals("/info@owopics_junior_bot"))
+                        if (message.Text!.Equals($"$/info@{bot.GetMeAsync(cancellationToken).Result.Username}"))
                         { 
                             await botClient.SendTextMessageAsync(message.Chat.Id,
                                 string.Format(
                                     resourceManager.GetString("Info_Chat",
                                         CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty, 
                                     $"@{message.From?.Username}", deserializedJson.BotVersion, $"@{bot.GetMeAsync(cancellationToken).Result.Username}"),
-                                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                            cancellationToken: cancellationToken);
+                            
+                            totalRequests++;
+                            await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
                         }
                         break;
                     case > 0:
@@ -207,11 +210,15 @@ public static class Handlers
                             string.Format(
                                 resourceManager.GetString("Info",
                                     CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty,
-                                deserializedJson.BotVersion),
-                            replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                                deserializedJson.BotVersion), 
+                            cancellationToken: cancellationToken);
+                        
+                        totalRequests++;
+                        await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
                         break;
                     }
                 }
+                
             }
             
             async Task LanguageInfo()
@@ -219,12 +226,14 @@ public static class Handlers
                 switch (message.Chat.Id)
                 {
                     case < 0:
-                        if (message.Text!.Equals("/language@owopics_junior_bot"))
+                        if (message.Text!.Equals($"/language@{bot.GetMeAsync(cancellationToken).Result.Username}"))
                         {
                             await botClient.SendTextMessageAsync(message.Chat.Id,
                                 string.Format(resourceManager.GetString("LanguageInfo_Chat",
                                         CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
                                     $"@{message.From?.Username}", $"@{bot.GetMeAsync(cancellationToken).Result.Username}"), cancellationToken: cancellationToken);
+                            totalRequests++;
+                            await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
                         }
                         break;
                     case > 0:
@@ -232,6 +241,8 @@ public static class Handlers
                         await botClient.SendTextMessageAsync(message.Chat.Id,
                             string.Format(resourceManager.GetString("LanguageInfo",
                                     CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!), cancellationToken: cancellationToken);
+                        totalRequests++;
+                        await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
                         break;
                     }
                 }
@@ -239,12 +250,19 @@ public static class Handlers
             
             async Task UnknownCommand()
             {
-                if (message.Text!.Contains("/language@owopics_junior_bot"))
-                await botClient.SendTextMessageAsync(message.Chat.Id,
-                    string.Format(
-                        resourceManager.GetString("UnknownCommand",
-                            CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!),
-                    replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                if (message.Text!.Contains($"/language@{bot.GetMeAsync(cancellationToken).Result.Username}"))
+                {
+                    
+                    await botClient.SendTextMessageAsync(message.Chat.Id,
+                        string.Format(
+                            resourceManager.GetString("UnknownCommand",
+                                CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!),
+                        cancellationToken: cancellationToken);
+                    
+                    totalRequests++;
+                    await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
+                }
+                
             }
             
             async Task SetLanguage(string language)
@@ -261,8 +279,8 @@ public static class Handlers
                         break;
                     default:
                         await botClient.SendTextMessageAsync(message.Chat.Id,
-                            "This language is currently not supported",
-                            replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                            "This language is currently not supported", 
+                            cancellationToken: cancellationToken);
                         return;
                 }
 
@@ -276,9 +294,31 @@ public static class Handlers
 
             async Task Status()
             {
-                
-                if (message.Chat.Id < 0 && message.Text.Equals("/status@owopics_junior_bot") || message.Chat.Id > 0 && message.Text.Equals("/status"))
+                if (message.Chat.Id < 0 && message.Text.Equals($"/status@{bot.GetMeAsync(cancellationToken).Result.Username}"))
                 {
+                    totalRequests++;
+                    await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
+
+                    var x = DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime();
+                    var status = string.Format(resourceManager.GetString("Status",
+                            CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
+                        x.Days,
+                        $"{x:hh\\:mm\\:ss}",
+                        totalRequests,
+                        chat!.Nsfw
+                            ? "ON"
+                            : "OFF",
+                        deserializedJson.BotVersion);
+
+                    await botClient.SendTextMessageAsync(message.Chat.Id,
+                        status,
+                        replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                }
+                else
+                {
+                    totalRequests++;
+                    await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
+
                     var x = DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime();
                     var status = string.Format(resourceManager.GetString("Status",
                             CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
@@ -292,7 +332,7 @@ public static class Handlers
 
                     await botClient.SendTextMessageAsync(message.Chat.Id,
                         status,
-                        replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);   
+                        replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
                 }
             }
             
@@ -312,7 +352,7 @@ public static class Handlers
                 //Console.WriteLine(@"RandomValue Minimized = " + randomValueMinimized);
 
                 var posts = new List<Post>();
-                var subreddit = redditClient.Subreddit(subredditString);
+                var subreddit = redditClient!.Subreddit(subredditString);
                 try
                 {
                  do
@@ -326,23 +366,42 @@ public static class Handlers
                      posts = testPosts;
                      postsCounter += posts.Count;
                      lastPostName = posts.Last().Fullname;
-                 } while (postsCounter < randomValue);
+                 } 
+                 while (postsCounter < randomValue);
                 
                  var post = posts.Last();
 
                  //If post is marked as NSFW, try to get the previous one in collection and see, if it tagged as nsfw 
-                 if (user.Nsfw == false)
+
+                 if (message.Chat.Id < 0)
                  {
-                     var postsInCollection = posts.Count;
-                     while (post.NSFW)
+                     if (chat?.Nsfw == false)
                      {
-                         postsInCollection -= 1;
-                         Console.WriteLine(@"randomValueMinimized after decrement:" + postsInCollection);
-                         post = posts[postsInCollection];
+                         var postsInCollection = posts.Count;
+                         while (post.NSFW)
+                         {
+                             postsInCollection -= 1;
+                             //Console.WriteLine(@"randomValueMinimized after decrement:" + postsInCollection);
+                             post = posts[postsInCollection];
+                         }
                      }
                  }
+                 else
+                 {
+                     if (user?.Nsfw == false)
+                     {
+                         var postsInCollection = posts.Count;
+                         while (post.NSFW)
+                         {
+                             postsInCollection -= 1;
+                             //Console.WriteLine(@"randomValueMinimized after decrement:" + postsInCollection);
+                             post = posts[postsInCollection];
+                         }
+                     }
+                 }
+                 
 
-                 var nsfwStatus = user.Language switch
+                 var nsfwStatus = user?.Language switch
                  {
                      "en-US" => post.NSFW switch
                      {
@@ -356,18 +415,29 @@ public static class Handlers
                      },
                      _ => "No"
                  };
-                 var returnPicMessage = string.Format(resourceManager.GetString("ReturnPic",
-                         CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
-                     $"r/{post.Subreddit}",
-                     post.Title,
-                     nsfwStatus,
-                     post.Listing.URL,
-                     $"https://reddit.com{post.Permalink}");
+
+                 var returnPicMessage = message.Chat.Id > 0 ?
+                     string.Format(resourceManager!.GetString("ReturnPic",
+                             CultureInfo.GetCultureInfo(user?.Language ?? "en-US"))!,
+                         $"r/{post.Subreddit}",
+                         post.Title,
+                         nsfwStatus,
+                         post.Listing.URL,
+                         $"https://reddit.com{post.Permalink}") :
+                     string.Format(resourceManager!.GetString("ReturnPic_Chat",
+                             CultureInfo.GetCultureInfo(user?.Language ?? "en-US"))!,
+                         $"@{message.From?.Username}",
+                         $"r/{post.Subreddit}",
+                         post.Title,
+                         nsfwStatus,
+                         post.Listing.URL,
+                         $"https://reddit.com{post.Permalink}");
 
                  await botClient.SendTextMessageAsync(message.Chat.Id,
-                     returnPicMessage,
-                     replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                     returnPicMessage, 
+                     cancellationToken: cancellationToken);
                 }
+                
                 //Different reddit exceptions handlers
                 catch (RedditForbiddenException)
                 {
@@ -419,14 +489,26 @@ public static class Handlers
                 //         returnPicMessage,
                 //         replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
                 // }
+                
                 //If there is no non-NSFW post in collection.
                 catch (ArgumentException)
                 {
-                    await botClient.SendTextMessageAsync(message.Chat.Id,
-                        string.Format(resourceManager.GetString("LewdDetected",
-                            CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty, message.Text),
-                        replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                    if (message.Chat.Id < 0)
+                    {
+                        await botClient.SendTextMessageAsync(message.Chat.Id,
+                            string.Format(resourceManager!.GetString("LewdDetected_Chat",
+                                CultureInfo.GetCultureInfo(user?.Language ?? "en-US"))!, $"@{message.From?.Username}", message.Text), 
+                            cancellationToken: cancellationToken);
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(message.Chat.Id,
+                            string.Format(resourceManager!.GetString("LewdDetected",
+                                CultureInfo.GetCultureInfo(user?.Language ?? "en-US"))!, message.Text), 
+                            cancellationToken: cancellationToken);
+                    }
                 }
+                
                 //General handler is something goes wrong
                 catch (Exception ex)
                 {
@@ -470,7 +552,8 @@ public static class Handlers
 
             void GetPicFromReddit() 
             { 
-                Console.WriteLine(message.Text?[5..]);
+                
+                //Console.WriteLine(message.Text?[5..]);
                 var random = new Random();
                 var randomValue = random.Next(0, 999);
                 //Console.WriteLine(@"Random value: " + randomValue);
@@ -485,20 +568,27 @@ public static class Handlers
             switch (message.Chat.Id)
             {
                 case < 0:
-                    if (message.Text!.Equals("/get@owopics_junior_bot"))
+                    if (message.Text!.Equals($"/get@{bot.GetMeAsync(cancellationToken).Result.Username}"))
                     { 
                         await botClient.SendTextMessageAsync(message.Chat.Id,
                             string.Format(resourceManager.GetString("GetStatus_Chat",
-                                CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty, $"@{message.From?.Username}"),
-                            replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                                CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty, $"@{message.From?.Username}"), 
+                            cancellationToken: cancellationToken);
+                        
+                        totalRequests++;
+                        await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
                     }
                     break;
                 case > 0:
                 {
                     await botClient.SendTextMessageAsync(message.Chat.Id,
                         string.Format(resourceManager.GetString("GetStatus",
-                            CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty),
-                        replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                            CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty), 
+                        cancellationToken: cancellationToken);
+                    
+                    totalRequests++;
+                    await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
+                    
                     break;
                 }
             }
@@ -509,16 +599,16 @@ public static class Handlers
             switch (message.Chat.Id)
             {
                 case < 0:
-                    if (message.Text!.Equals("/nsfw@owopics_junior_bot"))
+                    if (message.Text!.Equals($"/nsfw@{bot.GetMeAsync(cancellationToken).Result.Username}"))
                     { 
                         var nsfwStatus = user.Language switch
                         {
-                            "en-US" => user.Nsfw switch
+                            "en-US" => chat!.Nsfw switch
                             {
                                 true => "Enabled",
                                 _ => "Disabled"
                             },
-                            "ru-RU" => user.Nsfw switch
+                            "ru-RU" => chat!.Nsfw switch
                             {
                                 true => "Включен",
                                 _ => "Выключен"
@@ -528,8 +618,11 @@ public static class Handlers
                         await botClient.SendTextMessageAsync(message.Chat.Id,
                             string.Format(
                                 resourceManager.GetString("NsfwStatus_Chat",
-                                    CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty, $"@{message.From!.Username}", nsfwStatus), 
+                                    CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, $"@{message.From!.Username}", nsfwStatus, bot.GetMeAsync( cancellationToken).Result.Username), 
                             cancellationToken: cancellationToken);
+                        
+                        totalRequests++;
+                        await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
                     }
                     break;
                 case > 0:
@@ -553,6 +646,9 @@ public static class Handlers
                             resourceManager.GetString("NsfwStatus",
                                 CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty, nsfwStatus), 
                         cancellationToken: cancellationToken);
+                    
+                    totalRequests++;
+                    await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
                     break;
                 }
             }
@@ -560,52 +656,116 @@ public static class Handlers
 
         async Task TurnNsfw(string param)
         {
-            bool nsfwSetting;
-            switch (param)
+            if (message.Chat.Id < 0)
             {
-                case "on":
-                    nsfwSetting = true;
-                    break;
-                case "off":
-                    nsfwSetting = false;
-                    break;
-                default:
-                    await NsfwSettingException();
+                //(bot.GetMeAsync(cancellationToken).Result.Username);
+                //Console.WriteLine(param);
+                if (!message.Text.Contains(bot.GetMeAsync(cancellationToken).Result.Username!))
                     return;
+                var admins = await bot.GetChatAdministratorsAsync(message.Chat.Id, cancellationToken: cancellationToken);
+                var isSenderAdmin = admins.Any(member => member.User.Id == message.From!.Id);
+
+                if (isSenderAdmin)
+                    {
+                        bool nsfwSetting;
+                        switch (param) 
+                        { 
+                            case "on": 
+                                nsfwSetting = true; 
+                                break; 
+                            case "off": 
+                                nsfwSetting = false; 
+                                break; 
+                            default: 
+                                await NsfwSettingException(); 
+                                return; 
+                        }
+                        
+                        chat!.Nsfw = nsfwSetting; 
+                        await applicationContext.SaveChangesAsync(cancellationToken);
+                        
+                        await botClient.SendTextMessageAsync(message.Chat.Id, 
+                            nsfwSetting switch 
+                            {
+                                true => string.Format(resourceManager.GetString("SetNsfwOn_Chat", 
+                                    CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, $"@{message.From?.Username}"),
+                                false => string.Format(resourceManager.GetString("SetNsfwOff_Chat", 
+                                    CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, $"@{message.From?.Username}")
+                            }, 
+                            cancellationToken: cancellationToken); 
+                        totalRequests++;
+                        await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
+                    }
+                    else
+                    {
+                        await botClient.SendTextMessageAsync(message.Chat.Id, string.Format(resourceManager.GetString(
+                            "NsfwSettingException_NotEnoughRights_Chat",
+                            CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, $"@{message.From?.Username}"), cancellationToken: cancellationToken);
+                        totalRequests++;
+                        await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
+                    }
             }
+            else
+            {
+                bool nsfwSetting;
+                switch (param) 
+                { 
+                    case "on": 
+                        nsfwSetting = true; 
+                        break; 
+                    case "off": 
+                        nsfwSetting = false; 
+                        break; 
+                    default: 
+                        await NsfwSettingException(); 
+                        return; 
+                }
+                        
+                user.Nsfw = nsfwSetting; 
+                await applicationContext.SaveChangesAsync(cancellationToken);
+                        
+                await botClient.SendTextMessageAsync(message.Chat.Id, 
+                    nsfwSetting switch 
+                    {
+                        true => string.Format(resourceManager.GetString("SetNsfwOn", 
+                            CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!),
+                        false => string.Format(resourceManager.GetString("SetNsfwOff", 
+                            CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!)
+                    }, 
+                    cancellationToken: cancellationToken); 
+                totalRequests++;
+                await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
 
-            user.Nsfw = nsfwSetting;
-            await applicationContext.SaveChangesAsync(cancellationToken);
-
-            await botClient.SendTextMessageAsync(message.Chat.Id,
-                nsfwSetting switch
-                {
-                    true => resourceManager.GetString("SetNsfwOn",
-                        CultureInfo.GetCultureInfo(user.Language ?? "en-US")),
-                    false => resourceManager.GetString("SetNsfwOff",
-                        CultureInfo.GetCultureInfo(user.Language ?? "en-US"))
-                } ?? string.Empty,
-                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
-            
+            }
         }
 
-        void GetRandomPic()
+        async Task GetRandomPic()
         {
-           
-            var values = Enum.GetValues(user.Nsfw ? typeof(Subreddits.Explicit) : typeof(Subreddits.Implicit));
-            var random = new Random();
-            var randomSubreddit = values.GetValue(random.Next(values.Length));
-            
-            async void NewThread() =>  await GetPicNewThread(randomSubreddit?.ToString(), random.Next(0, 999));
-            new Thread(NewThread).Start();
+            if (message.Chat.Id < 0 && message.Text.Equals($"/random@{bot.GetMeAsync(cancellationToken).Result.Username}") ||
+                message.Chat.Id > 0 && message.Text.Equals("/random"))
+            {
+                totalRequests++;
+                await File.WriteAllTextAsync($"{Directory.GetCurrentDirectory()}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
+
+                var values = message.Chat.Id < 0 ? 
+                Enum.GetValues(chat!.Nsfw ? typeof(Subreddits.Explicit) : typeof(Subreddits.Implicit)) : 
+                Enum.GetValues(user.Nsfw ? typeof(Subreddits.Explicit) : typeof(Subreddits.Implicit));
+                
+                var random = new Random();
+                var randomSubreddit = values.GetValue(random.Next(values.Length));
+
+                //Putting this boi in separate thread in order to process multiple requests at one time
+                async void NewThread() =>  await GetPicNewThread(randomSubreddit?.ToString(), random.Next(0, 999));
+                new Thread(NewThread).Start();
+            }
         }
 
         async Task NsfwSettingException()
         {
             await botClient.SendTextMessageAsync(message.Chat.Id,
                 resourceManager.GetString("NsfwSettingException",
-                    CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty,
-                replyMarkup: new ReplyKeyboardRemove(), cancellationToken: cancellationToken);
+                    CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty, 
+                cancellationToken: cancellationToken);
         }
             
         }

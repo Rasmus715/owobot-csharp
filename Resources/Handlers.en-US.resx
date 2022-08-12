@@ -324,8 +324,8 @@ Post Link: {5}</value>
     <value>Oagh, {0}! Have you decided to change the NSFW content settings?
 
 Currently NSFW is: {1}. Here is what you can do:
-/nsfw_on to turn on the lewds
-/nsfw_off to turn off all the erotic
+/nsfw_on@{2} to turn on the lewds
+/nsfw_off@{2} to turn off all the erotic
 
 Be aware that only the admin of chat can change this setting.
 
