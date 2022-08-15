@@ -43,7 +43,8 @@ IConfiguration configuration = new ConfigurationBuilder()
         Console.WriteLine(@"Reddit Refresh Token Id field in configuration file is not filled.");
         parseSuccessful = false;
     }
-    if (configuration.GetSection("PROXY").Exists() && !configuration.GetSection("PROXY").Value.Equals(""))
+
+    if (configuration.GetSection("PROXY").Exists() && configuration.GetSection("PROXY").Value.Equals("HTTP") && configuration.GetSection("PROXY").Value.Equals("SOCKS5"))
     {
         
         if (!configuration.GetSection("PROXY_ADDRESS").Exists() || configuration.GetSection("PROXY_ADDRESS").Value.Equals(""))
