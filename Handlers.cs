@@ -142,7 +142,7 @@ public static class Handlers
 
                     if (message.Text.Contains("/language"))
                     {
-                        await SetLanguage(message.Text[10..]);
+                        await SetLanguage(message.Text[10..12]);
                         break;
                     }
 
@@ -196,10 +196,11 @@ public static class Handlers
 
             async Task Info()
             {
+                Console.WriteLine(message.Text);
                 switch (message.Chat.Id)
                 {
                     case < 0:
-                        if (message.Text!.Equals($"$/info@{bot.GetMeAsync(cancellationToken).Result.Username}"))
+                        if (message.Text!.Equals($"/info@{bot.GetMeAsync(cancellationToken).Result.Username}"))
                         { 
                             await botClient.SendTextMessageAsync(message.Chat.Id,
                                 string.Format(
@@ -276,6 +277,7 @@ public static class Handlers
             
             async Task SetLanguage(string language)
             {
+                Console.WriteLine(language);
                 switch (language)
                 {
                     case "ru":

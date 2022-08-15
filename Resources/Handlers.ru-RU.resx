@@ -205,14 +205,14 @@ NSFW: {2}
   <data name="NsfwStatus" xml:space="preserve">
     <value>Оа! Ты решил поменять настройки NSFW контента?
 
-В данный момент NSFW:  {0}. Вот что Вы можете сделать:
+В данный момент NSFW:  {0}. Вот что ты можешь сделать:
 /nsfw_on чтобы включить левды
 /nsfw_off чтобы выключить всю похабщину
 
 *Не гарантирую, что все NSFW теги с реддита верны!</value>
   </data>
   <data name="SetNsfwOn" xml:space="preserve">
-    <value>Поняла вас! Теперь в этом чате левды включены! ( ͡° ͜ʖ ͡°)</value>
+    <value>Поняла тебя! Теперь в этом чате левды включены! ( ͡° ͜ʖ ͡°)</value>
   </data>
   <data name="SetNsfwOff" xml:space="preserve">
     <value>Поняла тебя! Больше никакой пошлятины в этом чате!</value>
@@ -230,7 +230,7 @@ NSFW: {2}
     <value>Эаа? Я не поняла тебя!</value>
   </data>
   <data name="SetNsfwOn_Chat" xml:space="preserve">
-    <value>Поняла вас, {0}! Теперь в этом чате левды включены! ( ͡° ͜ʖ ͡°)</value>
+    <value>Поняла тебя, {0}! Теперь в этом чате левды включены! ( ͡° ͜ʖ ͡°)</value>
   </data>
   <data name="UnknowsCommand_Chat" xml:space="preserve">
     <value>Эаа, {0}? Я не поняла тебя!</value>
@@ -272,9 +272,9 @@ NSFW: {3}
 Я не могу показать вам эту картинку, простите (｡ŏ﹏ŏ)</value>
   </data>
   <data name="LanguageInfo_Chat" xml:space="preserve">
-    <value>Oa, {0}! Вы решили сменить язык?
+    <value>Oa, {0}! Ты решил сменить язык?
 
-На данный момент установлен русский язык. Вот что Вы можете сделать:
+На данный момент установлен русский язык. Вот что ты можешь сделать:
 /language_en{1} to switch to english
 /language_ru{1} чтобы переключится на русский</value>
   </data>

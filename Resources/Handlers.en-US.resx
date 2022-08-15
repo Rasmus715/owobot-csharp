@@ -334,6 +334,6 @@ Be aware that only the admin of chat can change this setting.
 *No guarantee that all NSFW tags in reddit is correct!</value>
   </data>
   <data name="NsfwSettingException_NotEnoughRights_Chat" xml:space="preserve">
-    <value>Sorry, {0}, but in chat this setting can be changed only by the admin.</value>
+    <value>Sorry, {0}, but in chat this setting can be changed only by admin.</value>
   </data>
 </root>

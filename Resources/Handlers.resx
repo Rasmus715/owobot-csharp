@@ -234,6 +234,6 @@ Post Link: {5}</value>
         <value>Eaah, {0}? I don't understand you!</value>
     </data>
     <data name="NsfwSettingException_NotEnoughRights_Chat" xml:space="preserve">
-        <value>Sorry, {0}, but in chat this setting can be changed only by the admin.</value>
+        <value>Sorry, {0}, but in chat this setting can be changed only by admin.</value>
     </data>
 </root>
