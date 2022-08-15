@@ -2,10 +2,15 @@ version: "3.2"
 services:
     owobot:
         build: .
-        networks:
-            - external-network
-
-networks:
-  external-network:
-    external: true
-
+        volumes:
+          - owobot-cache:/app/Essentials
+      environment:
+        - BOT_VERSION='v0.1'
+        - TELEGRAM_TOKEN=''
+        - REDDIT_APP_ID=''
+        - REDDIT_SECRET=''
+        - REDDIT_REFRESH_TOKEN=''
+        - PROXY='' //optional
+        - PROXY_ADDRESS='' //optional
+        - PROXY_USERNAME='' //optional
+        - PROXY_PASSWORD='' //optional

@@ -5,229 +5,206 @@ using owobot_csharp.Data;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
 using System.Text.Json;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
 using JsonException = System.Text.Json.JsonException;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using Telegram.Bot.Types;
+using File = System.IO.File;
 
+var configurationPath = $"{Environment.CurrentDirectory}/Configuration.env";
 
-Configuration deserializedJson;
-var configurationPath = $"{Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName}/Configuration.json";
-try
-{
+IConfiguration configuration = new ConfigurationBuilder()
+    .AddEnvironmentVariables()
+    .AddCommandLine(args)
+    .Build();
+
     var parseSuccessful = true;
-    var file = await File.ReadAllTextAsync(configurationPath);
-    deserializedJson = JsonConvert.DeserializeObject<Configuration>(file);
 
-    if (deserializedJson == null)
-        throw new FileNotFoundException();
-
-    if (deserializedJson.ProxyHttp?.Address != "" && deserializedJson.ProxySocks5?.Address != "")
-    {
-        Console.WriteLine(@"Both ProxyHTTP and ProxySOCKS5 fields are filled.");
-        Console.WriteLine(@"Please, remove one of the proxy server.");
-        return 1;
-    }
-    
-    if (deserializedJson.TelegramToken == "")
+    if (!configuration.GetSection("TELEGRAM_TOKEN").Exists() || configuration.GetSection("TELEGRAM_TOKEN").Value.Equals(""))
     {
         Console.WriteLine(@"Telegram Token field in configuration file is not filled.");
         parseSuccessful = false;
     }
     
-    if (deserializedJson.RedditAppId == "")
+    if (!configuration.GetSection("REDDIT_APP_ID").Exists() || configuration.GetSection("REDDIT_APP_ID").Value.Equals(""))
     {
         Console.WriteLine(@"Reddit App Id field in configuration file is not filled.");
         parseSuccessful = false;
     }
     
-    if (deserializedJson.RedditSecret == "")
+    if (!configuration.GetSection("REDDIT_SECRET").Exists() || configuration.GetSection("REDDIT_SECRET").Value.Equals(""))
     {
         Console.WriteLine(@"Reddit Secret Id field in configuration file is not filled.");
         parseSuccessful = false;
     }
     
-    if (deserializedJson.RedditRefreshToken == "")
+    if (!configuration.GetSection("REDDIT_REFRESH_TOKEN").Exists() || configuration.GetSection("REDDIT_REFRESH_TOKEN").Value.Equals(""))
     {
         Console.WriteLine(@"Reddit Refresh Token Id field in configuration file is not filled.");
         parseSuccessful = false;
     }
-    
-    if (deserializedJson.ProxyHttp?.Address != "")
+    if (configuration.GetSection("PROXY").Exists() && !configuration.GetSection("PROXY").Value.Equals(""))
     {
-        if (deserializedJson.ProxyHttp?.Username != "")
+        
+        if (!configuration.GetSection("PROXY_ADDRESS").Exists() || configuration.GetSection("PROXY_ADDRESS").Value.Equals(""))
         {
-             Console.WriteLine(@"Proxy field is filled but no username was provided.");
+             Console.WriteLine(@"Proxy field is filled but no address was provided.");
              parseSuccessful = false;
         }
-
-        if (deserializedJson.ProxyHttp?.Password != "")
-        {
-            Console.WriteLine(@"Proxy field is filled but no password was provided.");
-            parseSuccessful = false;
-        }
         
-        if (deserializedJson.ProxyHttp?.Port != "")
+        if (!configuration.GetSection("PROXY_PORT").Exists() || configuration.GetSection("PROXY_PORT").Value.Equals(""))
         {
             Console.WriteLine(@"Proxy field is filled but no port was provided.");
             parseSuccessful = false;
         }
-    }
-    
-    if (deserializedJson.ProxySocks5?.Address != "")
-    {
-        if (deserializedJson.ProxySocks5?.Username != "")
-        {
-            Console.WriteLine(@"Proxy field is filled but no username was provided.");
-            parseSuccessful = false;
-        }
 
-        if (deserializedJson.ProxySocks5?.Password != "")
-        {
-            Console.WriteLine(@"Proxy field is filled but no password was provided.");
-            parseSuccessful = false;
-        }
-        
-        if (deserializedJson.ProxySocks5?.Port != "")
-        {
-            Console.WriteLine(@"Proxy field is filled but no port was provided.");
-            parseSuccessful = false;
-        }
+        // if (configuration.GetSection("PROXY_USERNAME").Value.Equals(""))
+        // {
+        //     Console.WriteLine(@"Proxy field is filled but no username was provided.");
+        //     parseSuccessful = false;
+        // }
+        //
+        // if (configuration.GetSection("PROXY_PASSWORD").Value.Equals(""))
+        // {
+        //     Console.WriteLine(@"Proxy field is filled but no password was provided.");
+        //     parseSuccessful = false;
+        // }
     }
     
     if (parseSuccessful)
-        Console.WriteLine(@"Config file looks OK.");
+        Console.WriteLine(@"Configuration looks OK.");
     else
     {
         Console.WriteLine(@"Please, fix the errors listed above and try again");
         return 1;
     }
-}
-catch (FileNotFoundException)
-{
 
-    var initialConfig = new Configuration();
-
-    var json = JsonSerializer.Serialize(initialConfig, new JsonSerializerOptions
-    {
-        WriteIndented = true
-    });
-
-    await File.WriteAllTextAsync($"{configurationPath}", json);
-
-    Console.WriteLine(@"Successfully created configuration file.");
-    Console.WriteLine(@"Please, fill it with your credentials");
-    return 1;
-}
-catch (JsonException)
-{
-    Console.WriteLine(@"There was an error while parsing your configuration file.");
-    Console.WriteLine(@"Please, check its contents");
-    return 1;
-}
-
-var usingProxyHttp = false;
+    var usingProxyHttp = false;
 var usingProxySocks5 = false;
 
-if (deserializedJson.ProxyHttp?.Address != "")
+if (configuration.GetSection("PROXY").Exists())
 {
-    Console.WriteLine(@"Using proxies, huh? Cool...");
-    Console.WriteLine(@"I was too lazy to test their functionality so expect this function to work incorrectly or don't work at all.");
-    
-    usingProxyHttp = true;
-}
-else if (deserializedJson.ProxySocks5?.Address != "")
-{
-    Console.WriteLine(@"Using proxies, huh? Cool...");
-    Console.WriteLine(@"I was too lazy to test their functionality so expect this function to work incorrectly or don't work at all.");
 
-    usingProxySocks5 = true;
-}
-    //var bot = new TelegramBotClient(deserializedJson!["TelegramToken"]);
-
-Console.WriteLine(@"Initializing migration...");
-var applicationContext = new ApplicationContext();
-applicationContext.Database.Migrate();
-applicationContext.Dispose();
-Console.WriteLine(@"Migration successful");
-
-if (usingProxyHttp)
-{
-    try
+    if (configuration.GetSection("PROXY").Value.Equals("HTTP"))
     {
-        var webProxy = new WebProxy(deserializedJson.ProxyHttp!.Address!, int.Parse(deserializedJson.ProxyHttp!.Port!)) {
-                // Credentials if needed:
-                Credentials = new NetworkCredential(deserializedJson.ProxyHttp.Username, deserializedJson.ProxyHttp.Password)
-            };
-            var httpClient = new HttpClient(
-                new HttpClientHandler { Proxy = webProxy, UseProxy = true, }
-            );
-        
-            Console.WriteLine(@"Attempting to start the bot...");
-            
-            var botClient = new TelegramBotClient(deserializedJson.TelegramToken!, httpClient);
-            
-            var me = await botClient.GetMeAsync(); 
-            Console.WriteLine($@"Start listening for @{me.Username}");
-            
-            await botClient.ReceiveAsync(Handlers.HandleUpdateAsync,
-                Handlers.HandleErrorAsync,
-                new ReceiverOptions
-                {
-                    ThrowPendingUpdates = true
-                });
-        
-            return 0;
+        Console.WriteLine(@"Using proxies, huh? Cool...");
+        Console.WriteLine(
+            @"I was too lazy to test their functionality so expect this function to work incorrectly or don't work at all.");
+
+        usingProxyHttp = true;
     }
-    catch (Telegram.Bot.Exceptions.ApiRequestException ex)
-    {
-        Console.WriteLine(@$"Unable to start the bot. Reason: {ex.Message}");
-        return 1;
-    }
-    
-}
 
-if (usingProxySocks5)
-{
-    try
+    else if (configuration.GetSection("PROXY").Value.Equals("SOCKS5"))
     {
-         var proxy = new WebProxy($"{deserializedJson.ProxySocks5?.Address}:{deserializedJson.ProxySocks5?.Port}")
+        Console.WriteLine(@"Using proxies, huh? Cool...");
+        Console.WriteLine(
+            @"I was too lazy to test their functionality so expect this function to work incorrectly or don't work at all.");
+
+        usingProxySocks5 = true;
+    }
+}
+//var bot = new TelegramBotClient(deserializedJson!["TelegramToken"]);
+
+    Console.WriteLine(@"Initializing migration...");
+
+if (!Directory.Exists("Essentials"))
+{
+    Console.WriteLine(@"Creating ""Essentials"" Directory");
+    Directory.CreateDirectory("Essentials");
+}
+        
+
+    var applicationContext = new ApplicationContext();
+    applicationContext.Database.Migrate();
+    applicationContext.Dispose();
+    Console.WriteLine(@"Migration successful");
+
+    if (usingProxyHttp)
+    {
+        try
+        {
+            var webProxy = new WebProxy(configuration.GetSection("PROXY_ADDRESS").Value,
+                int.Parse(configuration.GetSection("PROXY_PORT").Value))
             {
-                Credentials = new NetworkCredential(deserializedJson.ProxySocks5?.Username, deserializedJson.ProxySocks5?.Password)
+                // Credentials if needed:
+                Credentials = new NetworkCredential(configuration.GetSection("PROXY_USERNAME").Value,
+                    configuration.GetSection("PROXY_PASSWORD").Value)
             };
+
             var httpClient = new HttpClient(
-                new SocketsHttpHandler { Proxy = proxy, UseProxy = true, }
-            );
-            
+                new HttpClientHandler
+                {
+                    Proxy = webProxy, UseProxy = true
+                });
+
             Console.WriteLine(@"Attempting to start the bot...");
-            
-            var botClient = new TelegramBotClient(deserializedJson.TelegramToken!, httpClient);
-            
-            var me = await botClient.GetMeAsync(); 
+
+            var botClient = new TelegramBotClient(configuration.GetSection("TELEGRAM_TOKEN").Value, httpClient);
+
+            var me = await botClient.GetMeAsync();
             Console.WriteLine($@"Start listening for @{me.Username}");
-            
+
             await botClient.ReceiveAsync(Handlers.HandleUpdateAsync,
                 Handlers.HandleErrorAsync,
                 new ReceiverOptions
                 {
                     ThrowPendingUpdates = true
                 });
-                
+
             return 0;
+        }
+        catch (Telegram.Bot.Exceptions.ApiRequestException ex)
+        {
+            Console.WriteLine(@$"Unable to start the bot. Reason: {ex.Message}");
+            return 1;
+        }
+
     }
-    
-    catch (Telegram.Bot.Exceptions.ApiRequestException ex)
+
+    if (usingProxySocks5)
     {
-        Console.WriteLine(@$"Unable to start the bot. Reason: {ex.Message}");
-        return 1;
+        try
+        {
+            var proxy = new WebProxy(
+                $"{configuration.GetSection("PROXY_ADDRESS").Value}:{configuration.GetSection("PROXY_PORT").Value}")
+            {
+                Credentials = new NetworkCredential(configuration.GetSection("PROXY_USERNAME").Value,
+                    configuration.GetSection("PROXY_PASSWORD").Value)
+            };
+            var httpClient = new HttpClient(
+                new SocketsHttpHandler {Proxy = proxy, UseProxy = true,}
+            );
+
+            Console.WriteLine(@"Attempting to start the bot...");
+
+            var botClient = new TelegramBotClient(configuration.GetSection("TELEGRAM_TOKEN").Value, httpClient);
+
+            var me = await botClient.GetMeAsync();
+            Console.WriteLine($@"Start listening for @{me.Username}");
+
+            await botClient.ReceiveAsync(Handlers.HandleUpdateAsync,
+                Handlers.HandleErrorAsync,
+                new ReceiverOptions
+                {
+                    ThrowPendingUpdates = true
+                });
+
+            return 0;
+        }
+
+        catch (Telegram.Bot.Exceptions.ApiRequestException ex)
+        {
+            Console.WriteLine(@$"Unable to start the bot. Reason: {ex.Message}");
+            return 1;
+        }
+
     }
-    
-}
 
 
 try
 {
     Console.WriteLine(@"Attempting to start the bot...");
-    var bot = new TelegramBotClient(deserializedJson.TelegramToken!);
+    var bot = new TelegramBotClient(configuration.GetSection("TELEGRAM_TOKEN").Value);
     
     var me = await bot.GetMeAsync(); 
     

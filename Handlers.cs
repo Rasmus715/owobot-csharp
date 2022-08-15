@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Resources;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
 using owobot_csharp.Data;
 using Reddit;
 using Reddit.Controllers;
@@ -42,12 +42,11 @@ public static class Handlers
     public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
         CancellationToken cancellationToken)
     {
-        var configurationPath =
-            $"{Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName}/Configuration.json";
-        var totalRequestsPath =
-            $"{Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName}/TotalRequests.txt";
+        const string totalRequestsPath = "Essentials/TotalRequests.txt";
         
-        var deserializedJson = JsonConvert.DeserializeObject<Configuration>(await File.ReadAllTextAsync(configurationPath, cancellationToken));
+        IConfiguration configuration = new ConfigurationBuilder()
+            .AddEnvironmentVariables()
+            .Build();
         
         int totalRequests;
         
@@ -62,8 +61,8 @@ public static class Handlers
             totalRequests = 0;
         }
         
-        var redditClient = new RedditClient(deserializedJson.RedditAppId,
-            appSecret: deserializedJson.RedditSecret, refreshToken: deserializedJson.RedditRefreshToken);
+        var redditClient = new RedditClient(configuration.GetSection("REDDIT_APP_ID").Value,
+            appSecret: configuration.GetSection("REDDIT_SECRET").Value, refreshToken: configuration.GetSection("REDDIT_REFRESH_TOKEN").Value);
         
         var applicationContext = new ApplicationContext();
 
@@ -191,7 +190,7 @@ public static class Handlers
                 }
                 
                 totalRequests++;
-                await File.WriteAllTextAsync($"{totalRequestsPath}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
+                await File.WriteAllTextAsync(totalRequestsPath, totalRequests.ToString(), cancellationToken);
             }
 
 
@@ -206,7 +205,7 @@ public static class Handlers
                                 string.Format(
                                     resourceManager.GetString("Info_Chat",
                                         CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty, 
-                                    $"@{message.From?.Username}", deserializedJson.BotVersion, $"@{bot.GetMeAsync(cancellationToken).Result.Username}"),
+                                    $"@{message.From?.Username}", configuration.GetSection("BOT_VERSION").Value, $"@{bot.GetMeAsync(cancellationToken).Result.Username}"),
                             cancellationToken: cancellationToken);
                             
                             totalRequests++;
@@ -215,15 +214,16 @@ public static class Handlers
                         break;
                     case > 0:
                     {
+                        
                         await botClient.SendTextMessageAsync(message.Chat.Id,
                             string.Format(
                                 resourceManager.GetString("Info",
                                     CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty,
-                                deserializedJson.BotVersion), 
+                                configuration.GetSection("BOT_VERSION").Value), 
                             cancellationToken: cancellationToken);
                         
                         totalRequests++;
-                        await File.WriteAllTextAsync($"{Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
+                        await File.WriteAllTextAsync(totalRequestsPath, totalRequests.ToString(), cancellationToken);
                         break;
                     }
                 }
@@ -306,7 +306,7 @@ public static class Handlers
                 if (message.Chat.Id < 0 && message.Text.Equals($"/status@{bot.GetMeAsync(cancellationToken).Result.Username}"))
                 {
                     totalRequests++;
-                    await File.WriteAllTextAsync($"{Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
+                    await File.WriteAllTextAsync(totalRequestsPath, totalRequests.ToString(), cancellationToken);
 
                     var x = DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime();
                     var status = string.Format(resourceManager.GetString("Status",
@@ -314,10 +314,14 @@ public static class Handlers
                         x.Days,
                         $"{x:hh\\:mm\\:ss}",
                         totalRequests,
-                        chat!.Nsfw
-                            ? "ON"
-                            : "OFF",
-                        deserializedJson.BotVersion);
+                        user.Language == "ru-RU" ? 
+                            chat!.Nsfw ? 
+                                "Включён" : 
+                                "Выключен" : 
+                            chat!.Nsfw ? 
+                                "ON" : 
+                                "OFF",
+                        configuration.GetSection("BOT_VERSION").Value);
 
                     await botClient.SendTextMessageAsync(message.Chat.Id,
                         status, 
@@ -327,7 +331,7 @@ public static class Handlers
                 else
                 {
                     totalRequests++;
-                    await File.WriteAllTextAsync($"{Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
+                    await File.WriteAllTextAsync(totalRequestsPath, totalRequests.ToString(), cancellationToken);
 
                     var x = DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime();
                     var status = string.Format(resourceManager.GetString("Status",
@@ -335,10 +339,14 @@ public static class Handlers
                         x.Days,
                         $"{x:hh\\:mm\\:ss}",
                         totalRequests,
-                        user.Nsfw
-                            ? "ON"
-                            : "OFF",
-                        deserializedJson.BotVersion);
+                        user.Language!.Equals("ru_RU") 
+                            ? user.Nsfw 
+                                ? @"Включён" 
+                                : @"Выключен"
+                        : user.Nsfw
+                        ? "ON"
+                        : "OFF",
+                        configuration.GetSection("BOT_VERSION").Value);
 
                     await botClient.SendTextMessageAsync(message.Chat.Id,
                         status, 
@@ -348,8 +356,16 @@ public static class Handlers
             
             async Task GetPicNewThread(string? subredditString, int randomValue)
             {
-            
-                await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing, cancellationToken);
+                try
+                {
+                    await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing, cancellationToken);
+                }
+                catch (ApiRequestException)
+                {
+                    // ignored
+                }
+
+                ;
                 // Console.WriteLine(@"randomValue:" + randomValue);
                 // Console.WriteLine(@"subredditString: " + subredditString);
                 var lastPostName = "";
@@ -382,7 +398,6 @@ public static class Handlers
                     var post = posts.Last();
 
                     //If post is marked as NSFW, try to get the previous one in collection and see, if it tagged as nsfw 
-
                     if (message.Chat.Id < 0)
                     {
                         if (chat?.Nsfw == false)
@@ -446,6 +461,8 @@ public static class Handlers
                     await botClient.SendTextMessageAsync(message.Chat.Id, 
                         returnPicMessage, 
                         cancellationToken: cancellationToken);
+                    
+                    GC.Collect();
                 }
                 
                 //Different reddit exceptions handlers
@@ -792,7 +809,7 @@ public static class Handlers
                     await botClient.SendTextMessageAsync(message.Chat.Id, 
                         string.Format(
                             resourceManager.GetString("NsfwSettingException_Chat", 
-                                CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, message.From.Id, $"@{bot.GetMeAsync(cancellationToken).Result.Username}"), 
+                                CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, message.From!.Id, $"@{bot.GetMeAsync(cancellationToken).Result.Username}"), 
                         cancellationToken: cancellationToken); 
                 } 
             } 
