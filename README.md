@@ -18,10 +18,10 @@ Bot link:  [@owopics_junior_bot](https://t.me/owopics_junior_bot)
 If for some reason you want to run it by yourself:
 
 ## Parameters description
- - BOT_VERSION - Sets up bot version
+ - BOT_VERSION - sets up bot version
  - TELEGRAM_TOKEN - token retrieved by BotFather
  - REDDIT_APP_ID, REDDIT_SECRET, REDDIT_REFRESH_TOKEN - data provided by Reddit API
- - PROXY (Optional) - Supports 2 values: ```HTTP```, ```SOCKS5``` depending of the protocol you about to use. If PROXY field is filled, the ones below should be present too.
+ - PROXY (Optional) - supports 2 values: ```HTTP```, ```SOCKS5``` depending of the protocol you about to use. If PROXY field is filled, the ones below should be present too.
  - PROXY_ADDRESS - If ```PROXY``` field is equal to```HTTP``` then the address should accord to this format: ```https://example.org```. If ```PROXY``` equals ```SOCKS5```, address should be equal accord to the next format: ```socks5://127.0.0.1```
  - PROXY_PORT - port of your proxy server
  - PROXY_USERNAME, PROXY_PASSWORD (Optional) - credentials of your proxy server 
