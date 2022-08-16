@@ -70,6 +70,6 @@ I'm a C# newbie
 ### TODO: 
 1. ~~Add external, user-friendly configuration file~~ Done
 2. ~~Add chats compatibility~~ Done. Needs additional testing
-3. Push docker container to dockerhub
+3. ~~Push docker image to dockerhub~~ Done.
 4. Add more sources (such as yande.re, konachan)
 
