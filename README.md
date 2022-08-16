@@ -12,20 +12,55 @@ Bot link:  [@owopics_junior_bot](https://t.me/owopics_junior_bot)
 * User related language settings (english and russian)
 * Can answer on `owo` and `uwu`
 
-### How to use
+### How to use:
 1. Go to [@owopics_junior_bot](https://t.me/owopics_junior_bot) and just use the bot!
 
 If for some reason you want to run it by yourself:
 
+## Parameters description
+ - BOT_VERSION - Sets up bot version
+ - TELEGRAM_TOKEN - token retrieved by BotFather
+ - REDDIT_APP_ID, REDDIT_SECRET, REDDIT_REFRESH_TOKEN - data provided by Reddit API
+ - PROXY (Optional) - Supports 2 values: ```HTTP```, ```SOCKS5``` depending of the protocol you about to use. If PROXY field is filled, the ones below should be present too.
+ - PROXY_ADDRESS - If ```PROXY``` field is equal to```HTTP``` then the address should accord to this format: ```https://example.org```. If ```PROXY``` equals ```SOCKS5```, address should be equal accord to the next format: ```socks5://127.0.0.1```
+ - PROXY_PORT - port of your proxy server
+ - PROXY_USERNAME, PROXY_PASSWORD (Optional) - credentials of your proxy server 
+### Native execution
 1. Clone code somewhere
-2. Install .NET 6 Runtime and type `dotnet run` to run the program for the first time
-3. It'll create `Configuration.json` file. You need to fill it in order to start the bot
-4. Run again and enjoy
-
-Or if you want to use Docker:
+2. Install .NET 6 Runtime and type
 
 ```shell
-docker-compose up -d
+TELEGRAM_TOKEN= REDDIT_APP_ID= REDDIT_SECRET= REDDIT_REFRESH_TOKEN= dotnet run
+```
+filling parameters with your own values
+
+### Docker-Compose method
+```yaml
+   owobot:
+      image: etozherasmus/owobot-csharp:latest
+      volumes:
+        - .Esseintials/:/app/Essentials
+      environment:
+        - BOT_VERSION=v0.1
+        - TELEGRAM_TOKEN=
+        - REDDIT_APP_ID=
+        - REDDIT_SECRET=
+        - REDDIT_REFRESH_TOKEN=
+        - PROXY= //Optional
+        - PROXY_ADDRESS= //Optional
+        - PROXY_USERNAME= //Optional
+        - PROXY_PASSWORD= //Optional
+```
+
+### Docker CLI method
+```shell
+docker run -d \
+  -e TELEGRAM_TOKEN=5378235767:AAGNBiePIq5UqZVUKx4-qdeaF7QOZeVI5FM \
+  -e REDDIT_APP_ID=uU59EoywSUFJPc6t1DFX-w \
+  -e REDDIT_SECRET=XdTT8-a2GON4U9NBQGb0pCs7TAhTQA \
+  -e REDDIT_REFRESH_TOKEN=1793999091867-jyFmJj1SLY7JPRBNdFHiH8FOvB4NuQ \
+  -v "Essentials:/app/Essentials" \
+  etozherasmus/owobot-csharp
 ```
 
 ### Reason of choosing some questionable solutions
