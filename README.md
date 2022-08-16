@@ -27,7 +27,7 @@ If for some reason you want to run it by yourself:
  - PROXY_USERNAME, PROXY_PASSWORD (Optional) - credentials of your proxy server 
 ### Native execution
 1. Clone code somewhere
-2. Install .NET 6 Runtime and type
+2. Install .NET 6 SDK and type
 
 ```shell
 TELEGRAM_TOKEN= REDDIT_APP_ID= REDDIT_SECRET= REDDIT_REFRESH_TOKEN= dotnet run
