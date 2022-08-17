@@ -55,10 +55,10 @@ filling parameters with your own values
 ### Docker CLI method
 ```shell
 docker run -d \
-  -e TELEGRAM_TOKEN=5378235767:AAGNBiePIq5UqZVUKx4-qdeaF7QOZeVI5FM \
-  -e REDDIT_APP_ID=uU59EoywSUFJPc6t1DFX-w \
-  -e REDDIT_SECRET=XdTT8-a2GON4U9NBQGb0pCs7TAhTQA \
-  -e REDDIT_REFRESH_TOKEN=1793999091867-jyFmJj1SLY7JPRBNdFHiH8FOvB4NuQ \
+  -e TELEGRAM_TOKEN= \
+  -e REDDIT_APP_ID= \
+  -e REDDIT_SECRET= \
+  -e REDDIT_REFRESH_TOKEN= \
   -v "Essentials:/app/Essentials" \
   etozherasmus/owobot-csharp
 ```
