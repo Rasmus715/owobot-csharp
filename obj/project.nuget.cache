@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "iwv6/GivjVdDB9DtQkkzn7Pm2lY+Xd1QkOdoUky6QZ6ie1OLBj2detIcCBZJrf4igWXijml++77UjvsO1aiDng==",
+  "dgSpecHash": "W2MkL36M9IKGVfI9XpAg/AtiWK2lXsTyjkIEbt+30qmMy5wovGiaqCVoal3I8lzHCoeyAsAGI73BrP2ov4GPWA==",
   "success": true,
   "projectFilePath": "/Users/crackbargains/owobot-csharp/owobot-csharp.csproj",
   "expectedPackageFiles": [
+    "/Users/crackbargains/.nuget/packages/boorusharp/3.4.0/boorusharp.3.4.0.nupkg.sha512",
     "/Users/crackbargains/.nuget/packages/humanizer.core/2.8.26/humanizer.core.2.8.26.nupkg.sha512",
     "/Users/crackbargains/.nuget/packages/microsoft.csharp/4.5.0/microsoft.csharp.4.5.0.nupkg.sha512",
     "/Users/crackbargains/.nuget/packages/microsoft.data.sqlite.core/6.0.4/microsoft.data.sqlite.core.6.0.4.nupkg.sha512",
@@ -33,7 +34,7 @@
     "/Users/crackbargains/.nuget/packages/microsoft.extensions.logging.abstractions/6.0.0/microsoft.extensions.logging.abstractions.6.0.0.nupkg.sha512",
     "/Users/crackbargains/.nuget/packages/microsoft.extensions.options/6.0.0/microsoft.extensions.options.6.0.0.nupkg.sha512",
     "/Users/crackbargains/.nuget/packages/microsoft.extensions.primitives/6.0.0/microsoft.extensions.primitives.6.0.0.nupkg.sha512",
-    "/Users/crackbargains/.nuget/packages/newtonsoft.json/12.0.2/newtonsoft.json.12.0.2.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/newtonsoft.json/13.0.1/newtonsoft.json.13.0.1.nupkg.sha512",
     "/Users/crackbargains/.nuget/packages/reddit/1.5.0/reddit.1.5.0.nupkg.sha512",
     "/Users/crackbargains/.nuget/packages/restsharp/106.6.9/restsharp.106.6.9.nupkg.sha512",
     "/Users/crackbargains/.nuget/packages/sqlitepclraw.bundle_e_sqlite3/2.0.6/sqlitepclraw.bundle_e_sqlite3.2.0.6.nupkg.sha512",

@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Resources;
+using BooruSharp.Booru;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using owobot_csharp.Data;
@@ -60,10 +61,7 @@ public static class Handlers
             await File.WriteAllTextAsync(totalRequestsPath, "0", cancellationToken);
             totalRequests = 0;
         }
-        
-        var redditClient = new RedditClient(configuration.GetSection("REDDIT_APP_ID").Value,
-            appSecret: configuration.GetSection("REDDIT_SECRET").Value, refreshToken: configuration.GetSection("REDDIT_REFRESH_TOKEN").Value);
-        
+
         var applicationContext = new ApplicationContext();
 
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
@@ -373,7 +371,9 @@ public static class Handlers
                 var lastPostName = "";
                 var randomValueMinimized = randomValue;
                 var postsCounter = 0;
-            
+                var redditClient = new RedditClient(configuration.GetSection("REDDIT_APP_ID").Value,
+                    appSecret: configuration.GetSection("REDDIT_SECRET").Value, refreshToken: configuration.GetSection("REDDIT_REFRESH_TOKEN").Value);
+
                 //In order not to collect the whole collection of [randomValue] posts, minimize this number to specific one in pack of 25.
                 while (randomValueMinimized > 25)
                     randomValueMinimized -= 25; 
@@ -777,10 +777,10 @@ public static class Handlers
             }
             
             async Task GetRandomPic() 
-            { 
+            {
                 if (message.Chat.Id < 0 && message.Text.Equals($"/random@{bot.GetMeAsync(cancellationToken).Result.Username}") || 
                     message.Chat.Id > 0 && message.Text.Equals("/random")) 
-                { 
+                {
                     totalRequests++;
                     await WriteTotalRequests(totalRequestsPath, totalRequests);
                     
