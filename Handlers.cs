@@ -13,8 +13,8 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using static System.IO.File;
 using Chat = owobot_csharp.Models.Chat;
-using File = System.IO.File;
 using User = owobot_csharp.Models.User;
 
 namespace owobot_csharp;
@@ -35,15 +35,17 @@ public static class Handlers
         return Task.CompletedTask;
     }
 
-    private static async Task WriteTotalRequests(string totalRequestsPath, int totalRequests)
-    {
-        await File.WriteAllTextAsync(totalRequestsPath, totalRequests.ToString());
-    }
+   
     
     public static async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update,
         CancellationToken cancellationToken)
     {
         const string totalRequestsPath = "Essentials/TotalRequests.txt";
+        
+        static async Task WriteTotalRequests(int totalRequests)
+        {
+            await WriteAllTextAsync(totalRequestsPath, totalRequests.ToString());
+        }
         
         IConfiguration configuration = new ConfigurationBuilder()
             .AddEnvironmentVariables()
@@ -54,11 +56,11 @@ public static class Handlers
         try
         {
             totalRequests =
-                int.Parse(await File.ReadAllTextAsync(totalRequestsPath, cancellationToken));
+                int.Parse(await ReadAllTextAsync(totalRequestsPath, cancellationToken));
         }
         catch (Exception)
         {
-            await File.WriteAllTextAsync(totalRequestsPath, "0", cancellationToken);
+            await WriteAllTextAsync(totalRequestsPath, "0", cancellationToken);
             totalRequests = 0;
         }
 
@@ -187,8 +189,7 @@ public static class Handlers
                     }
                 }
                 
-                totalRequests++;
-                await File.WriteAllTextAsync(totalRequestsPath, totalRequests.ToString(), cancellationToken);
+                await WriteTotalRequests(totalRequests++);
             }
 
 
@@ -206,10 +207,8 @@ public static class Handlers
                                         CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty, 
                                     $"@{message.From?.Username}", configuration.GetSection("BOT_VERSION").Value, $"@{bot.GetMeAsync(cancellationToken).Result.Username}"),
                             cancellationToken: cancellationToken);
-                            
-                            totalRequests++;
-                            await File.WriteAllTextAsync($"{Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
                         }
+                        await WriteTotalRequests(totalRequests++);
                         break;
                     case > 0:
                     {
@@ -221,8 +220,7 @@ public static class Handlers
                                 configuration.GetSection("BOT_VERSION").Value), 
                             cancellationToken: cancellationToken);
                         
-                        totalRequests++;
-                        await File.WriteAllTextAsync(totalRequestsPath, totalRequests.ToString(), cancellationToken);
+                        await WriteTotalRequests(totalRequests++);
                         break;
                     }
                 }
@@ -240,8 +238,7 @@ public static class Handlers
                                 string.Format(resourceManager.GetString("LanguageInfo_Chat",
                                         CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
                                     $"@{message.From?.Username}", $"@{bot.GetMeAsync(cancellationToken).Result.Username}"), cancellationToken: cancellationToken);
-                            totalRequests++;
-                            await File.WriteAllTextAsync($"{Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
+                            await WriteTotalRequests(totalRequests++);
                         }
                         break;
                     case > 0:
@@ -249,8 +246,7 @@ public static class Handlers
                         await botClient.SendTextMessageAsync(message.Chat.Id,
                             string.Format(resourceManager.GetString("LanguageInfo",
                                     CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!), cancellationToken: cancellationToken);
-                        totalRequests++;
-                        await File.WriteAllTextAsync($"{Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
+                        await WriteTotalRequests(totalRequests++);
                         break;
                     }
                 }
@@ -268,7 +264,7 @@ public static class Handlers
                         cancellationToken: cancellationToken);
                     
                     totalRequests++;
-                    await File.WriteAllTextAsync($"{Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
+                    await WriteAllTextAsync($"{Directory.GetParent(Environment.CurrentDirectory)?.Parent?.Parent?.FullName}/TotalRequests.txt", totalRequests.ToString(), cancellationToken);
                 }
                 
             }
@@ -306,7 +302,7 @@ public static class Handlers
                 if (message.Chat.Id < 0 && message.Text.Equals($"/status@{bot.GetMeAsync(cancellationToken).Result.Username}"))
                 {
                     totalRequests++;
-                    await File.WriteAllTextAsync(totalRequestsPath, totalRequests.ToString(), cancellationToken);
+                    await WriteAllTextAsync(totalRequestsPath, totalRequests.ToString(), cancellationToken);
 
                     var x = DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime();
                     var status = string.Format(resourceManager.GetString("Status",
@@ -331,7 +327,7 @@ public static class Handlers
                 else
                 {
                     totalRequests++;
-                    await File.WriteAllTextAsync(totalRequestsPath, totalRequests.ToString(), cancellationToken);
+                    await WriteAllTextAsync(totalRequestsPath, totalRequests.ToString(), cancellationToken);
 
                     var x = DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime();
                     var status = string.Format(resourceManager.GetString("Status",
@@ -354,8 +350,10 @@ public static class Handlers
                 }
             }
             
-            async Task GetPicNewThread(string? subredditString, int randomValue)
+            async Task GetPic(string? subredditString, int randomValue)
             {
+                await WriteTotalRequests(totalRequests++);
+                
                 try
                 {
                     await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing, cancellationToken);
@@ -364,8 +362,6 @@ public static class Handlers
                 {
                     // ignored
                 }
-
-                ;
                 // Console.WriteLine(@"randomValue:" + randomValue);
                 // Console.WriteLine(@"subredditString: " + subredditString);
                 var lastPostName = "";
@@ -588,7 +584,7 @@ public static class Handlers
                 var randomValue = random.Next(0, 999);
                 //Console.WriteLine(@"Random value: " + randomValue);
 
-                async void NewThread() => await GetPicNewThread(message.Text?[5..], randomValue);
+                async void NewThread() => await GetPic(message.Text?[5..], randomValue);
                 new Thread(NewThread).Start();
 
             }
@@ -606,7 +602,7 @@ public static class Handlers
                                 cancellationToken: cancellationToken);
                         
                             totalRequests++;
-                            await WriteTotalRequests(totalRequestsPath, totalRequests);
+                            await WriteTotalRequests(totalRequests);
                         }
                         
                         break;
@@ -616,9 +612,8 @@ public static class Handlers
                             string.Format(resourceManager.GetString("GetStatus",
                                 CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty), 
                             cancellationToken: cancellationToken);
-                    
-                        totalRequests++;
-                        await WriteTotalRequests(totalRequestsPath, totalRequests);
+                        
+                        await WriteTotalRequests(totalRequests++);
                         
                         break;
                     } 
@@ -653,9 +648,8 @@ public static class Handlers
                                     nsfwStatus, 
                                     bot.GetMeAsync( cancellationToken).Result.Username), 
                                 cancellationToken: cancellationToken);
-                        
-                            totalRequests++;
-                            await WriteTotalRequests(totalRequestsPath, totalRequests);
+                            
+                            await WriteTotalRequests(totalRequests);
                         } 
                         break;
                     
@@ -681,8 +675,7 @@ public static class Handlers
                                     CultureInfo.GetCultureInfo(user.Language ?? "en-US")) ?? string.Empty, nsfwStatus), 
                             cancellationToken: cancellationToken);
                         
-                        totalRequests++;
-                        await WriteTotalRequests(totalRequestsPath, totalRequests);
+                        await WriteTotalRequests(totalRequests++);
                         break; 
                     } 
                 } 
@@ -728,8 +721,7 @@ public static class Handlers
                             }, 
                             cancellationToken: cancellationToken);
                         
-                        totalRequests++;
-                        await WriteTotalRequests(totalRequestsPath, totalRequests);
+                        await WriteTotalRequests(totalRequests++);
                         
                     }
                     else
@@ -737,8 +729,8 @@ public static class Handlers
                         await botClient.SendTextMessageAsync(message.Chat.Id, string.Format(resourceManager.GetString(
                             "NsfwSettingException_NotEnoughRights_Chat",
                             CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, $"@{message.From?.Username}"), cancellationToken: cancellationToken);
-                        totalRequests++;
-                        await WriteTotalRequests(totalRequestsPath, totalRequests);
+                        
+                        await WriteTotalRequests(totalRequests++);
                         
                     } 
                 }
@@ -770,8 +762,8 @@ public static class Handlers
                                 CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!)
                         }, 
                         cancellationToken: cancellationToken);
-                    totalRequests++;
-                    await WriteTotalRequests(totalRequestsPath, totalRequests);
+                    
+                    await WriteTotalRequests(totalRequests++);
                     
                 } 
             }
@@ -781,8 +773,7 @@ public static class Handlers
                 if (message.Chat.Id < 0 && message.Text.Equals($"/random@{bot.GetMeAsync(cancellationToken).Result.Username}") || 
                     message.Chat.Id > 0 && message.Text.Equals("/random")) 
                 {
-                    totalRequests++;
-                    await WriteTotalRequests(totalRequestsPath, totalRequests);
+                    await WriteTotalRequests(totalRequests++);
                     
                     var values = message.Chat.Id < 0 ? 
                         Enum.GetValues(chat!.Nsfw ? typeof(Subreddits.Explicit) : typeof(Subreddits.Implicit)) : 
@@ -791,8 +782,8 @@ public static class Handlers
                     var random = new Random(); 
                     var randomSubreddit = values.GetValue(random.Next(values.Length));
                     
-                    //Putting this boi in separate thread in order to process multiple requests at one time
-                    async void NewThread() =>  await GetPicNewThread(randomSubreddit?.ToString(), random.Next(0, 999));
+                    //Putting this boi in separate thread in order to process multiple requests at a time
+                    async void NewThread() =>  await GetPic(randomSubreddit?.ToString(), random.Next(0, 999));
                     new Thread(NewThread).Start(); 
                 } 
             }

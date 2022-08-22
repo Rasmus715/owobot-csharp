@@ -4,14 +4,7 @@ using owobot_csharp;
 using owobot_csharp.Data;
 using Telegram.Bot;
 using Telegram.Bot.Extensions.Polling;
-using System.Text.Json;
 using Microsoft.Extensions.Configuration;
-using JsonException = System.Text.Json.JsonException;
-using JsonSerializer = System.Text.Json.JsonSerializer;
-using Telegram.Bot.Types;
-using File = System.IO.File;
-
-var configurationPath = $"{Environment.CurrentDirectory}/Configuration.env";
 
 IConfiguration configuration = new ConfigurationBuilder()
     .AddEnvironmentVariables()
@@ -115,91 +108,92 @@ if (!Directory.Exists("Essentials"))
 }
         
 
-    var applicationContext = new ApplicationContext();
-    applicationContext.Database.Migrate();
-    applicationContext.Dispose();
-    Console.WriteLine(@"Migration successful");
 
-    if (usingProxyHttp)
+var applicationContext = new ApplicationContext();
+applicationContext.Database.Migrate();
+applicationContext.Dispose();
+Console.WriteLine(@"Migration successful");
+
+if (usingProxyHttp)
+{
+    try
     {
-        try
+        var webProxy = new WebProxy(configuration.GetSection("PROXY_ADDRESS").Value,
+            int.Parse(configuration.GetSection("PROXY_PORT").Value))
         {
-            var webProxy = new WebProxy(configuration.GetSection("PROXY_ADDRESS").Value,
-                int.Parse(configuration.GetSection("PROXY_PORT").Value))
+            // Credentials if needed:
+            Credentials = new NetworkCredential(configuration.GetSection("PROXY_USERNAME").Value,
+                configuration.GetSection("PROXY_PASSWORD").Value)
+        };
+
+        var httpClient = new HttpClient(
+            new HttpClientHandler
             {
-                // Credentials if needed:
-                Credentials = new NetworkCredential(configuration.GetSection("PROXY_USERNAME").Value,
-                    configuration.GetSection("PROXY_PASSWORD").Value)
-            };
+                Proxy = webProxy, UseProxy = true
+            });
 
-            var httpClient = new HttpClient(
-                new HttpClientHandler
-                {
-                    Proxy = webProxy, UseProxy = true
-                });
+        Console.WriteLine(@"Attempting to start the bot...");
 
-            Console.WriteLine(@"Attempting to start the bot...");
+        var botClient = new TelegramBotClient(configuration.GetSection("TELEGRAM_TOKEN").Value, httpClient);
 
-            var botClient = new TelegramBotClient(configuration.GetSection("TELEGRAM_TOKEN").Value, httpClient);
+        var me = await botClient.GetMeAsync();
+        Console.WriteLine($@"Start listening for @{me.Username}");
 
-            var me = await botClient.GetMeAsync();
-            Console.WriteLine($@"Start listening for @{me.Username}");
+        await botClient.ReceiveAsync(Handlers.HandleUpdateAsync,
+            Handlers.HandleErrorAsync,
+            new ReceiverOptions
+            {
+                ThrowPendingUpdates = true
+            });
 
-            await botClient.ReceiveAsync(Handlers.HandleUpdateAsync,
-                Handlers.HandleErrorAsync,
-                new ReceiverOptions
-                {
-                    ThrowPendingUpdates = true
-                });
-
-            return 0;
-        }
-        catch (Telegram.Bot.Exceptions.ApiRequestException ex)
-        {
-            Console.WriteLine(@$"Unable to start the bot. Reason: {ex.Message}");
-            return 1;
-        }
-
+        return 0;
+    }
+    catch (Telegram.Bot.Exceptions.ApiRequestException ex)
+    {
+        Console.WriteLine(@$"Unable to start the bot. Reason: {ex.Message}");
+        return 1;
     }
 
-    if (usingProxySocks5)
+}
+
+if (usingProxySocks5)
+{
+    try
     {
-        try
+        var proxy = new WebProxy(
+            $"{configuration.GetSection("PROXY_ADDRESS").Value}:{configuration.GetSection("PROXY_PORT").Value}")
         {
-            var proxy = new WebProxy(
-                $"{configuration.GetSection("PROXY_ADDRESS").Value}:{configuration.GetSection("PROXY_PORT").Value}")
+            Credentials = new NetworkCredential(configuration.GetSection("PROXY_USERNAME").Value,
+                configuration.GetSection("PROXY_PASSWORD").Value)
+        };
+        var httpClient = new HttpClient(
+            new SocketsHttpHandler {Proxy = proxy, UseProxy = true,}
+        );
+
+        Console.WriteLine(@"Attempting to start the bot...");
+
+        var botClient = new TelegramBotClient(configuration.GetSection("TELEGRAM_TOKEN").Value, httpClient);
+
+        var me = await botClient.GetMeAsync();
+        Console.WriteLine($@"Start listening for @{me.Username}");
+
+        await botClient.ReceiveAsync(Handlers.HandleUpdateAsync,
+            Handlers.HandleErrorAsync,
+            new ReceiverOptions
             {
-                Credentials = new NetworkCredential(configuration.GetSection("PROXY_USERNAME").Value,
-                    configuration.GetSection("PROXY_PASSWORD").Value)
-            };
-            var httpClient = new HttpClient(
-                new SocketsHttpHandler {Proxy = proxy, UseProxy = true,}
-            );
+                ThrowPendingUpdates = true
+            });
 
-            Console.WriteLine(@"Attempting to start the bot...");
-
-            var botClient = new TelegramBotClient(configuration.GetSection("TELEGRAM_TOKEN").Value, httpClient);
-
-            var me = await botClient.GetMeAsync();
-            Console.WriteLine($@"Start listening for @{me.Username}");
-
-            await botClient.ReceiveAsync(Handlers.HandleUpdateAsync,
-                Handlers.HandleErrorAsync,
-                new ReceiverOptions
-                {
-                    ThrowPendingUpdates = true
-                });
-
-            return 0;
-        }
-
-        catch (Telegram.Bot.Exceptions.ApiRequestException ex)
-        {
-            Console.WriteLine(@$"Unable to start the bot. Reason: {ex.Message}");
-            return 1;
-        }
-
+        return 0;
     }
+
+    catch (Telegram.Bot.Exceptions.ApiRequestException ex)
+    {
+        Console.WriteLine(@$"Unable to start the bot. Reason: {ex.Message}");
+        return 1;
+    }
+
+}
 
 
 try

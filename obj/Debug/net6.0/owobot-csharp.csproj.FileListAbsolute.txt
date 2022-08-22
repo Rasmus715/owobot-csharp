@@ -72,3 +72,4 @@
 /Users/crackbargains/owobot-csharp/bin/Debug/net6.0/Microsoft.Extensions.FileProviders.Abstractions.dll
 /Users/crackbargains/owobot-csharp/bin/Debug/net6.0/Microsoft.Extensions.FileProviders.Physical.dll
 /Users/crackbargains/owobot-csharp/bin/Debug/net6.0/Microsoft.Extensions.FileSystemGlobbing.dll
+/Users/crackbargains/owobot-csharp/bin/Debug/net6.0/BooruSharp.dll
