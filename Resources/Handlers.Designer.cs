@@ -183,15 +183,39 @@ namespace owobot_csharp.Resources {
             }
         }
         
-        internal static string UnknowsCommand_Chat {
-            get {
-                return ResourceManager.GetString("UnknowsCommand_Chat", resourceCulture);
-            }
-        }
-        
         internal static string NsfwSettingException_NotEnoughRights_Chat {
             get {
                 return ResourceManager.GetString("NsfwSettingException_NotEnoughRights_Chat", resourceCulture);
+            }
+        }
+        
+        internal static string OnSwitch {
+            get {
+                return ResourceManager.GetString("OnSwitch", resourceCulture);
+            }
+        }
+        
+        internal static string OffSwitch {
+            get {
+                return ResourceManager.GetString("OffSwitch", resourceCulture);
+            }
+        }
+        
+        internal static string UnknownCommand_Chat {
+            get {
+                return ResourceManager.GetString("UnknownCommand_Chat", resourceCulture);
+            }
+        }
+        
+        internal static string Yes {
+            get {
+                return ResourceManager.GetString("Yes", resourceCulture);
+            }
+        }
+        
+        internal static string No {
+            get {
+                return ResourceManager.GetString("No", resourceCulture);
             }
         }
     }

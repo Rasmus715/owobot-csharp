@@ -14,6 +14,6 @@ public class ApplicationContext : DbContext
         base.OnConfiguring(optionsBuilder);
     }
 
-    public DbSet<User> Users { get; set; } = default!;
-    public DbSet<Chat> Chats { get; set; } = default!;
+    public DbSet<User> Users {get; set;}
+    public DbSet<Chat> Chats { get; set; }
 }

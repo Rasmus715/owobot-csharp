@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Globalization;
+using System.Net;
 using Microsoft.EntityFrameworkCore;
 using owobot_csharp;
 using owobot_csharp.Data;

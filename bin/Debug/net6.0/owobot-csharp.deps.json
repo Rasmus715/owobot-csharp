@@ -26,9 +26,6 @@
           "owobot-csharp.dll": {}
         },
         "resources": {
-          "en-US/owobot-csharp.resources.dll": {
-            "locale": "en-US"
-          },
           "ru-RU/owobot-csharp.resources.dll": {
             "locale": "ru-RU"
           }

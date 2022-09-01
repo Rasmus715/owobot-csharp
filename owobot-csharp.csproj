@@ -5,7 +5,7 @@
         <TargetFramework>net6.0</TargetFramework>
         <RootNamespace>owobot_csharp</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+        <Nullable>disable</Nullable>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
@@ -32,14 +32,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Update="Resources\Handlers.en-US.resx">
-        <Generator>ResXFileCodeGenerator</Generator>
-        <LastGenOutput>Handlers.en-US.Designer.cs</LastGenOutput>
-      </EmbeddedResource>
-      <EmbeddedResource Update="Resources\Handlers.ru-RU.resx">
-        <Generator>ResXFileCodeGenerator</Generator>
-        <LastGenOutput>Handlers.ru-RU.Designer.cs</LastGenOutput>
-      </EmbeddedResource>
       <EmbeddedResource Update="Resources\Handlers.resx">
         <Generator>ResXFileCodeGenerator</Generator>
         <LastGenOutput>Handlers.Designer.cs</LastGenOutput>
@@ -47,20 +39,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Resources\Handlers.en-US.Designer.cs">
-        <DesignTime>True</DesignTime>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>Handler.sr-Cyrl.resx</DependentUpon>
-      </Compile>
-      <Compile Update="Resources\Handlers.ru-RU.Designer.cs">
-        <DesignTime>True</DesignTime>
-        <AutoGen>True</AutoGen>
-        <DependentUpon>Handler.ru-RU.resx</DependentUpon>
-      </Compile>
       <Compile Update="Resources\Handlers.Designer.cs">
         <DesignTime>True</DesignTime>
         <AutoGen>True</AutoGen>
-        <DependentUpon>Handler.resx</DependentUpon>
+        <DependentUpon>Handlers.resx</DependentUpon>
       </Compile>
     </ItemGroup>
 

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 
 <root>
     <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
@@ -230,10 +230,22 @@ Post Link: {5}</value>
     <data name="SetNsfwOn_Chat" xml:space="preserve">
         <value>Got it, {0}! Now the lewds are enabled in this chat! ( ͡° ͜ʖ ͡°)</value>
     </data>
-    <data name="UnknowsCommand_Chat" xml:space="preserve">
-        <value>Eaah, {0}? I don't understand you!</value>
-    </data>
     <data name="NsfwSettingException_NotEnoughRights_Chat" xml:space="preserve">
         <value>Sorry, {0}, but in chat this setting can be changed only by admin.</value>
+    </data>
+    <data name="OnSwitch" xml:space="preserve">
+        <value>ON</value>
+    </data>
+    <data name="OffSwitch" xml:space="preserve">
+        <value>OFF</value>
+    </data>
+    <data name="UnknownCommand_Chat" xml:space="preserve">
+        <value>Eaah, {0}? I don't understand you!</value>
+    </data>
+    <data name="Yes" xml:space="preserve">
+        <value>Yes</value>
+    </data>
+    <data name="No" xml:space="preserve">
+        <value>No</value>
     </data>
 </root>

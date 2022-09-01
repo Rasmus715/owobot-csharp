@@ -150,7 +150,7 @@ NSFW для этого чата: {3}
 Версия бота: {4}</value>
   </data>
   <data name="LanguageInfo" xml:space="preserve">
-    <value>Oa! Вы решили сменить язык?
+    <value>Oa! Ты решил сменить язык?
 
 На данный момент установлен русский язык. Вот что Вы можете сделать:
 /language_en to switch to english
@@ -231,9 +231,6 @@ NSFW: {2}
   </data>
   <data name="SetNsfwOn_Chat" xml:space="preserve">
     <value>Поняла тебя, {0}! Теперь в этом чате левды включены! ( ͡° ͜ʖ ͡°)</value>
-  </data>
-  <data name="UnknowsCommand_Chat" xml:space="preserve">
-    <value>Эаа, {0}? Я не поняла тебя!</value>
   </data>
   <data name="SetNsfwOff_Chat" xml:space="preserve">
     <value>Поняла тебя, {0}! Больше никакой пошлятины в этом чате!</value>
@@ -329,5 +326,20 @@ NSFW: {3}
 /get_Smugs - Самодовольные девочки.
 /get_manga - Странички из манги.
 /get_Lain - W̺̹̆̒ͪ͌̒ͦe͂̈́ ̜͕̮͉̥̔ͪ̃͗ͣa͛ͤ̌ŕ̭̈́̎̈ͯ͋e̠̤̫̪͙ͩͨ ͉̘̱͔̥͊͂́̍ͦ́ẃ̰̼̰͌̇iͧ̀̉ͫr͖̗̙̫̓e̥̣̲ͨ̄͌̑d̲͉̭̩̟̙̝͆ͥ</value>
+  </data>
+  <data name="OnSwitch" xml:space="preserve">
+    <value>Включён</value>
+  </data>
+  <data name="OffSwitch" xml:space="preserve">
+    <value>Выключен</value>
+  </data>
+  <data name="UnknownCommand_Chat" xml:space="preserve">
+    <value>Эаа, {0}? Я не поняла тебя!</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Нет</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>No</value>
   </data>
 </root>
