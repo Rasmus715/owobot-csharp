@@ -24,7 +24,10 @@ env:
 
 jobs:
   build:
-
+    name: Build
+    uses: ./.github/workflows/build.yml
+  push_to_registry:
+    name: Push Docker image
     runs-on: ubuntu-latest
     permissions:
       contents: read
