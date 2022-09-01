@@ -74,7 +74,7 @@ IConfiguration configuration = new ConfigurationBuilder()
         return 1;
     }
 
-    var usingProxyHttp = false;
+var usingProxyHttp = false;
 var usingProxySocks5 = false;
 
 if (configuration.GetSection("PROXY").Exists())
