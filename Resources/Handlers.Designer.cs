@@ -218,5 +218,17 @@ namespace owobot_csharp.Resources {
                 return ResourceManager.GetString("No", resourceCulture);
             }
         }
+        
+        internal static string ReturnPicBooru {
+            get {
+                return ResourceManager.GetString("ReturnPicBooru", resourceCulture);
+            }
+        }
+        
+        internal static string ReturnPicBooru_Chat {
+            get {
+                return ResourceManager.GetString("ReturnPicBooru_Chat", resourceCulture);
+            }
+        }
     }
 }
