@@ -855,6 +855,15 @@ public static class Handlers
             {
                 try
                 {
+                    try
+                    {
+                        await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing, cancellationToken);
+                    }
+                    catch (ApiRequestException)
+                    {
+                        // ignored
+                    }
+                    
                     SearchResult post;
 
                     if (message.Chat.Id < 0)
