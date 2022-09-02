@@ -814,10 +814,10 @@ public static class Handlers
 
                 var choice = message.Chat.Id < 0 ? 
                     chat!.Nsfw ? 
-                        random.Next(7) : 
+                        random.Next(6) : 
                         random.Next(5) :
                     user.Nsfw ? 
-                        random.Next(7) : 
+                        random.Next(6) : 
                         random.Next(5);
 
                 switch (choice)
@@ -841,9 +841,6 @@ public static class Handlers
                                 await GetBooruPic(new Sakugabooru());
                                 break;
                             case 6:
-                                await GetBooruPic(new Realbooru());
-                                break;
-                            case 7:
                                 await GetBooruPic(new Yandere());
                                 break;
                             default:
