@@ -757,13 +757,11 @@ public static class Handlers
                     if (message.Chat.Id < 0)
                         if (chat!.Nsfw)
                         {
-                            Console.WriteLine("User is NSFW");
                             values.AddRange(Enum.GetValues(typeof(Subreddits.Explicit)).Cast<Enum>());
                             values.AddRange(Enum.GetValues(typeof(Subreddits.Implicit)).Cast<Enum>());
                         }
                         else
                         {
-                            Console.WriteLine("Chat is NOT NSFW");
                             values.AddRange(Enum.GetValues(typeof(Subreddits.Implicit)).Cast<Enum>());
                         }
                     else
@@ -855,49 +853,42 @@ public static class Handlers
 
             async Task Foo(ABooru booru)
             {
-                SearchResult post;
+                try
+                {
+                    SearchResult post;
 
-                if (message.Chat.Id < 0)
-                    do
-                    {
-                        post = await booru.GetRandomPostAsync();
-                    }
-                    while (!chat!.Nsfw && !post.Rating.Equals(Rating.Safe));
-                else
-                    do
-                    {
-                        post = await booru.GetRandomPostAsync();
-                    }
-                    while (!user!.Nsfw && !post.Rating.Equals(Rating.Safe));
+                    if (message.Chat.Id < 0)
+                        do
+                        {
+                            post = await booru.GetRandomPostAsync();
+                        } while (!chat!.Nsfw && !post.Rating.Equals(Rating.Safe));
+                    else
+                        do
+                        {
+                            post = await booru.GetRandomPostAsync();
+                        } while (!user!.Nsfw && !post.Rating.Equals(Rating.Safe));
 
-                // do
-                // {
-                //     post = await booru.GetRandomPostAsync();
-                //     Console.WriteLine("Found post!");
-                //     Console.WriteLine("((chat?.Nsfw ?? false) || (user?.Nsfw ?? false)): " + ((chat?.Nsfw ?? false) || (user?.Nsfw ?? false)));
-                //     Console.WriteLine("(post.Rating.Equals(Rating.Explicit) || post.Rating.Equals(Rating.Questionable)) && post.Size > 5e+6:  " + ((!post.Rating.Equals(Rating.Safe) || post.Rating.Equals(Rating.Questionable)) && post.Size > 5e+6));
-                //     
-                // }
-                // //while (((chat?.Nsfw ?? false) || (user?.Nsfw ?? false) && (!post.Rating.Equals(Rating.Safe) || post.Rating.Equals(Rating.Questionable))) && post.Size > 5e+6);
-                // while (((chat?.Nsfw ?? false) || (user?.Nsfw ?? false)) && (post.Rating.Equals(Rating.Explicit) || post.Rating.Equals(Rating.Questionable)) && post.Size > 5e+6);
+                    var returnPicMessage = message.Chat.Id > 0
+                        ? string.Format(resourceManager!.GetString("ReturnPicBooru",
+                                CultureInfo.GetCultureInfo(user?.Language!))!,
+                            post.Rating,
+                            post.FileUrl.AbsoluteUri,
+                            post.PostUrl)
+                        : string.Format(resourceManager!.GetString("ReturnPicBooru_Chat",
+                                CultureInfo.GetCultureInfo(user?.Language!))!,
+                            $"@{message.From?.Username}",
+                            post.Rating,
+                            post.FileUrl.AbsoluteUri,
+                            post.PostUrl);
 
-                var returnPicMessage = message.Chat.Id > 0
-                    ? string.Format(resourceManager!.GetString("ReturnPicBooru",
-                            CultureInfo.GetCultureInfo(user?.Language!))!,
-                        post.Rating,
-                        post.FileUrl.AbsoluteUri,
-                        post.PostUrl)
-                    : string.Format(resourceManager!.GetString("ReturnPicBooru_Chat",
-                            CultureInfo.GetCultureInfo(user?.Language!))!,
-                        $"@{message.From?.Username}",
-                        post.Rating,
-                        post.FileUrl.AbsoluteUri,
-                        post.PostUrl);
-
-                await botClient.SendTextMessageAsync(message.Chat.Id,
-                    returnPicMessage,
-                    cancellationToken: cancellationToken);
-                
+                    await botClient.SendTextMessageAsync(message.Chat.Id,
+                        returnPicMessage,
+                        cancellationToken: cancellationToken);
+                }
+                catch (Exception)
+                {
+                    //ignored
+                }
             }
         }
         
