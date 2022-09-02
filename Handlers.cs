@@ -822,36 +822,36 @@ public static class Handlers
                 switch (choice)
                         {
                             case 0:
-                                await Foo(new Konachan());
+                                await GetBooruPic(new Konachan());
                                 break;
                             case 1:
-                                await Foo(new SankakuComplex());
+                                await GetBooruPic(new SankakuComplex());
                                 break;
                             case 2:
-                                await Foo(new DanbooruDonmai());
+                                await GetBooruPic(new DanbooruDonmai());
                                 break;
                             case 3:
-                                await Foo(new Lolibooru());
+                                await GetBooruPic(new Lolibooru());
                                 break;
                             case 4:
-                                await Foo(new Safebooru());
+                                await GetBooruPic(new Safebooru());
                                 break;
                             case 5:
-                                await Foo(new Sakugabooru());
+                                await GetBooruPic(new Sakugabooru());
                                 break;
                             case 6:
-                                await Foo(new Realbooru());
+                                await GetBooruPic(new Realbooru());
                                 break;
                             case 7:
-                                await Foo(new Yandere());
+                                await GetBooruPic(new Yandere());
                                 break;
                             default:
-                                await Foo(new Konachan());
+                                await GetBooruPic(new Konachan());
                                 break;
                         }
             }
 
-            async Task Foo(ABooru booru)
+            async Task GetBooruPic(ABooru booru)
             {
                 try
                 {
