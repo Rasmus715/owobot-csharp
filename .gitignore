@@ -7,8 +7,8 @@ build/
 !**/src/**/build
 !**/test/**/build
 *.iml
+*.user
 
 owobot-java-config.properties
 
-[Bb]in/
 [Oo]bj/
