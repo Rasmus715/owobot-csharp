@@ -812,13 +812,14 @@ public static class Handlers
             {
                 var random = new Random();
 
-                int choice;
+                var choice = message.Chat.Id < 0 ? 
+                    chat!.Nsfw ? 
+                        random.Next(7) : 
+                        random.Next(5) :
+                    user.Nsfw ? 
+                        random.Next(7) : 
+                        random.Next(5);
 
-                if ((chat?.Nsfw ?? false) || (user?.Nsfw ?? false))
-                    choice = random.Next(5);
-                else
-                    choice = random.Next(7);
-                
                 switch (choice)
                         {
                             case 0:
