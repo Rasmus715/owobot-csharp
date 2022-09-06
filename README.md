@@ -41,10 +41,10 @@ TELEGRAM_TOKEN= BOT_VERSION=v0.1 dotnet run
         - .Esseintials/:/app/Essentials
       environment:
         - BOT_VERSION=v0.1
-        - TELEGRAM_TOKEN=
-        - REDDIT_APP_ID=
-        - REDDIT_SECRET=
-        - REDDIT_REFRESH_TOKEN=
+        - TELEGRAM_TOKEN= //Optional
+        - REDDIT_APP_ID= //Optional
+        - REDDIT_SECRET= //Optional
+        - REDDIT_REFRESH_TOKEN= //Optional
         - PROXY= //Optional
         - PROXY_ADDRESS= //Optional
         - PROXY_USERNAME= //Optional
