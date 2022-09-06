@@ -27,7 +27,7 @@ If you’re tired of reading and you want to see anime girls already, then you a
 By default, I will not send you NSFW content, however you can configure this here: /nsfw
 You can also change the language here: /language
 
-A few words about privacy - I save only the settings for each user.
+A few words about privacy - I save only the settings for each user and chat. 
 My github page: https://github.com/Rasmus715/owobot-csharp
 
 I hope that I will be useful to you, master!! (☆ω☆)</value>
@@ -113,7 +113,7 @@ Currently NSFW is: {0}. Here is what you can do:
 
 
 
-*No guarantee that all NSFW tags in reddit is correct!</value>
+*No guarantee that all NSFW tags in reddit are correct!</value>
     </data>
     <data name="SetNsfwOn" xml:space="preserve">
         <value>Got it! Now the lewds are enabled in this chat! ( ͡° ͜ʖ ͡°)</value>
@@ -212,7 +212,7 @@ Currently NSFW is: {1}. Here is what you can do:
 
 Be aware that only the admin of chat can change this setting.
 
-*No guarantee that all NSFW tags in reddit is correct!</value>
+*No guarantee that all NSFW tags in reddit are correct!</value>
     </data>
     <data name="ReturnPic_Chat" xml:space="preserve">
         <value>Pam, {0}! Here's your picture from {1}

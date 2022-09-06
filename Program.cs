@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Net;
+﻿using System.Net;
 using Microsoft.EntityFrameworkCore;
 using owobot_csharp;
 using owobot_csharp.Data;
@@ -16,63 +15,63 @@ IConfiguration configuration = new ConfigurationBuilder()
 
     if (!configuration.GetSection("TELEGRAM_TOKEN").Exists() || configuration.GetSection("TELEGRAM_TOKEN").Value.Equals(""))
     {
-        Console.WriteLine(@"Telegram Token field in configuration file is not filled.");
+        Console.WriteLine(@"Telegram Token field is not present.");
         parseSuccessful = false;
     }
     
-    if (!configuration.GetSection("REDDIT_APP_ID").Exists() || configuration.GetSection("REDDIT_APP_ID").Value.Equals(""))
+    if (configuration.GetSection("REDDIT_APP_ID").Exists() || configuration.GetSection("REDDIT_SECRET").Exists() || configuration.GetSection("REDDIT_REFRESH_TOKEN").Exists())
     {
-        Console.WriteLine(@"Reddit App Id field in configuration file is not filled.");
-        parseSuccessful = false;
-    }
-    
-    if (!configuration.GetSection("REDDIT_SECRET").Exists() || configuration.GetSection("REDDIT_SECRET").Value.Equals(""))
-    {
-        Console.WriteLine(@"Reddit Secret Id field in configuration file is not filled.");
-        parseSuccessful = false;
-    }
-    
-    if (!configuration.GetSection("REDDIT_REFRESH_TOKEN").Exists() || configuration.GetSection("REDDIT_REFRESH_TOKEN").Value.Equals(""))
-    {
-        Console.WriteLine(@"Reddit Refresh Token Id field in configuration file is not filled.");
-        parseSuccessful = false;
-    }
-
-    if (configuration.GetSection("PROXY").Exists() && configuration.GetSection("PROXY").Value.Equals("HTTP") && configuration.GetSection("PROXY").Value.Equals("SOCKS5"))
-    {
-        
-        if (!configuration.GetSection("PROXY_ADDRESS").Exists() || configuration.GetSection("PROXY_ADDRESS").Value.Equals(""))
+        if (configuration.GetSection("REDDIT_APP_ID").Value.Equals(""))
         {
-             Console.WriteLine(@"Proxy field is filled but no address was provided.");
-             parseSuccessful = false;
-        }
-        
-        if (!configuration.GetSection("PROXY_PORT").Exists() || configuration.GetSection("PROXY_PORT").Value.Equals(""))
-        {
-            Console.WriteLine(@"Proxy field is filled but no port was provided.");
+            Console.WriteLine(@"Reddit Secret is not present.");
             parseSuccessful = false;
         }
 
-        // if (configuration.GetSection("PROXY_USERNAME").Value.Equals(""))
-        // {
-        //     Console.WriteLine(@"Proxy field is filled but no username was provided.");
-        //     parseSuccessful = false;
-        // }
-        //
-        // if (configuration.GetSection("PROXY_PASSWORD").Value.Equals(""))
-        // {
-        //     Console.WriteLine(@"Proxy field is filled but no password was provided.");
-        //     parseSuccessful = false;
-        // }
+        if (configuration.GetSection("REDDIT_REFRESH_TOKEN").Value.Equals(""))
+        {
+            Console.WriteLine(@"Reddit Refresh Token is not present.");
+            parseSuccessful = false;
+        }
+
+        if (configuration.GetSection("REDDIT_REFRESH_TOKEN").Value.Equals(""))
+        {
+            Console.WriteLine(@"Reddit Refresh Token is not present.");
+            parseSuccessful = false;
+        }
     }
-    
-    if (parseSuccessful)
-        Console.WriteLine(@"Configuration looks OK.");
-    else
+
+    if (configuration.GetSection("PROXY").Exists())
     {
-        Console.WriteLine(@"Please, fix the errors listed above and try again");
-        return 1;
+        if (configuration.GetSection("PROXY").Value.Equals("HTTP") ||
+            configuration.GetSection("PROXY").Value.Equals("SOCKS5"))
+        {
+            if (!configuration.GetSection("PROXY_ADDRESS").Exists() || configuration.GetSection("PROXY_ADDRESS").Value.Equals(""))
+            {
+                Console.WriteLine(@"Proxy field is present but no address was provided.");
+                parseSuccessful = false;
+            }
+                    
+            if (!configuration.GetSection("PROXY_PORT").Exists() || configuration.GetSection("PROXY_PORT").Value.Equals(""))
+            {
+                Console.WriteLine(@"Proxy field is present but no port was provided.");
+                parseSuccessful = false;
+            }
+        }
+        else
+        {
+            Console.WriteLine(@"Proxy field is filled with unsupported value. Valid values are ""HTTP"", ""SOCKS5""");
+            parseSuccessful = false;
+        }
+        
     }
+
+if (parseSuccessful)
+    Console.WriteLine(@"Configuration looks OK.");
+else
+{
+    Console.WriteLine(@"Please, fix the errors listed above and try again");
+    return 1;
+}
 
 var usingProxyHttp = false;
 var usingProxySocks5 = false;
@@ -100,7 +99,7 @@ if (configuration.GetSection("PROXY").Exists())
 }
 //var bot = new TelegramBotClient(deserializedJson!["TelegramToken"]);
 
-    Console.WriteLine(@"Initializing migration...");
+Console.WriteLine(@"Initializing migration...");
 
 if (!Directory.Exists("Essentials"))
 {

@@ -381,6 +381,14 @@ public static class Handlers
             {
                 await WriteTotalRequests(totalRequests);
 
+                if (!configuration.GetSection("REDDIT_APP_ID").Exists())
+                {
+                    await botClient.SendTextMessageAsync(message.Chat.Id,
+                        "Whoops! Something went wrong!!\nReddit credentials isn't present in bot configuration.\nTo use this functionality, please follow the guide listed in README file",
+                        cancellationToken: cancellationToken);
+                    return;
+                }
+                
                 try
                 {
                     await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing, cancellationToken);
@@ -816,7 +824,7 @@ public static class Handlers
                     chat!.Nsfw ? 
                         random.Next(6) : 
                         random.Next(5) :
-                    user.Nsfw ? 
+                    user!.Nsfw ? 
                         random.Next(6) : 
                         random.Next(5);
 
@@ -891,6 +899,8 @@ public static class Handlers
                     await botClient.SendTextMessageAsync(message.Chat.Id,
                         returnPicMessage,
                         cancellationToken: cancellationToken);
+
+                    await WriteTotalRequests(totalRequests);
                 }
                 catch (Exception)
                 {
@@ -898,16 +908,13 @@ public static class Handlers
                 }
             }
         }
-        
-        
+
+
         Task UnknownUpdateHandlerAsync(Update x)
         {
             //Console.WriteLine($"Unknown update type: {update.Type}");
             return Task.CompletedTask;
         }
-        
-        
-        
     }
     
 }
