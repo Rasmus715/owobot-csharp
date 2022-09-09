@@ -70,7 +70,7 @@ docker run -d \
 ### Reason of choosing some questionable solutions
 
 First of all, I'm a C# newbie.<br />
-The whole idea of this project was to learn how to work with Telegram, Reddit client libraries aswell as how to setup EF Core in console application and use local database.
+The whole idea of this project was to learn how to work with Telegram, Reddit client libraries aswell how to set up EF Core in console application and use local database.
 
 
 ### TODO: 
