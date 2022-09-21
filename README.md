@@ -27,7 +27,7 @@ If for some reason you want to run it by yourself:
  - PROXY_USERNAME, PROXY_PASSWORD (Optional) - credentials of your proxy server 
 ### Native execution
 1. Clone code somewhere
-2. Install .NET 6 SDK and type into shell while filling parameters with your own values
+2. Install .NET 6 SDK and type the next command into shell, filling parameters with your own values
 
 ```shell
 TELEGRAM_TOKEN= BOT_VERSION=v0.1 dotnet run
