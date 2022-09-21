@@ -6,8 +6,6 @@ name: Pipeline
 # documentation.
 
 on:
-  schedule:
-    - cron: '29 13 * * *'
   push:
     branches: [ "develop" ]
     # Publish semver tags as releases.
