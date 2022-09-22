@@ -9,7 +9,7 @@ Bot link:  [@owopics_junior_bot](https://t.me/owopics_junior_bot)
 * Multithreading
 * Preventing timeout errors
 * User related NSFW settings
-* User related language settings (english and russian)
+* User related language settings (English and Russian)
 * Can answer on `owo` and `uwu`
 
 ### How to use:
