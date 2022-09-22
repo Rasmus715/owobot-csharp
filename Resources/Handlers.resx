@@ -19,21 +19,22 @@
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
     <data name="Info" xml:space="preserve">
-        <value>Hellowo! I'm owobot {0} - a bot that sends cute girls!
+        <value>Hellowo! I'm owobot {0} - a bot that sends cute anime girls!
 
-I am written in C# using .NET 6, taking data from reddit, and multi-threaded. Do not be afraid to send me 25-50 requests at a time, I can handle it!
+I am written in C# using .NET 6, taking data from Booru websites and reddit.
+I'm also multi-threaded. Don't be afraid to send me 25-50 requests at a time, I can handle it!
 
-If you’re tired of reading and you want to see anime girls already, then you are here: /get
-By default, I will not send you NSFW content, however you can configure this here: /nsfw
-You can also change the language here: /language
+If you’re tired of reading and you want to see anime girls already, then proceed with: /get
+By default, I will not send you NSFW content, however you can configure this using next command: /nsfw
+You can also change the language by sending: /language
 
 A few words about privacy - I save only the settings for each user and chat. 
-My github page: https://github.com/Rasmus715/owobot-csharp
+My GitHub page: https://github.com/Rasmus715/owobot-csharp
 
 I hope that I will be useful to you, master!! (☆ω☆)</value>
     </data>
     <data name="SetLanguage" xml:space="preserve">
-        <value>Understood! From now, I'll answer you in english language!</value>
+        <value>Understood! From now, I'll answer you in English!</value>
     </data>
     <data name="Start" xml:space="preserve">
         <value>Konichiwa, {0}!
@@ -41,7 +42,7 @@ I hope that I will be useful to you, master!! (☆ω☆)</value>
 To get more information type /info
 For a quick start, just type /get
 
-Also click on the slash icon at the keyboard to see command list.</value>
+Also click on the slash icon at the keyboard to see full command list.</value>
     </data>
     <data name="Status" xml:space="preserve">
         <value>I'm alive!
@@ -53,7 +54,7 @@ Bot version: {4}</value>
     <data name="LanguageInfo" xml:space="preserve">
         <value>Oa! Are you decided to change language?
 
-At this moment language is English. 
+At this moment used language to response is English. 
 Here is what you can do:
 /language_en to switch to English.
 /language_ru чтобы переключится на русский.</value>
@@ -67,7 +68,8 @@ Post Link: {4}</value>
     </data>
     <data name="GetStatus" xml:space="preserve">
         <value>Write to the bot /get_*subreddit tittle* and it will send you a random picture from there.
-Here is my little compilation:
+
+Here is my little compilation for you:
 /get_AnimeART - The biggest place with anime pics.
 /get_awwnime - All kinds of moe art.
 /get_wholesomeyuri - Yuri. Everyone loves yuri.
@@ -102,7 +104,11 @@ Here is my little compilation:
 /get_shorthairedwaifus - Girls with short hairstyles.
 /get_Smugs - Smug girls.
 /get_manga - Manga pages.
-/get_Lain - W̺̹̆̒ͪ͌̒ͦe͂̈́ ̜͕̮͉̥̔ͪ̃͗ͣa͛ͤ̌ŕ̭̈́̎̈ͯ͋e̠̤̫̪͙ͩͨ ͉̘̱͔̥͊͂́̍ͦ́ẃ̰̼̰͌̇iͧ̀̉ͫr͖̗̙̫̓e̥̣̲ͨ̄͌̑d̲͉̭̩̟̙̝͆ͥ</value>
+/get_Lain - W̺̹̆̒ͪ͌̒ͦe͂̈́ ̜͕̮͉̥̔ͪ̃͗ͣa͛ͤ̌ŕ̭̈́̎̈ͯ͋e̠̤̫̪͙ͩͨ ͉̘̱͔̥͊͂́̍ͦ́ẃ̰̼̰͌̇iͧ̀̉ͫr͖̗̙̫̓e̥̣̲ͨ̄͌̑d̲͉̭̩̟̙̝͆ͥ
+
+
+/random - random picture from booru websites (konachan, yande.re)
+/random_reddit - random picture from a subreddit, listed above</value>
     </data>
     <data name="NsfwStatus" xml:space="preserve">
         <value>Oagh! Have you decided to change the NSFW content settings?
@@ -119,7 +125,7 @@ Currently NSFW is: {0}. Here is what you can do:
         <value>Got it! Now the lewds are enabled in this chat! ( ͡° ͜ʖ ͡°)</value>
     </data>
     <data name="SetNsfwOff" xml:space="preserve">
-        <value>Understood! No more vulgarity in this chat!</value>
+        <value>Understood. No more vulgarity in this chat!</value>
     </data>
     <data name="NsfwSettingException" xml:space="preserve">
         <value>Ehmm... You should read carefully about the commands in /nsfw</value>
@@ -171,7 +177,10 @@ Here is my little compilation:
 /get_shorthairedwaifus - Girls with short hairstyles.
 /get_Smugs - Smug girls.
 /get_manga - Manga pages.
-/get_Lain - W̺̹̆̒ͪ͌̒ͦe͂̈́ ̜͕̮͉̥̔ͪ̃͗ͣa͛ͤ̌ŕ̭̈́̎̈ͯ͋e̠̤̫̪͙ͩͨ ͉̘̱͔̥͊͂́̍ͦ́ẃ̰̼̰͌̇iͧ̀̉ͫr͖̗̙̫̓e̥̣̲ͨ̄͌̑d̲͉̭̩̟̙̝͆ͥ</value>
+/get_Lain - W̺̹̆̒ͪ͌̒ͦe͂̈́ ̜͕̮͉̥̔ͪ̃͗ͣa͛ͤ̌ŕ̭̈́̎̈ͯ͋e̠̤̫̪͙ͩͨ ͉̘̱͔̥͊͂́̍ͦ́ẃ̰̼̰͌̇iͧ̀̉ͫr͖̗̙̫̓e̥̣̲ͨ̄͌̑d̲͉͆ͥ
+
+/random - random picture from booru boards (such as konachan, yande.re)
+/random_reddit - random picture from a subreddit, listed above</value>
     </data>
     <data name="Info_Chat" xml:space="preserve">
         <value>Hellowo, {0}! I'm owobot {1} - a bot that sends cute girls!
@@ -182,7 +191,7 @@ If you’re tired of reading and you want to see anime girls already, then you a
 By default, I will not send you NSFW content, however you can configure this here: /nsfw{2}
 You can also change the language here: /language{2}
 
-A few words about privacy - I save only the settings for each user.
+A few words about privacy - I save **only** the settings for each user.
 My github page: https://github.com/Rasmus715/owobot-csharp
 
 I hope that I will be useful to you, master!! (☆ω☆)</value>
@@ -190,7 +199,8 @@ I hope that I will be useful to you, master!! (☆ω☆)</value>
     <data name="LanguageInfo_Chat" xml:space="preserve">
         <value>Oa, {0}! Are you decided to change language?
 
-At this moment language is English.Here is what you can do:
+At this moment used language to response is English.
+Here is what you can do:
 /language_en{1} to switch to English
 /language_ru{1} чтобы переключится на русский</value>
     </data>
@@ -222,10 +232,10 @@ Link to the original: {4}
 Post Link: {5}</value>
     </data>
     <data name="SetLanguage_Chat" xml:space="preserve">
-        <value>Understood, {0}! From now, I'll answer you in english language!</value>
+        <value>Understood, {0}! From now, I'll answer you in English!</value>
     </data>
     <data name="SetNsfwOff_Chat" xml:space="preserve">
-        <value>Understood, {0}! No more vulgarity in this chat!</value>
+        <value>Understood, {0}. No more vulgarity in this chat!</value>
     </data>
     <data name="SetNsfwOn_Chat" xml:space="preserve">
         <value>Got it, {0}! Now the lewds are enabled in this chat! ( ͡° ͜ʖ ͡°)</value>

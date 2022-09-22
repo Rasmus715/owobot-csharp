@@ -1,4 +1,3 @@
-#nullable enable
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
@@ -75,7 +74,7 @@ public static class Handlers
         var handler = update.Type switch
         {
             UpdateType.Message => BotOnMessageReceived(botClient, update.Message!),
-            _ => UnknownUpdateHandlerAsync(update)
+            _ => UnknownUpdateHandlerAsync()
         };
 
         try
@@ -377,7 +376,7 @@ public static class Handlers
                 }
             }
 
-            async Task GetPic(string? subredditString, int randomValue)
+            async Task GetPic(string subredditString, int randomValue)
             {
                 await WriteTotalRequests(totalRequests);
 
@@ -413,7 +412,7 @@ public static class Handlers
                 //Console.WriteLine(@"RandomValue Minimized = " + randomValueMinimized);
 
                 var posts = new List<Post>();
-                var subreddit = redditClient!.Subreddit(subredditString);
+                var subreddit = redditClient.Subreddit(subredditString);
                 try
                 {
                     do
@@ -448,7 +447,7 @@ public static class Handlers
                     }
                     else
                     {
-                        if (user?.Nsfw == false)
+                        if (user!.Nsfw == false)
                         {
                             var postsInCollection = posts.Count;
                             while (post.NSFW)
@@ -462,7 +461,7 @@ public static class Handlers
 
 
                     var returnPicMessage = message.Chat.Id > 0
-                        ? string.Format(resourceManager!.GetString("ReturnPic",
+                        ? string.Format(resourceManager.GetString("ReturnPic",
                                 CultureInfo.GetCultureInfo(user?.Language!))!,
                             $"r/{post.Subreddit}",
                             post.Title,
@@ -473,7 +472,7 @@ public static class Handlers
                                     CultureInfo.GetCultureInfo(user?.Language!))!),
                             post.Listing.URL,
                             $"https://reddit.com{post.Permalink}")
-                        : string.Format(resourceManager!.GetString("ReturnPic_Chat",
+                        : string.Format(resourceManager.GetString("ReturnPic_Chat",
                                 CultureInfo.GetCultureInfo(user?.Language!))!,
                             $"@{message.From?.Username}",
                             $"r/{post.Subreddit}",
@@ -518,7 +517,7 @@ public static class Handlers
                     if (message.Chat.Id < 0)
                     {
                         await botClient.SendTextMessageAsync(message.Chat.Id,
-                            string.Format(resourceManager?.GetString("LewdDetected_Chat",
+                            string.Format(resourceManager.GetString("LewdDetected_Chat",
                                     CultureInfo.GetCultureInfo(user?.Language!))!, $"@{message.From?.Username}",
                                 message.Text),
                             cancellationToken: cancellationToken);
@@ -526,7 +525,7 @@ public static class Handlers
                     else
                     {
                         await botClient.SendTextMessageAsync(message.Chat.Id,
-                            string.Format(resourceManager?.GetString("LewdDetected",
+                            string.Format(resourceManager.GetString("LewdDetected",
                                 CultureInfo.GetCultureInfo(user?.Language!))!, message.Text),
                             cancellationToken: cancellationToken);
                     }
@@ -668,7 +667,7 @@ public static class Handlers
                 {
                     //(bot.GetMeAsync(cancellationToken).Result.Username);
                     //Console.WriteLine(param);
-                    if (!message.Text.EndsWith(bot.GetMeAsync(cancellationToken).Result.Username!))
+                    if (message.Text!.EndsWith(bot.GetMeAsync(cancellationToken).Result.Username!))
                         return;
                     var admins = await bot.GetChatAdministratorsAsync(message.Chat.Id, cancellationToken);
                     var isSenderAdmin = admins.Any(member => member.User.Id == message.From!.Id);
@@ -755,8 +754,8 @@ public static class Handlers
                 var random = new Random();
 
                 if (message.Chat.Id < 0 &&
-                    message.Text.Equals($"/random_reddit@{bot.GetMeAsync(cancellationToken).Result.Username}") ||
-                    message.Chat.Id > 0 && message.Text.Equals("/random_reddit"))
+                    message.Text!.Equals($"/random_reddit@{bot.GetMeAsync(cancellationToken).Result.Username}") ||
+                    message.Chat.Id > 0 && message.Text!.Equals("/random_reddit"))
                 {
                     await WriteTotalRequests(totalRequests);
 
@@ -824,7 +823,7 @@ public static class Handlers
                     chat!.Nsfw ? 
                         random.Next(6) : 
                         random.Next(5) :
-                    user!.Nsfw ? 
+                    user.Nsfw ? 
                         random.Next(6) : 
                         random.Next(5);
 
@@ -881,16 +880,16 @@ public static class Handlers
                         do
                         {
                             post = await booru.GetRandomPostAsync();
-                        } while (!user!.Nsfw && !post.Rating.Equals(Rating.Safe));
+                        } while (!user.Nsfw && !post.Rating.Equals(Rating.Safe));
 
                     var returnPicMessage = message.Chat.Id > 0
-                        ? string.Format(resourceManager!.GetString("ReturnPicBooru",
-                                CultureInfo.GetCultureInfo(user?.Language!))!,
+                        ? string.Format(resourceManager.GetString("ReturnPicBooru",
+                                CultureInfo.GetCultureInfo(user.Language!))!,
                             post.Rating,
                             post.FileUrl.AbsoluteUri,
                             post.PostUrl)
-                        : string.Format(resourceManager!.GetString("ReturnPicBooru_Chat",
-                                CultureInfo.GetCultureInfo(user?.Language!))!,
+                        : string.Format(resourceManager.GetString("ReturnPicBooru_Chat",
+                                CultureInfo.GetCultureInfo(user.Language!))!,
                             $"@{message.From?.Username}",
                             post.Rating,
                             post.FileUrl.AbsoluteUri,
@@ -910,7 +909,7 @@ public static class Handlers
         }
 
 
-        Task UnknownUpdateHandlerAsync(Update x)
+        Task UnknownUpdateHandlerAsync()
         {
             //Console.WriteLine($"Unknown update type: {update.Type}");
             return Task.CompletedTask;
