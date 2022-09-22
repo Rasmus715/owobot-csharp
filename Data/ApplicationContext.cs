@@ -5,7 +5,6 @@ namespace owobot_csharp.Data;
 
 public class ApplicationContext : DbContext
 {
-
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.UseSqlite("DataSource=Essentials/Database.db");

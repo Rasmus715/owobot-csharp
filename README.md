@@ -1,5 +1,6 @@
 # owobot-csharp
-
+![example branch parameter](https://github.com/Rasmus715/owobot-csharp/actions/workflows/docker-publish.yml/badge.svg?branch=develop)
+[![CodeFactor](https://www.codefactor.io/repository/github/rasmus715/owobot-csharp/badge/develop)](https://www.codefactor.io/repository/github/rasmus715/owobot-csharp/overview/develop) <br>
 An anime pics bot for Telegram, written on C# using .NET 6, taking data from Booru sites and reddit.   
 Бот для Telegram, присылающий аниме девочек, написанный на C# с использованием .NET 6, берущий данные с Booru-сайтов и Reddit.
 
