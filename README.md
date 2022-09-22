@@ -3,8 +3,6 @@
 An anime pics bot for Telegram, written on C# using .NET 6, taking data from Booru sites and reddit.   
 Бот для Telegram, присылающий аниме девочек, написанный на C# с использованием .NET 6, берущий данные с Booru-сайтов и Reddit.
 
-Bot link:  [@owopics_junior_bot](https://t.me/owopics_junior_bot)
-
 ### Features
 * Multithreading
 * Preventing timeout errors
