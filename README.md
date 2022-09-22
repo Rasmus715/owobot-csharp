@@ -30,7 +30,7 @@ If for some reason you want to run it by yourself:
 2. Install .NET 6 SDK and type the next command into shell, filling parameters with your own values
 
 ```shell
-TELEGRAM_TOKEN= BOT_VERSION=v0.1 dotnet run
+BOT_VERSION= TELEGRAM_TOKEN= REDDIT_APP_ID= REDDIT_SECRET= REDDIT_REFRESH_TOKEN= PROXY= PROXY_ADDRESS= PROXY_USERNAME= PROXY_PASSWORD= dotnet run
 ```
 
 ### docker-compose way
