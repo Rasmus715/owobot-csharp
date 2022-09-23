@@ -5,7 +5,7 @@ An anime pics bot for Telegram, written on C# using .NET 6, taking data from Boo
 Бот для Telegram, присылающий аниме девочек, написанный на C# с использованием .NET 6, берущий данные с Booru-сайтов и Reddit.
 
 ### Features
-* Multithreading
+* ~~Multithreading~~ Thanks to DI, now I don't need to worry about threads!
 * Preventing timeout errors
 * User related NSFW settings
 * User related language settings (English and Russian)
