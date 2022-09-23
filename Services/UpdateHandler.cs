@@ -72,10 +72,15 @@ public class UpdateHandler : IUpdateHandler
                 await _helperService.NsfwStatus(message, _botClient, cancellationToken);
                 break;
             case "/random":
-                await _helperService.GetRandomBooruPic(message, _botClient, cancellationToken);
+
+                async void BooruThread() =>
+                    await _helperService.GetRandomBooruPic(message, _botClient, cancellationToken);
+
+                new Thread(BooruThread).Start();
                 break;
             case "/random_reddit":
-                await _helperService.GetRandomPic(message, _botClient, cancellationToken);
+                async void RedditThread() => await _helperService.GetRandomPic(message, _botClient, cancellationToken);
+                new Thread(RedditThread).Start();
                 break;
             default:
                 if (message.Text.Contains("/get_"))
