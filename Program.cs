@@ -99,9 +99,9 @@ var host = Host.CreateDefaultBuilder(args)
                 break;
         }
         
-        services.AddScoped<UpdateHandler>(); 
-        services.AddScoped<ReceiverService>(); 
-        services.AddScoped<IHelperService, HelperService>()
+        services.AddTransient<UpdateHandler>(); 
+        services.AddTransient<ReceiverService>(); 
+        services.AddTransient<IHelperService, HelperService>()
             .AddLogging(cfg => cfg.AddConsole())
             .Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = LogLevel.Information); 
         services.AddDbContext<ApplicationContext>(); 
