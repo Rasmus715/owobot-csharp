@@ -537,11 +537,6 @@ public class HelperService : IHelperService
     
     private async Task GetPic(Message message, ITelegramBotClient botClient, int randomValue, string subredditString, CancellationToken cancellationToken, ResourceManager? resourceManager = null, Chat? chat = null, User? user = null)
     {
-        resourceManager ??= new ResourceManager("owobot_csharp.Resources.Handlers",
-            Assembly.GetExecutingAssembly());
-        user ??= await GetUser(message, cancellationToken);
-        chat ??= await GetChat(message, cancellationToken);
-        
         IConfiguration configuration = new ConfigurationBuilder()
             .AddEnvironmentVariables()
             .Build();

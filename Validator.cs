@@ -119,6 +119,5 @@ public static class Validator
             @"I was too lazy to test their functionality so expect this function to work incorrectly or don't work at all.");
 
         return "SOCKS5";
-
     }
 }
