@@ -5,12 +5,12 @@ services:
     volumes:
       - ./Esseintials/:/app/Essentials
     environment:
-      - BOT_VERSION=v0.1
-      - TELEGRAM_TOKEN=
-      - REDDIT_APP_ID=
-      - REDDIT_SECRET=
-      - REDDIT_REFRESH_TOKEN=
-      - PROXY='' //optional
-      - PROXY_ADDRESS='' //optional
-      - PROXY_USERNAME='' //optional
-      - PROXY_PASSWORD='' //optiona
+      - BOT_VERSION=v1.0.0-rc1
+      - TELEGRAM_TOKEN= //optional
+      - REDDIT_APP_ID= //optional
+      - REDDIT_SECRET= //optional
+      - REDDIT_REFRESH_TOKEN= //optional
+      - PROXY= //optional
+      - PROXY_ADDRESS= //optional
+      - PROXY_USERNAME= //optional
+      - PROXY_PASSWORD= //optiona

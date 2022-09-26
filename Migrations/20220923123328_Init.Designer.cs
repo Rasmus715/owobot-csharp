@@ -11,8 +11,8 @@ using owobot_csharp.Data;
 namespace owobot_csharp.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    [Migration("20220811112844_Initial")]
-    partial class Initial
+    [Migration("20220923123328_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
