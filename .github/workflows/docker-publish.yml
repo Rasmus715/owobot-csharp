@@ -11,8 +11,8 @@ on:
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
   pull_request:
-    branches-ignore: 
-        - develop 
+    branches-ignore:
+        - develop
 
 env:
   # Use docker.io for Docker Hub if empty
