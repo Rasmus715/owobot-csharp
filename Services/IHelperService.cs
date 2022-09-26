@@ -26,10 +26,9 @@ public interface IHelperService
 {
     Task SendCustomMessage(Message message, string customMessage, ITelegramBotClient bot, 
         CancellationToken cancellationToken);
-    Task Start(ITelegramBotClient bot, Message message, 
+    Task Start(Message message, ITelegramBotClient bot, 
         CancellationToken cancellationToken);
-    Task Info(ITelegramBotClient botClient,
-        Message message, CancellationToken cancellationToken);
+    Task Info(Message message, ITelegramBotClient bot, CancellationToken cancellationToken);
     Task Status(Message message, ITelegramBotClient botClient,
         CancellationToken cancellationToken);
     Task LanguageInfo(Message message, ITelegramBotClient botClient,
@@ -42,9 +41,6 @@ public interface IHelperService
         CancellationToken cancellationToken);
     Task GetRandomPic(Message message, ITelegramBotClient botClient,
         CancellationToken cancellationToken);
-    Task GetPic(Message message, ITelegramBotClient botClient, int randomValue, string subredditString,
-        CancellationToken cancellationToken, ResourceManager? resourceManager = null, Chat? chat = null,
-        User? user = null);
     Task GetPicFromReddit(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken);
     Task SetLanguage(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken);
     Task TurnNsfw(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken);
@@ -64,29 +60,7 @@ public class HelperService : IHelperService
     }
     
     private const string TotalRequestsPath = "Essentials/TotalRequests.txt";
-
-    private async Task<Chat?> GetChat(Message message, CancellationToken cancellationToken)
-    {
-        return message.Chat.Id < 0
-            ? await _context.Chats.FirstOrDefaultAsync(c => c.Id == message.Chat.Id,
-                cancellationToken) ?? await RegisterChat(message, cancellationToken)
-            : null;
-    }
-
-    private async Task<Chat> RegisterChat(Message message, CancellationToken cancellationToken)
-    {
-        var entity = new Chat
-        {
-            Id = message.Chat.Id,
-            Nsfw = false
-        };
-
-        await _context.Chats.AddAsync(entity, cancellationToken);
-        _logger.LogInformation(@"Successfully added chat " + message.Chat.Id + @" to DB");
-        await _context.SaveChangesAsync(cancellationToken);
-        return entity;
-    }
-
+    
     private async Task<User> GetUser(Message message, CancellationToken cancellationToken)
     {
         return await _context.Users.FirstOrDefaultAsync(
@@ -105,17 +79,38 @@ public class HelperService : IHelperService
 
 
         await _context.Users.AddAsync(entity, cancellationToken);
-        _logger.LogInformation("Successfully added user " + message.From!.Id + @" to DB");
+        _logger.LogInformation("Successfully added user {userId} to DB", message.From!.Id);
         await _context.SaveChangesAsync(cancellationToken);
         return entity;
     }
-    private async Task WriteTotalRequests(int requests, CancellationToken cancellationToken)
+    private async Task<Chat?> GetChat(Message message, CancellationToken cancellationToken)
+    {
+        return message.Chat.Id < 0
+            ? await _context.Chats.FirstOrDefaultAsync(c => c.Id == message.Chat.Id,
+                cancellationToken) ?? await RegisterChat(message, cancellationToken)
+            : null;
+    }
+
+    private async Task<Chat> RegisterChat(Message message, CancellationToken cancellationToken)
+    {
+        var entity = new Chat
+        {
+            Id = message.Chat.Id,
+            Nsfw = false
+        };
+
+        await _context.Chats.AddAsync(entity, cancellationToken);
+        _logger.LogInformation("Successfully added chat {chatId} to DB", message.Chat.Id);
+        await _context.SaveChangesAsync(cancellationToken);
+        return entity;
+    }
+    private static async Task WriteTotalRequests(int requests, CancellationToken cancellationToken)
     {
         requests++;
         await WriteAllTextAsync(TotalRequestsPath, requests.ToString(), cancellationToken);
     }
     
-    private async Task<int> ReadTotalRequests(CancellationToken cancellationToken)
+    private static async Task<int> ReadTotalRequests(CancellationToken cancellationToken)
     {
         try
         {
@@ -137,7 +132,7 @@ public class HelperService : IHelperService
         await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
     }
     
-    public async Task Start(ITelegramBotClient bot, Message message, CancellationToken cancellationToken)
+    public async Task Start(Message message, ITelegramBotClient bot, CancellationToken cancellationToken)
     {
         var user = await GetUser(message, cancellationToken);
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
@@ -172,7 +167,7 @@ public class HelperService : IHelperService
         await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
     }
     
-    public async Task Info(ITelegramBotClient botClient, Message message, CancellationToken cancellationToken)
+    public async Task Info(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddEnvironmentVariables()
@@ -458,12 +453,12 @@ public class HelperService : IHelperService
 
             var returnPicMessage = message.Chat.Id > 0
                 ? string.Format(resourceManager.GetString("ReturnPicBooru",
-                        CultureInfo.GetCultureInfo(user.Language!))!,
+                        CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
                     post.Rating,
                     post.FileUrl.AbsoluteUri,
                     post.PostUrl)
                 : string.Format(resourceManager.GetString("ReturnPicBooru_Chat",
-                        CultureInfo.GetCultureInfo(user.Language!))!,
+                        CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
                     $"@{message.From?.Username}",
                     post.Rating,
                     post.FileUrl.AbsoluteUri,
@@ -480,6 +475,7 @@ public class HelperService : IHelperService
             //ignored
         }
     }
+    
     
     public Task GetPicFromReddit(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
     {
@@ -539,7 +535,7 @@ public class HelperService : IHelperService
         new Thread(NewThread).Start();
     }
     
-    public async Task GetPic(Message message, ITelegramBotClient botClient, int randomValue, string subredditString, CancellationToken cancellationToken, ResourceManager? resourceManager = null, Chat? chat = null, User? user = null)
+    private async Task GetPic(Message message, ITelegramBotClient botClient, int randomValue, string subredditString, CancellationToken cancellationToken, ResourceManager? resourceManager = null, Chat? chat = null, User? user = null)
     {
         resourceManager ??= new ResourceManager("owobot_csharp.Resources.Handlers",
             Assembly.GetExecutingAssembly());
@@ -611,7 +607,6 @@ public class HelperService : IHelperService
                     while (post.NSFW)
                     {
                         postsInCollection -= 1;
-                        //Console.WriteLine(@"randomValueMinimized after decrement:" + postsInCollection);
                         post = posts[postsInCollection];
                     }
                 }
@@ -624,7 +619,6 @@ public class HelperService : IHelperService
                     while (post.NSFW)
                     {
                         postsInCollection -= 1;
-                        //Console.WriteLine(@"randomValueMinimized after decrement:" + postsInCollection);
                         post = posts[postsInCollection];
                     }
                 }
@@ -638,21 +632,21 @@ public class HelperService : IHelperService
                     post.Title,
                     post.NSFW 
                         ? string.Format(resourceManager.GetString("Yes", 
-                            CultureInfo.GetCultureInfo(user.Language!))!) 
+                            CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!) 
                         : string.Format(resourceManager.GetString("No", 
-                            CultureInfo.GetCultureInfo(user.Language!))!), 
+                            CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!), 
                     post.Listing.URL, 
                     $"https://reddit.com{post.Permalink}") 
                 : string.Format(resourceManager.GetString("ReturnPic_Chat", 
-                        CultureInfo.GetCultureInfo(user.Language!))!, 
+                        CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, 
                     $"@{message.From?.Username}", 
                     $"r/{post.Subreddit}", 
                     post.Title, 
                     post.NSFW 
                         ? string.Format(resourceManager.GetString("Yes", 
-                            CultureInfo.GetCultureInfo(user.Language!))!) 
+                            CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!) 
                         : string.Format(resourceManager.GetString("No", 
-                            CultureInfo.GetCultureInfo(user.Language!))!), 
+                            CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!), 
                     post.Listing.URL, 
                     $"https://reddit.com{post.Permalink}");
 
@@ -688,7 +682,7 @@ public class HelperService : IHelperService
             {
                 await botClient.SendTextMessageAsync(message.Chat.Id,
                     string.Format(resourceManager.GetString("LewdDetected_Chat", 
-                            CultureInfo.GetCultureInfo(user.Language!))!, $"@{message.From?.Username}",
+                            CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, $"@{message.From?.Username}",
                         message.Text),
                     cancellationToken: cancellationToken);
             }
@@ -696,7 +690,7 @@ public class HelperService : IHelperService
             {
                 await botClient.SendTextMessageAsync(message.Chat.Id,
                     string.Format(resourceManager.GetString("LewdDetected",
-                        CultureInfo.GetCultureInfo(user.Language!))!, message.Text),
+                        CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, message.Text),
                     cancellationToken: cancellationToken);
             }
         }

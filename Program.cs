@@ -20,8 +20,6 @@ if (Validate(args))
     return;
 
 var proxy = ProxyChecker(args);
-Console.WriteLine("proxy: " + proxy);
-    
 
 IConfiguration configuration = new ConfigurationBuilder()
     .AddEnvironmentVariables()
@@ -56,7 +54,6 @@ var host = Host.CreateDefaultBuilder(args)
     {
         // Register named HttpClient to benefits from IHttpClientFactory
         // and consume it with ITelegramBotClient typed client.
-
         switch (proxy)
         {
             case "HTTP":
@@ -102,18 +99,16 @@ var host = Host.CreateDefaultBuilder(args)
                 break;
         }
         
+        services.AddScoped<UpdateHandler>(); 
+        services.AddScoped<ReceiverService>(); 
+        services.AddScoped<IHelperService, HelperService>()
+            .AddLogging(cfg => cfg.AddConsole())
+            .Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = LogLevel.Information); 
+        services.AddDbContext<ApplicationContext>(); 
+        services.AddHostedService<PollingService>();
 
-        services.AddScoped<UpdateHandler>();
-       services.AddScoped<ReceiverService>();
-       services.AddScoped<IHelperService, HelperService>()
-           .AddLogging(cfg => cfg.AddConsole())
-           .Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = LogLevel.Information);
-       services.AddDbContext<ApplicationContext>();
-       services.AddHostedService<PollingService>();
-
-       //Removing all logs with requests info due to privacy
+        //Removing all logs with requests info due to privacy settings
         services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
-        
     })
     .Build();
 

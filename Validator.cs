@@ -97,20 +97,25 @@ public static class Validator
             .AddEnvironmentVariables()
             .AddCommandLine(args)
             .Build();
+        
+        var logger = LoggerFactory.Create(config =>
+        {
+            config.AddConsole();
+        }).CreateLogger("Validator");
 
         if (!configuration.GetSection("PROXY").Exists()) return null;
         if (configuration.GetSection("PROXY").Value.Equals("HTTP"))
         {
-            Console.WriteLine(@"Using proxies, huh? Cool...");
-            Console.WriteLine(
+            logger.LogInformation(@"Using HTTP proxies, huh? Cool...");
+            logger.LogInformation(
                 @"I was too lazy to test their functionality so expect this function to work incorrectly or don't work at all.");
 
             return "HTTP";
         }
 
         if (!configuration.GetSection("PROXY").Value.Equals("SOCKS5")) return null;
-        Console.WriteLine(@"Using proxies, huh? Cool...");
-        Console.WriteLine(
+        logger.LogInformation(@"Using SOCKS5 proxies, huh? Cool...");
+        logger.LogInformation(
             @"I was too lazy to test their functionality so expect this function to work incorrectly or don't work at all.");
 
         return "SOCKS5";

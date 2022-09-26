@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -10,13 +9,11 @@ namespace owobot_csharp.Services;
 public class UpdateHandler : IUpdateHandler
 {
     private readonly ITelegramBotClient _botClient;
-    private readonly ILogger<UpdateHandler> _logger;
     private readonly IHelperService _helperService;
 
-    public UpdateHandler(ITelegramBotClient bot, ILogger<UpdateHandler> logger, IHelperService helperService)
+    public UpdateHandler(ITelegramBotClient bot, IHelperService helperService)
     {
         _botClient = bot;
-        _logger = logger;
         _helperService = helperService;
     }
 
@@ -25,9 +22,7 @@ public class UpdateHandler : IUpdateHandler
         var handler = update switch
         {
             {Message: { } message} => BotOnMessageReceived(message, cancellationToken),
-            _ => UnknownUpdateHandlerAsync(update)
         };
-
         await handler;
     }
 
@@ -39,9 +34,6 @@ public class UpdateHandler : IUpdateHandler
     private async Task BotOnMessageReceived(Message message,
         CancellationToken cancellationToken)
     {
-        
-        //Console.WriteLine(Resources.Handlers.Handlers_HandleUpdateAsync_, message.Type, message.From?.Id, message.Text);
-
         if (message.Type != MessageType.Text)
             return;
 
@@ -54,10 +46,10 @@ public class UpdateHandler : IUpdateHandler
                 await _helperService.SendCustomMessage(message, "owo", _botClient, cancellationToken);
                 break;
             case "/start":
-                await _helperService.Start(_botClient, message, cancellationToken);
+                await _helperService.Start(message,_botClient, cancellationToken);
                 break;
             case "/info":
-                await _helperService.Info(_botClient, message, cancellationToken);
+                await _helperService.Info(message, _botClient, cancellationToken);
                 break;
             case "/status":
                 await _helperService.Status(message, _botClient, cancellationToken);
@@ -72,10 +64,8 @@ public class UpdateHandler : IUpdateHandler
                 await _helperService.NsfwStatus(message, _botClient, cancellationToken);
                 break;
             case "/random":
-
                 async void BooruThread() =>
                     await _helperService.GetRandomBooruPic(message, _botClient, cancellationToken);
-
                 new Thread(BooruThread).Start();
                 break;
             case "/random_reddit":
@@ -103,14 +93,7 @@ public class UpdateHandler : IUpdateHandler
                 {
                     await _helperService.UnknownCommand(message, _botClient, cancellationToken);
                 }
-
                 break;
         }
     }
-    private Task UnknownUpdateHandlerAsync(Update update)
-    {
-        _logger.LogInformation("Unknown update type: {UpdateType}", update.Type);
-        return Task.CompletedTask;
-    }
-    
 }
