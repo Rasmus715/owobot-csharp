@@ -477,16 +477,19 @@ public class HelperService : IHelperService
     }
     
     
-    public Task GetPicFromReddit(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
+    public async Task GetPicFromReddit(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
     {
+        var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
+            Assembly.GetExecutingAssembly());
+        var user = await GetUser(message, cancellationToken);
+        var chat = await GetChat(message, cancellationToken);
         //Console.WriteLine(message.Text?[5..]);
         var random = new Random();
         var randomValue = random.Next(0, 999);
         //Console.WriteLine(@"Random value: " + randomValue);
 
-        async void NewThread() => await GetPic(message, botClient, randomValue, message.Text?[5..]!, cancellationToken);
+        async void NewThread() => await GetPic(message, botClient, resourceManager, chat, user, randomValue, message.Text?[5..]!, cancellationToken);
         new Thread(NewThread).Start();
-        return Task.CompletedTask;
     }
     
     public async Task GetRandomPic(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
@@ -531,11 +534,11 @@ public class HelperService : IHelperService
         //Console.WriteLine(randomSubreddit);
 
         //Putting this boi into separate thread in order to process multiple requests at once
-        async void NewThread() => await GetPic(message, botClient,  random.Next(0, 999), randomSubreddit.ToString(), cancellationToken, resourceManager,  chat, user );
+        async void NewThread() => await GetPic(message, botClient, resourceManager, chat, user, random.Next(0, 999), randomSubreddit.ToString(), cancellationToken);
         new Thread(NewThread).Start();
     }
     
-    private async Task GetPic(Message message, ITelegramBotClient botClient, int randomValue, string subredditString, CancellationToken cancellationToken, ResourceManager? resourceManager = null, Chat? chat = null, User? user = null)
+    private static async Task GetPic(Message message, ITelegramBotClient botClient, ResourceManager resourceManager, Chat? chat, User user, int randomValue, string subredditString, CancellationToken cancellationToken)
     {
         IConfiguration configuration = new ConfigurationBuilder()
             .AddEnvironmentVariables()
