@@ -21,7 +21,7 @@
     <data name="Info" xml:space="preserve">
         <value>Hellowo! I'm owobot {0} - a bot that sends cute anime girls!
 
-I am written in C# using .NET 6, taking data from Booru websites and reddit.
+I am written in C# using .NET 6, taking data from Booru websites and Reddit.
 I'm also multi-threaded. Don't be afraid to send me 25-50 requests at a time, I can handle it!
 
 If you’re tired of reading and you want to see anime girls already, then proceed with: /get
@@ -119,7 +119,7 @@ Currently NSFW is: {0}. Here is what you can do:
 
 
 
-*No guarantee that all NSFW tags in reddit are correct!</value>
+*No guarantee that all NSFW tags are correct!</value>
     </data>
     <data name="SetNsfwOn" xml:space="preserve">
         <value>Got it! Now the lewds are enabled in this chat! ( ͡° ͜ʖ ͡°)</value>
@@ -185,7 +185,7 @@ Here is my little compilation:
     <data name="Info_Chat" xml:space="preserve">
         <value>Hellowo, {0}! I'm owobot {1} - a bot that sends cute girls!
 
-I am written in C# using .NET 6, taking data from reddit, and multi-threaded. Do not be afraid to send me 25-50 requests at a time, I can handle it!
+I am written in C# using .NET 6, taking data from Booru werbsites Reddit, and multi-threaded. Do not be afraid to send me 25-50 requests at a time, I can handle it!
 
 If you’re tired of reading and you want to see anime girls already, then you are here: /get{2}
 By default, I will not send you NSFW content, however you can configure this here: /nsfw{2}
@@ -222,7 +222,7 @@ Currently NSFW is: {1}. Here is what you can do:
 
 Be aware that only the admin of chat can change this setting.
 
-*No guarantee that all NSFW tags in reddit are correct!</value>
+*No guarantee that all NSFW tags are correct!</value>
     </data>
     <data name="ReturnPic_Chat" xml:space="preserve">
         <value>Pam, {0}! Here's your picture from {1}
