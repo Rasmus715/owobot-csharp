@@ -128,7 +128,7 @@ public class HelperService : IHelperService
         await bot.SendTextMessageAsync(message.Chat.Id,
             customMessage,
             cancellationToken: cancellationToken);
-
+        
         await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
     }
     
@@ -381,44 +381,54 @@ public class HelperService : IHelperService
     
     public async Task GetRandomBooruPic(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
     {
-        var chat = await GetChat(message, cancellationToken);
-        var user = await GetUser(message, cancellationToken);
-        var random = new Random();
-
-        var choice = message.Chat.Id < 0 ? 
-            chat!.Nsfw ? 
-                random.Next(6) : 
-                random.Next(5) :
-            user.Nsfw ? 
-                random.Next(6) : 
-                random.Next(5);
-
-        switch (choice)
+        bool successFlag = false;
+        while (!successFlag)
         {
-            case 0:
-                await GetBooruPic(new Konachan(), botClient, message, user, chat, cancellationToken);
-                break;
-            case 1:
-                await GetBooruPic(new SankakuComplex(), botClient, message, user, chat, cancellationToken);
-                break;
-            case 2:
-                await GetBooruPic(new DanbooruDonmai(), botClient, message, user, chat, cancellationToken);
-                break;
-            case 3:
-                await GetBooruPic(new Lolibooru(), botClient, message, user, chat, cancellationToken);
-                break;
-            case 4:
-                await GetBooruPic(new Safebooru(), botClient, message, user, chat, cancellationToken);
-                break;
-            case 5:
-                await GetBooruPic(new Sakugabooru(), botClient, message, user, chat, cancellationToken);
-                break;
-            case 6:
-                await GetBooruPic(new Yandere(), botClient, message, user, chat, cancellationToken);
-                break;
-            default:
-                await GetBooruPic(new Konachan(), botClient, message, user, chat, cancellationToken);
-                break;
+            try
+            {
+                var chat = await GetChat(message, cancellationToken);
+                var user = await GetUser(message, cancellationToken);
+                var random = new Random();
+
+                var choice = message.Chat.Id < 0 ? chat!.Nsfw ? random.Next(6) :
+                    random.Next(5) :
+                    user.Nsfw ? random.Next(6) :
+                    random.Next(5);
+
+                switch (choice)
+                {
+                    case 0:
+                        await GetBooruPic(new Konachan(), botClient, message, user, chat, cancellationToken);
+                        break;
+                    case 1:
+                        await GetBooruPic(new SankakuComplex(), botClient, message, user, chat, cancellationToken);
+                        break;
+                    case 2:
+                        await GetBooruPic(new DanbooruDonmai(), botClient, message, user, chat, cancellationToken);
+                        break;
+                    case 3:
+                        await GetBooruPic(new Lolibooru(), botClient, message, user, chat, cancellationToken);
+                        break;
+                    case 4:
+                        await GetBooruPic(new Safebooru(), botClient, message, user, chat, cancellationToken);
+                        break;
+                    case 5:
+                        await GetBooruPic(new Sakugabooru(), botClient, message, user, chat, cancellationToken);
+                        break;
+                    case 6:
+                        await GetBooruPic(new Yandere(), botClient, message, user, chat, cancellationToken);
+                        break;
+                    default:
+                        await GetBooruPic(new Konachan(), botClient, message, user, chat, cancellationToken);
+                        break;
+                }
+
+                successFlag = true;
+            }
+            catch (Exception)
+            {
+                Thread.Sleep(1000);
+            }
         }
     }
     
@@ -455,17 +465,22 @@ public class HelperService : IHelperService
                 ? string.Format(resourceManager.GetString("ReturnPicBooru",
                         CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
                     post.Rating,
-                    post.FileUrl.AbsoluteUri,
                     post.PostUrl)
                 : string.Format(resourceManager.GetString("ReturnPicBooru_Chat",
                         CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
                     $"@{message.From?.Username}",
                     post.Rating,
-                    post.FileUrl.AbsoluteUri,
                     post.PostUrl);
 
-            await botClient.SendTextMessageAsync(message.Chat.Id,
-                returnPicMessage,
+            await botClient.SendMediaGroupAsync(message.Chat.Id,
+                new IAlbumInputMedia[]
+                    {
+                        new InputMediaPhoto(post.FileUrl.AbsoluteUri) 
+                        {
+                            Caption = returnPicMessage
+                            
+                        }
+                    },
                 cancellationToken: cancellationToken);
             
             await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
@@ -481,25 +496,54 @@ public class HelperService : IHelperService
     {
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
             Assembly.GetExecutingAssembly());
-        var user = await GetUser(message, cancellationToken);
-        var chat = await GetChat(message, cancellationToken);
+        
+        var successFlag = false;
+        User user = new();
+        Chat? chat = new();
+        while (!successFlag)
+        {
+            try
+            {
+                user = await GetUser(message, cancellationToken);
+                chat = await GetChat(message, cancellationToken);
+                successFlag = true;
+            }
+            catch (Exception)
+            {
+                Thread.Sleep(1000);
+            }
+        }
+        
         //Console.WriteLine(message.Text?[5..]);
         var random = new Random();
         var randomValue = random.Next(0, 999);
         //Console.WriteLine(@"Random value: " + randomValue);
-
-        async void NewThread() => await GetPic(message, botClient, resourceManager, chat, user, randomValue, message.Text?[5..]!, cancellationToken);
-        new Thread(NewThread).Start();
-    }
+        
+        await GetPic(message, botClient, resourceManager, chat, user, randomValue, message.Text?[5..]!, cancellationToken);
+    } 
     
     public async Task GetRandomPic(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
     {
         var random = new Random();
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
             Assembly.GetExecutingAssembly());
-        
-        var user = await GetUser(message, cancellationToken);
-        var chat = await GetChat(message, cancellationToken);
+
+        User user = new();
+        Chat? chat = new();
+        bool successFlag = false;
+        while (!successFlag)
+        {
+            try
+            {
+                user = await GetUser(message, cancellationToken);
+                chat = await GetChat(message, cancellationToken);
+                successFlag = true;
+            }
+            catch (Exception)
+            {
+                Thread.Sleep(1000);
+            }
+        }
         
         if ((message.Chat.Id >= 0 ||
              !message.Text!.Equals(
@@ -534,8 +578,8 @@ public class HelperService : IHelperService
         //Console.WriteLine(randomSubreddit);
 
         //Putting this boi into separate thread in order to process multiple requests at once
-        async void NewThread() => await GetPic(message, botClient, resourceManager, chat, user, random.Next(0, 999), randomSubreddit.ToString(), cancellationToken);
-        new Thread(NewThread).Start();
+        
+        await GetPic(message, botClient, resourceManager, chat, user, random.Next(0, 999), randomSubreddit.ToString(), cancellationToken);
     }
     
     private static async Task GetPic(Message message, ITelegramBotClient botClient, ResourceManager resourceManager, Chat? chat, User user, int randomValue, string subredditString, CancellationToken cancellationToken)
@@ -621,8 +665,7 @@ public class HelperService : IHelperService
                     }
                 }
             }
-
-
+            
             var returnPicMessage = message.Chat.Id > 0
                 ? string.Format(resourceManager.GetString("ReturnPic", 
                 CultureInfo.GetCultureInfo(user.Language!))!, 
@@ -648,9 +691,33 @@ public class HelperService : IHelperService
                     post.Listing.URL, 
                     $"https://reddit.com{post.Permalink}");
 
-            await botClient.SendTextMessageAsync(message.Chat.Id,
-                returnPicMessage,
-                cancellationToken: cancellationToken);
+
+            var successFlag = false;
+            while (!successFlag)
+            {
+                try
+                {
+                    await botClient.SendMediaGroupAsync(message.Chat.Id,
+                        new IAlbumInputMedia[]
+                        {
+                            new InputMediaPhoto(post.Listing.URL)
+                            {
+                                Caption = returnPicMessage
+                            }
+                        },
+                        cancellationToken: cancellationToken);
+                    successFlag = true;
+                }
+                catch (Exception)
+                {
+                    Thread.Sleep(1000);
+                }
+            }
+            
+            // await botClient.SendTextMessageAsync(message.Chat.Id,
+            //     returnPicMessage,
+            //     cancellationToken: cancellationToken);
+            
         }
         //Different reddit exception handlers
         catch (RedditForbiddenException)

@@ -261,13 +261,11 @@ Post Link: {5}</value>
     <data name="ReturnPicBooru" xml:space="preserve">
         <value>Pam! Here's your picture.
 NSFW: {0}
-Link to the original: {1}
-Post Link: {2}</value>
+Post Link: {1}</value>
     </data>
     <data name="ReturnPicBooru_Chat" xml:space="preserve">
         <value>Pam, {0}! Here's your picture.
 NSFW: {1}
-Link to the original: {2}
-Post Link: {3}</value>
+Post Link: {2}</value>
     </data>
 </root>

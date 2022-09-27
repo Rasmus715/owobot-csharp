@@ -69,13 +69,16 @@ public class UpdateHandler : IUpdateHandler
                 new Thread(BooruThread).Start();
                 break;
             case "/random_reddit":
-                async void RedditThread() => await _helperService.GetRandomPic(message, _botClient, cancellationToken);
+                async void RedditThread() => 
+                    await _helperService.GetRandomPic(message, _botClient, cancellationToken);
                 new Thread(RedditThread).Start();
                 break;
             default:
                 if (message.Text.Contains("/get_"))
                 {
-                    await _helperService.GetPicFromReddit(message, _botClient, cancellationToken);
+                    async void GetRedditThread() => 
+                        await _helperService.GetPicFromReddit(message, _botClient, cancellationToken);
+                    new Thread(GetRedditThread).Start();
                     break;
                 }
 

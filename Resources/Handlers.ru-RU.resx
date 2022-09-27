@@ -356,13 +356,11 @@ NSFW: {3}
   <data name="ReturnPicBooru" xml:space="preserve">
     <value>Пам! Вот твоя картинка.
 NSFW: {0}
-Ссылка на оригинал: {1}
-Ссылка на пост: {2}</value>
+Ссылка на пост: {1}</value>
   </data>
   <data name="ReturnPicBooru_Chat" xml:space="preserve">
     <value>Пам, {0}! Вот твоя картинка)
 NSFW: {1}
-Ссылка на оригинал: {2}
-Ссылка на пост: {3}</value>
+Ссылка на пост: {1}</value>
   </data>
 </root>
