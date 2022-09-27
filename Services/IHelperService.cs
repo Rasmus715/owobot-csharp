@@ -63,9 +63,21 @@ public class HelperService : IHelperService
     
     private async Task<User> GetUser(Message message, CancellationToken cancellationToken)
     {
-        return await _context.Users.FirstOrDefaultAsync(
-            c => c.Id == message.From!.Id,
-            cancellationToken) ?? await RegisterUser(message, cancellationToken);
+        while (true)
+        {
+            try
+            {
+                return await _context.Users.FirstOrDefaultAsync(
+                    c => c.Id == message.From!.Id,
+                    cancellationToken) ?? await RegisterUser(message, cancellationToken);
+            }
+            catch (InvalidOperationException)
+            {
+                Thread.Sleep(1000);
+            }
+            
+        }
+
     }
 
     private async Task<User> RegisterUser(Message message, CancellationToken cancellationToken)
@@ -78,17 +90,41 @@ public class HelperService : IHelperService
         };
 
 
-        await _context.Users.AddAsync(entity, cancellationToken);
-        _logger.LogInformation("Successfully added user {userId} to DB", message.From!.Id);
-        await _context.SaveChangesAsync(cancellationToken);
-        return entity;
+        while (true)
+        {
+            try
+            {
+                await _context.Users.AddAsync(entity, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("Successfully added user {userId} to DB", message.From!.Id);
+                return entity;
+            }
+            catch (InvalidOperationException)
+            {
+                Thread.Sleep(1000);
+            }
+        }
+        
+        
+        
     }
     private async Task<Chat?> GetChat(Message message, CancellationToken cancellationToken)
     {
-        return message.Chat.Id < 0
-            ? await _context.Chats.FirstOrDefaultAsync(c => c.Id == message.Chat.Id,
-                cancellationToken) ?? await RegisterChat(message, cancellationToken)
-            : null;
+        while (true)
+        {
+            try
+            {
+                return message.Chat.Id < 0
+                    ? await _context.Chats.FirstOrDefaultAsync(c => c.Id == message.Chat.Id,
+                        cancellationToken) ?? await RegisterChat(message, cancellationToken)
+                    : null;
+            }
+            catch (InvalidOperationException)
+            {
+                Thread.Sleep(1000);
+            }
+        }
+
     }
 
     private async Task<Chat> RegisterChat(Message message, CancellationToken cancellationToken)
@@ -99,10 +135,21 @@ public class HelperService : IHelperService
             Nsfw = false
         };
 
-        await _context.Chats.AddAsync(entity, cancellationToken);
-        _logger.LogInformation("Successfully added chat {chatId} to DB", message.Chat.Id);
-        await _context.SaveChangesAsync(cancellationToken);
-        return entity;
+        while (true)
+        {
+            try
+            {
+                await _context.Chats.AddAsync(entity, cancellationToken);
+                await _context.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("Successfully added chat {chatId} to DB", message.Chat.Id);
+                return entity;
+            }
+            catch (InvalidOperationException)
+            {
+                Thread.Sleep(1000);
+            }
+        }
+           
     }
     private static async Task WriteTotalRequests(int requests, CancellationToken cancellationToken)
     {
@@ -132,7 +179,7 @@ public class HelperService : IHelperService
         await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
     }
     
-    public async Task Start(Message message, ITelegramBotClient bot, CancellationToken cancellationToken)
+    public async Task Start(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
     {
         var user = await GetUser(message, cancellationToken);
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
@@ -141,30 +188,24 @@ public class HelperService : IHelperService
         switch (message.Chat.Id)
         {
             case < 0:
-                if (message.Text!.Equals($"/start@{bot.GetMeAsync(cancellationToken).Result.Username}"))
+                if (message.Text!.Equals($"/start@{botClient.GetMeAsync(cancellationToken).Result.Username}"))
                 {
-                    var name = $"@{message.From?.Username}";
-                    await bot.SendTextMessageAsync(message.Chat.Id,
-                        string.Format(
+                    await SendResponse(message, botClient, string.Format(
                             resourceManager.GetString("Start",
-                                CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, name),
-                        cancellationToken: cancellationToken);
+                                CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, 
+                            $"@{message.From?.Username}"),
+                        cancellationToken);
                 }
-
                 break;
             case > 0:
             {
-                var name = message.From?.FirstName ?? "User";
-                await bot.SendTextMessageAsync(message.Chat.Id,
-                    string.Format(
-                        resourceManager.GetString("Start",
-                            CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, name),
-                    cancellationToken: cancellationToken);
+                await SendResponse(message, botClient, string.Format(
+                    resourceManager.GetString("Start",
+                        CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, message.From?.FirstName ?? "User"), 
+                    cancellationToken);
                 break;
             }
         }
-
-        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
     }
     
     public async Task Info(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
@@ -184,29 +225,20 @@ public class HelperService : IHelperService
             case < 0:
                 if (message.Text!.Equals($"/info@{botClient.GetMeAsync(cancellationToken).Result.Username}"))
                 {
-                    await botClient.SendTextMessageAsync(message.Chat.Id,
-                        string.Format(
-                            resourceManager.GetString("Info_Chat",
-                                CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
-                            $"@{message.From?.Username}", configuration.GetSection("BOT_VERSION").Value,
-                            $"@{botClient.GetMeAsync(cancellationToken).Result.Username}"),
-                        cancellationToken: cancellationToken);
-
-                    await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
+                    await SendResponse(message, botClient, string.Format(
+                        resourceManager.GetString("Info_Chat",
+                            CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
+                        $"@{message.From?.Username}", configuration.GetSection("BOT_VERSION").Value,
+                        $"@{botClient.GetMeAsync(cancellationToken).Result.Username}"), cancellationToken);
                 }
-
                 break;
             case > 0:
             {
-                await botClient.SendTextMessageAsync(message.Chat.Id,
-                    string.Format(
-                        resourceManager.GetString("Info",
-                            CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
-                        configuration.GetSection("BOT_VERSION").Value),
-                    cancellationToken: cancellationToken);
-
-                await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
-            }
+                await SendResponse(message, botClient, string.Format(
+                    resourceManager.GetString("Info",
+                        CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
+                    configuration.GetSection("BOT_VERSION").Value), cancellationToken);
+            } 
                 break;
         }
     }
@@ -220,48 +252,36 @@ public class HelperService : IHelperService
             .Build();
         var user = await GetUser(message, cancellationToken);
         var chat = await GetChat(message, cancellationToken);
-
+        var time = DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime();
+        
         if (message.Chat.Id < 0 &&
             message.Text!.Equals($"/status@{botClient.GetMeAsync(cancellationToken).Result.Username}"))
         {
-            var x = DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime();
-            var status = string.Format(resourceManager.GetString("Status", 
+            await SendResponse(message, botClient, string.Format(resourceManager.GetString("Status",
                     CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
-                x.Days,
-                $"{x:hh\\:mm\\:ss}",
+                time.Days,
+                $"{time:hh\\:mm\\:ss}",
                 await ReadTotalRequests(cancellationToken),
                 chat!.Nsfw
-                    ? string.Format(resourceManager.GetString("OnSwitch", 
+                    ? string.Format(resourceManager.GetString("OnSwitch",
                         CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!)
                     : string.Format(resourceManager.GetString("OffSwitch",
                         CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!),
-                configuration.GetSection("BOT_VERSION").Value);
-            
-            await botClient.SendTextMessageAsync(message.Chat.Id,
-                status,
-                cancellationToken: cancellationToken);
-            
-            await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
+                configuration.GetSection("BOT_VERSION").Value), cancellationToken);
         }
         else
         {
-            var x = DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime();
-            var status = string.Format(resourceManager.GetString("Status",
+            await SendResponse(message, botClient, string.Format(resourceManager.GetString("Status",
                     CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
-                x.Days,
-                $"{x:hh\\:mm\\:ss}",
+                time.Days,
+                $"{time:hh\\:mm\\:ss}",
                 await ReadTotalRequests(cancellationToken),
                 user.Nsfw
                     ? string.Format(resourceManager.GetString("OnSwitch",
                         CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!)
                     : string.Format(resourceManager.GetString("OffSwitch",
                         CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!),
-                configuration.GetSection("BOT_VERSION").Value);
-            await botClient.SendTextMessageAsync(message.Chat.Id,
-                status, 
-                cancellationToken: cancellationToken);
-            
-            await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
+                configuration.GetSection("BOT_VERSION").Value), cancellationToken);
         }
     }
     
@@ -276,23 +296,16 @@ public class HelperService : IHelperService
             case < 0:
                 if (message.Text!.Equals($"/language@{botClient.GetMeAsync(cancellationToken).Result.Username}"))
                 {
-                    await botClient.SendTextMessageAsync(message.Chat.Id,
-                        string.Format(resourceManager.GetString("LanguageInfo_Chat",
-                                CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!,
-                            $"@{message.From?.Username}",
-                            $"@{botClient.GetMeAsync(cancellationToken).Result.Username}"),
-                        cancellationToken: cancellationToken);
-                    await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
+                    await SendResponse(message, botClient, string.Format(resourceManager.GetString("LanguageInfo_Chat",
+                            CultureInfo.GetCultureInfo(user.Language))!,
+                        $"@{message.From?.Username}",
+                        $"@{botClient.GetMeAsync(cancellationToken).Result.Username}"), cancellationToken);
                 }
-
                 break;
             case > 0:
             {
-                await botClient.SendTextMessageAsync(message.Chat.Id,
-                    string.Format(resourceManager.GetString("LanguageInfo",
-                        CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!),
-                    cancellationToken: cancellationToken);
-                await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
+                await SendResponse(message, botClient, string.Format(resourceManager.GetString("LanguageInfo",
+                    CultureInfo.GetCultureInfo(user.Language))!), cancellationToken);
                 break;
             }
         }
@@ -309,22 +322,15 @@ public class HelperService : IHelperService
             case < 0:
                 if (message.Text!.Equals($"/get@{botClient.GetMeAsync(cancellationToken).Result.Username}"))
                 {
-                    await botClient.SendTextMessageAsync(message.Chat.Id,
-                        string.Format(resourceManager.GetString("GetStatus_Chat",
+                    await SendResponse(message, botClient, string.Format(resourceManager.GetString("GetStatus_Chat",
                             CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, $"@{message.From?.Username}"),
-                        cancellationToken: cancellationToken);
-
-                    await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
+                        cancellationToken);
                 }
-
                 break;
             case > 0:
             {
-                await botClient.SendTextMessageAsync(message.Chat.Id,
-                    string.Format(resourceManager.GetString("GetStatus",
-                        CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!),
-                    cancellationToken: cancellationToken);
-                await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
+                await SendResponse(message, botClient, string.Format(resourceManager.GetString("GetStatus",
+                    CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!), cancellationToken);
                 break;
             }
         }
@@ -432,7 +438,7 @@ public class HelperService : IHelperService
         }
     }
     
-    private async Task GetBooruPic(ABooru booru, ITelegramBotClient botClient, Message message, User user, Chat? chat, CancellationToken cancellationToken)
+    private static async Task GetBooruPic(ABooru booru, ITelegramBotClient botClient, Message message, User user, Chat? chat, CancellationToken cancellationToken)
     {
         try
         {
@@ -840,6 +846,7 @@ public class HelperService : IHelperService
         
         var user = await GetUser(message, cancellationToken);
         var chat = await GetChat(message, cancellationToken);
+        
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
             Assembly.GetExecutingAssembly());
         
@@ -879,22 +886,19 @@ public class HelperService : IHelperService
                 chat!.Nsfw = nsfwSetting;
                 await _context.SaveChangesAsync(cancellationToken);
 
-                await botClient.SendTextMessageAsync(message.Chat.Id,
-                    nsfwSetting switch
-                    {
-                        true => string.Format(resourceManager.GetString("SetNsfwOn_Chat", 
-                            CultureInfo.GetCultureInfo(user.Language))!, $"@{message.From?.Username}"), 
-                        false => string.Format(resourceManager.GetString("SetNsfwOff_Chat", 
-                            CultureInfo.GetCultureInfo(user.Language))!, $"@{message.From?.Username}")
-                    },
-                    cancellationToken: cancellationToken);
+                await SendResponse(message, botClient, nsfwSetting switch
+                {
+                    true => string.Format(resourceManager.GetString("SetNsfwOn_Chat",
+                        CultureInfo.GetCultureInfo(user.Language))!, $"@{message.From?.Username}"),
+                    false => string.Format(resourceManager.GetString("SetNsfwOff_Chat",
+                        CultureInfo.GetCultureInfo(user.Language))!, $"@{message.From?.Username}")
+                }, cancellationToken);
             }
             else
             {
-                await botClient.SendTextMessageAsync(message.Chat.Id, 
-                string.Format(resourceManager.GetString("NsfwSettingException_NotEnoughRights_Chat", 
-                    CultureInfo.GetCultureInfo(user.Language))!, $"@{message.From?.Username}"),
-                    cancellationToken: cancellationToken);
+                await SendResponse(message, botClient, string.Format(resourceManager.GetString(
+                    "NsfwSettingException_NotEnoughRights_Chat",
+                    CultureInfo.GetCultureInfo(user.Language))!), cancellationToken);
             }
         }
         else
@@ -915,37 +919,31 @@ public class HelperService : IHelperService
 
             user.Nsfw = nsfwSetting;
             await _context.SaveChangesAsync(cancellationToken);
-            
-            await botClient.SendTextMessageAsync(message.Chat.Id,
-                nsfwSetting switch 
-                {
-                    true => string.Format(resourceManager.GetString("SetNsfwOn", 
-                        CultureInfo.GetCultureInfo(user.Language))!),
-                    false => string.Format(resourceManager.GetString("SetNsfwOff",
-                        CultureInfo.GetCultureInfo(user.Language))!)
-                    
-                }, cancellationToken: cancellationToken);
+
+            await SendResponse(message, botClient, nsfwSetting switch
+            {
+                true => string.Format(resourceManager.GetString("SetNsfwOn",
+                    CultureInfo.GetCultureInfo(user.Language))!),
+                false => string.Format(resourceManager.GetString("SetNsfwOff",
+                    CultureInfo.GetCultureInfo(user.Language))!)
+            }, cancellationToken);
         }
     }
     
-    private async Task NsfwSettingException(Message message, ITelegramBotClient botClient, User user, ResourceManager resourceManager, CancellationToken cancellationToken)
+    private static async Task NsfwSettingException(Message message, ITelegramBotClient botClient, User user, ResourceManager resourceManager, CancellationToken cancellationToken)
     {
 
         if (message.Chat.Id > 0)
         {
-            await botClient.SendTextMessageAsync(message.Chat.Id,
-                resourceManager.GetString("NsfwSettingException",
-                    CultureInfo.GetCultureInfo(user.Language))!,
-                cancellationToken: cancellationToken);
+            await SendResponse(message, botClient, resourceManager.GetString("NsfwSettingException",
+                CultureInfo.GetCultureInfo(user.Language))!, cancellationToken);
         }
         else
         {
-            await botClient.SendTextMessageAsync(message.Chat.Id,
-                string.Format(
-                    resourceManager.GetString("NsfwSettingException_Chat",
-                        CultureInfo.GetCultureInfo(user.Language))!, $"@{message.From!.Username}",
-                    $"@{botClient.GetMeAsync(cancellationToken).Result.Username}"),
-                cancellationToken: cancellationToken);
+            await SendResponse(message, botClient, string.Format(
+                resourceManager.GetString("NsfwSettingException_Chat",
+                    CultureInfo.GetCultureInfo(user.Language))!, $"@{message.From!.Username}",
+                $"@{botClient.GetMeAsync(cancellationToken).Result.Username}"), cancellationToken);
         }
     }
 
@@ -958,15 +956,53 @@ public class HelperService : IHelperService
         if (message.Chat.Id < 0 && message.Text!.StartsWith("/") &&
             message.Text!.EndsWith($"@{botClient.GetMeAsync(cancellationToken).Result.Username}"))
         {
-
-            await botClient.SendTextMessageAsync(message.Chat.Id,
-                string.Format(
-                    resourceManager.GetString("UnknownCommand_Chat",
-                        CultureInfo.GetCultureInfo(user.Language))!,
-                    $"@{message.From?.Username}"),
-                cancellationToken: cancellationToken);
-
-            await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
+            await SendResponse(message, botClient, string.Format(
+                resourceManager.GetString("UnknownCommand_Chat",
+                    CultureInfo.GetCultureInfo(user.Language))!,
+                $"@{message.From?.Username}"), cancellationToken);
         }
+    }
+
+    
+    //Method that ensures response delivery
+    private static async Task SendResponse(Message message, 
+        ITelegramBotClient botClient,
+        string messageText,
+        CancellationToken cancellationToken, 
+        string? picUri = null) 
+    {
+        while (true)
+        {
+            try
+            {
+                if (picUri != null)
+                {
+                    await botClient.SendMediaGroupAsync(message.Chat.Id,
+                        new IAlbumInputMedia[]
+                        {
+                            new InputMediaPhoto(picUri)
+                            {
+                                Caption = messageText
+
+                            }
+                        },
+                        cancellationToken: cancellationToken);
+
+                    await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
+                    break;
+                }
+                
+                await botClient.SendTextMessageAsync(message.Chat.Id,
+                    messageText,
+                    cancellationToken: cancellationToken);
+                await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
+                break;
+            }
+            catch (ApiRequestException)
+            {
+                Thread.Sleep(1000);
+            }
+        }
+        
     }
 }
