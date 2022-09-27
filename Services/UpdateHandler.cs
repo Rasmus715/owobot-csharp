@@ -19,11 +19,13 @@ public class UpdateHandler : IUpdateHandler
 
     public async Task HandleUpdateAsync(ITelegramBotClient _, Update update, CancellationToken cancellationToken)
     {
-        var handler = update switch
-        {
-            {Message: { } message} => BotOnMessageReceived(message, cancellationToken),
-        };
+        var handler = BotOnMessageReceived(update.Message, cancellationToken);
         await handler;
+    }
+
+    private static Task UnknownUpdateHandlerAsync()
+    {
+        return Task.CompletedTask;
     }
 
     public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
