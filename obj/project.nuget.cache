@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "1tfynPXcLwK4RZ2lgj2GIwggJd0UAOpsL3BnnAokAfQvMqwxnXt0q7boFMoW46TBxTtokmrVLBrAMwWGtFDJpg==",
+  "dgSpecHash": "9bFy1dT2n3dPUayPz8bTwZODSkOln8Pz4Mkj2oc2SmoiI8Pea/pnpTOUQEos5pyCns7uMFc72udCp/XpKMVG4Q==",
   "success": true,
   "projectFilePath": "/Volumes/Media/Projects/owobot-csharp/owobot-csharp.csproj",
   "expectedPackageFiles": [
-    "/Users/crackbargains/.nuget/packages/boorusharp/3.4.0/boorusharp.3.4.0.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/boorusharp/3.5.5/boorusharp.3.5.5.nupkg.sha512",
     "/Users/crackbargains/.nuget/packages/humanizer.core/2.8.26/humanizer.core.2.8.26.nupkg.sha512",
     "/Users/crackbargains/.nuget/packages/microsoft.csharp/4.5.0/microsoft.csharp.4.5.0.nupkg.sha512",
     "/Users/crackbargains/.nuget/packages/microsoft.data.sqlite.core/6.0.9/microsoft.data.sqlite.core.6.0.9.nupkg.sha512",

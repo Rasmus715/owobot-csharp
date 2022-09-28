@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using owobot_csharp.Data;
+using owobot_csharp.Exceptions;
 using Reddit;
 using Reddit.Controllers;
 using Reddit.Exceptions;
@@ -414,6 +415,7 @@ public class HelperService : IHelperService
         }
         
     }
+
     
     private static async Task GetBooruPic(ABooru booru, ITelegramBotClient botClient, Message message, User user, Chat? chat, CancellationToken cancellationToken)
     {
@@ -436,12 +438,13 @@ public class HelperService : IHelperService
             if (message.Chat.Id < 0)
                 do
                 {
-                    post = await booru.GetRandomPostAsync();
+                    post = await booru.GetRandomPostAsync(); ;
                 } while (!chat!.Nsfw && !post.Rating.Equals(Rating.Safe));
             else
                 do
                 {
                     post = await booru.GetRandomPostAsync();
+                    Console.WriteLine(post.ID);
                 } while (!user.Nsfw && !post.Rating.Equals(Rating.Safe));
 
             var returnPicMessage = message.Chat.Id > 0
@@ -455,7 +458,17 @@ public class HelperService : IHelperService
                     post.Rating,
                     post.PostUrl);
 
-            await SendResponse(message, botClient, returnPicMessage, cancellationToken, post.FileUrl.AbsoluteUri);
+            Console.WriteLine("sending response...");
+
+            try
+            {
+                await SendResponse(message, botClient, returnPicMessage, cancellationToken, post.FileUrl.AbsoluteUri);
+            }
+            catch (UnableToParseException)
+            {
+                await GetBooruPic(booru, botClient, message, user, chat, cancellationToken);
+            }
+
         }
         catch (Exception)
         {
@@ -850,7 +863,6 @@ public class HelperService : IHelperService
                             new InputMediaPhoto(picUri)
                             {
                                 Caption = messageText
-
                             }
                         },
                         cancellationToken: cancellationToken);
@@ -858,15 +870,22 @@ public class HelperService : IHelperService
                     await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
                     break;
                 }
-                
+
                 await botClient.SendTextMessageAsync(message.Chat.Id,
                     messageText,
                     cancellationToken: cancellationToken);
                 await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
                 break;
             }
-            catch (ApiRequestException)
+            catch (ApiRequestException exception)
             {
+                if (exception.Message.Contains("Bad Request"))
+                {
+                    Console.WriteLine("Bad Request");
+                    throw new UnableToParseException();
+                }
+
+                Console.WriteLine($"Caught exception {exception.Message}");
                 Thread.Sleep(1000);
             }
         }

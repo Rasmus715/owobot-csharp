@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     "net6.0": {
-      "BooruSharp/3.4.0": {
+      "BooruSharp/3.5.5": {
         "type": "package",
         "dependencies": {
           "Newtonsoft.Json": "13.0.1"
@@ -907,15 +907,15 @@
     }
   },
   "libraries": {
-    "BooruSharp/3.4.0": {
-      "sha512": "9+kwfylCFGEyqhIQhmK3QmHW6zBDkSuyQ5H6CZb+KFOW2BGljoKrcy7dhwGcheUudb+IBZcjVnM8Z7dSGA1XlQ==",
+    "BooruSharp/3.5.5": {
+      "sha512": "mcWPfVWI6MvPuUqu2v2v9AG1euSGb4MpgYQwG1M1CJGmepbUHBiAmzLv1iyV5piQOtI1PBUSsNPsbps+o94cqw==",
       "type": "package",
-      "path": "boorusharp/3.4.0",
+      "path": "boorusharp/3.5.5",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE",
-        "boorusharp.3.4.0.nupkg.sha512",
+        "boorusharp.3.5.5.nupkg.sha512",
         "boorusharp.nuspec",
         "lib/netstandard2.0/BooruSharp.dll",
         "lib/netstandard2.0/BooruSharp.xml"
@@ -2221,7 +2221,7 @@
   },
   "projectFileDependencyGroups": {
     "net6.0": [
-      "BooruSharp >= 3.4.0",
+      "BooruSharp >= 3.5.5",
       "Microsoft.EntityFrameworkCore >= 6.0.9",
       "Microsoft.EntityFrameworkCore.Design >= 6.0.9",
       "Microsoft.EntityFrameworkCore.Sqlite >= 6.0.9",
@@ -2278,7 +2278,7 @@
         "dependencies": {
           "BooruSharp": {
             "target": "Package",
-            "version": "[3.4.0, )"
+            "version": "[3.5.5, )"
           },
           "Microsoft.EntityFrameworkCore": {
             "target": "Package",
