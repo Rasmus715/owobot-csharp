@@ -444,7 +444,6 @@ public class HelperService : IHelperService
                 do
                 {
                     post = await booru.GetRandomPostAsync();
-                    Console.WriteLine(post.ID);
                 } while (!user.Nsfw && !post.Rating.Equals(Rating.Safe));
 
             var returnPicMessage = message.Chat.Id > 0
@@ -457,9 +456,7 @@ public class HelperService : IHelperService
                     $"@{message.From?.Username}",
                     post.Rating,
                     post.PostUrl);
-
-            Console.WriteLine("sending response...");
-
+            
             try
             {
                 await SendResponse(message, botClient, returnPicMessage, cancellationToken, post.FileUrl.AbsoluteUri);
@@ -666,7 +663,6 @@ public class HelperService : IHelperService
         //If there is no non-NSFW post in collection.
         catch (ArgumentException)
         {
-            Console.WriteLine(@"Lewd detected in Subreddit " + subreddit.Name);
             if (message.Chat.Id < 0)
             {
                 await SendResponse(message, botClient, string.Format(resourceManager.GetString("LewdDetected_Chat", 
@@ -881,11 +877,9 @@ public class HelperService : IHelperService
             {
                 if (exception.Message.Contains("Bad Request"))
                 {
-                    Console.WriteLine("Bad Request");
                     throw new UnableToParseException();
                 }
-
-                Console.WriteLine($"Caught exception {exception.Message}");
+                
                 Thread.Sleep(1000);
             }
         }
