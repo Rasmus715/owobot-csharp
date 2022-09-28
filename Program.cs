@@ -17,7 +17,7 @@ var logger = LoggerFactory.Create(config =>
 }).CreateLogger("Program");
 
 if (Validate(args))
-    return;
+    return 1;
 
 var proxy = ProxyChecker(args);
 
@@ -43,7 +43,7 @@ try
 catch (Exception)
 {
     logger.LogError("Something went wrong. Please, restart the bot");
-    return;
+    return 1;
 }
 
 
@@ -113,6 +113,7 @@ var host = Host.CreateDefaultBuilder(args)
     .Build();
 
 await host.RunAsync();
+return 0;
 
 
 

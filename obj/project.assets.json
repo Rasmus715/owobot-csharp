@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     "net6.0": {
-      "BooruSharp/3.5.4": {
+      "BooruSharp/3.4.0": {
         "type": "package",
         "dependencies": {
           "Newtonsoft.Json": "13.0.1"
@@ -907,15 +907,15 @@
     }
   },
   "libraries": {
-    "BooruSharp/3.5.4": {
-      "sha512": "LyewcsOQvUdex4B2/cLBvInw9XsNqqe90CTofC+2OfxT9rsVt5Nt4NJzaPak83LIE04+Cv4wpTB/kRsFbXdTXA==",
+    "BooruSharp/3.4.0": {
+      "sha512": "9+kwfylCFGEyqhIQhmK3QmHW6zBDkSuyQ5H6CZb+KFOW2BGljoKrcy7dhwGcheUudb+IBZcjVnM8Z7dSGA1XlQ==",
       "type": "package",
-      "path": "boorusharp/3.5.4",
+      "path": "boorusharp/3.4.0",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
         "LICENSE",
-        "boorusharp.3.5.4.nupkg.sha512",
+        "boorusharp.3.4.0.nupkg.sha512",
         "boorusharp.nuspec",
         "lib/netstandard2.0/BooruSharp.dll",
         "lib/netstandard2.0/BooruSharp.xml"
@@ -2221,7 +2221,7 @@
   },
   "projectFileDependencyGroups": {
     "net6.0": [
-      "BooruSharp >= 3.5.4",
+      "BooruSharp >= 3.4.0",
       "Microsoft.EntityFrameworkCore >= 6.0.9",
       "Microsoft.EntityFrameworkCore.Design >= 6.0.9",
       "Microsoft.EntityFrameworkCore.Sqlite >= 6.0.9",
@@ -2240,26 +2240,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\crack\\.nuget\\packages\\": {}
+    "/Users/crackbargains/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\crack\\Documents\\owobot-csharp\\owobot-csharp.csproj",
+      "projectUniqueName": "/Volumes/Media/Projects/owobot-csharp/owobot-csharp.csproj",
       "projectName": "owobot-csharp",
-      "projectPath": "C:\\Users\\crack\\Documents\\owobot-csharp\\owobot-csharp.csproj",
-      "packagesPath": "C:\\Users\\crack\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\crack\\Documents\\owobot-csharp\\obj\\",
+      "projectPath": "/Volumes/Media/Projects/owobot-csharp/owobot-csharp.csproj",
+      "packagesPath": "/Users/crackbargains/.nuget/packages/",
+      "outputPath": "/Volumes/Media/Projects/owobot-csharp/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\crack\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/Users/crackbargains/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net6.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -2280,7 +2278,7 @@
         "dependencies": {
           "BooruSharp": {
             "target": "Package",
-            "version": "[3.5.4, )"
+            "version": "[3.4.0, )"
           },
           "Microsoft.EntityFrameworkCore": {
             "target": "Package",
@@ -2353,8 +2351,7 @@
           "net47",
           "net471",
           "net472",
-          "net48",
-          "net481"
+          "net48"
         ],
         "assetTargetFallback": true,
         "warn": true,
@@ -2363,7 +2360,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/6.0.202/RuntimeIdentifierGraph.json"
       }
     }
   }
