@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "owobot-csharp", "owobot-csharp.csproj", "{30BC0100-D5E3-45C2-B693-0F2254A1C9E5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "owobot-csharp", "owobot_csharp\owobot-csharp.csproj", "{30BC0100-D5E3-45C2-B693-0F2254A1C9E5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{F6F1AE0A-EBC6-4E70-A4A4-8E9F1E5F5FC9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,5 +15,9 @@ Global
 		{30BC0100-D5E3-45C2-B693-0F2254A1C9E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{30BC0100-D5E3-45C2-B693-0F2254A1C9E5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{30BC0100-D5E3-45C2-B693-0F2254A1C9E5}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{F6F1AE0A-EBC6-4E70-A4A4-8E9F1E5F5FC9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F6F1AE0A-EBC6-4E70-A4A4-8E9F1E5F5FC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F6F1AE0A-EBC6-4E70-A4A4-8E9F1E5F5FC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F6F1AE0A-EBC6-4E70-A4A4-8E9F1E5F5FC9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
