@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<root>
+    <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+        <xsd:element name="root" msdata:IsDataSet="true">
+            
+        </xsd:element>
+    </xsd:schema>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="Info" xml:space="preserve">
+        <value>Hellowo! I'm owobot {0} - a bot that sends cute anime girls!
+
+I am written in C# using .NET 6, taking data from Booru websites and Reddit.
+I'm also multi-threaded. Don't be afraid to send me 25-50 requests at a time, I can handle it!
+
+If you’re tired of reading and you want to see anime girls already, then proceed with: /get
+By default, I will not send you NSFW content, however you can configure this using next command: /nsfw
+You can also change the language by sending: /language
+
+A few words about privacy - I save only the settings for each user and chat. 
+My GitHub page: https://github.com/Rasmus715/owobot-csharp
+
+I hope that I will be useful to you, master!! (☆ω☆)</value>
+    </data>
+    <data name="SetLanguage" xml:space="preserve">
+        <value>Understood! From now, I'll answer you in English!</value>
+    </data>
+    <data name="Start" xml:space="preserve">
+        <value>Konichiwa, {0}!
+ 
+To get more information type /info
+For a quick start, just type /get
+
+Also click on the slash icon at the keyboard to see full command list.</value>
+    </data>
+    <data name="Status" xml:space="preserve">
+        <value>I'm alive!
+
+Uptime: {0} Days {1}. Total requests: {2}
+NSFW for this chat: {3}
+Bot version: {4}</value>
+    </data>
+    <data name="LanguageInfo" xml:space="preserve">
+        <value>Oa! Are you decided to change language?
+
+At this moment used language to response is English. 
+Here is what you can do:
+/language_en to switch to English.
+/language_ru чтобы переключится на русский.</value>
+    </data>
+    <data name="ReturnPic" xml:space="preserve">
+        <value>Pam! Here's your picture from {0}
+Post title: {1}
+NSFW: {2}
+Link to the original: {3}
+Post Link: {4}</value>
+    </data>
+    <data name="GetStatus" xml:space="preserve">
+        <value>Write to the bot /get_*subreddit tittle* and it will send you a random picture from there.
+
+Here is my little compilation for you:
+/get_AnimeART - The biggest place with anime pics.
+/get_awwnime - All kinds of moe art.
+/get_wholesomeyuri - Yuri. Everyone loves yuri.
+/get_Joshi_Kosei - Cute high school students.
+/get_AnimeBlush - Shy girls.
+/get_tsunderes - Cute tsunderes!
+/get_Usagimimi - Bunny girls!
+/get_kitsunemimi - Cat girls!
+/get_animeponytails - Cute ponytail girls.
+/get_tyingherhairup - Anime girls tying their hair up.
+/get_OfficialSenpaiHeat - Compilation of pictures.
+/get_ChurchofBelly - Tummies!
+/get_Moescape - Cute arts with cute girls.
+/get_MoeStash - More cute girls!
+/get_TwoDeeArt - Just 2D Art.
+/get_headpats - Girls getting a pat.
+/get_cutelittlefangs - Teeth and fangs and cute girls.
+/get_kemonomimi - Cute girls and animal ears!
+/get_twintails - Anime girls with twintails.
+/get_pouts - Cute girls with pouting cheeks.
+/get_gao - Girls make scary sounds!
+/get_animelegs - Legs!
+/get_ZettaiRyouiki - Thighs owo!
+/get_thighdeology - More thighs, but more open!
+/get_Animewallpaper - Beautiful wallpapers with cute girls.
+/get_pantsu - Pantsu shots owo!
+/get_Patchuu - Abstract, surreal, or just beautiful girls!
+/get_animehotbeverages - Girls drink hot drinks.
+/get_AnimeLounging - Cute girls are resting.
+/get_silverhair - Girls with silver hair.
+/get_longhairedwaifus - Cuties with long hair.
+/get_shorthairedwaifus - Girls with short hairstyles.
+/get_Smugs - Smug girls.
+/get_manga - Manga pages.
+/get_Lain - W̺̹̆̒ͪ͌̒ͦe͂̈́ ̜͕̮͉̥̔ͪ̃͗ͣa͛ͤ̌ŕ̭̈́̎̈ͯ͋e̠̤̫̪͙ͩͨ ͉̘̱͔̥͊͂́̍ͦ́ẃ̰̼̰͌̇iͧ̀̉ͫr͖̗̙̫̓e̥̣̲ͨ̄͌̑d̲͉̭̩̟̙̝͆ͥ
+
+
+/random - random picture from booru websites (konachan, yande.re)
+/random_reddit - random picture from a subreddit, listed above</value>
+    </data>
+    <data name="NsfwStatus" xml:space="preserve">
+        <value>Oagh! Have you decided to change the NSFW content settings?
+
+Currently NSFW is: {0}. Here is what you can do:
+/nsfw_on to turn on the lewds
+/nsfw_off to turn off all the erotic
+
+
+
+*No guarantee that all NSFW tags are correct!</value>
+    </data>
+    <data name="SetNsfwOn" xml:space="preserve">
+        <value>Got it! Now the lewds are enabled in this chat! ( ͡° ͜ʖ ͡°)</value>
+    </data>
+    <data name="SetNsfwOff" xml:space="preserve">
+        <value>Understood. No more vulgarity in this chat!</value>
+    </data>
+    <data name="NsfwSettingException" xml:space="preserve">
+        <value>Ehmm... You should read carefully about the commands in /nsfw</value>
+    </data>
+    <data name="LewdDetected" xml:space="preserve">
+        <value>Oh! Request {0} contains LEWDS!
+
+I was told not to post NSFW posts!
+I can not show you this picture, sorry (｡ŏ﹏ŏ)</value>
+    </data>
+    <data name="UnknownCommand" xml:space="preserve">
+        <value>Eaah? I don't understand you!</value>
+    </data>
+    <data name="GetStatus_Chat" xml:space="preserve">
+        <value>Yo, {0}!
+Write to the bot /get_*subreddit tittle* and it will send you a random picture from there.
+Here is my little compilation:
+/get_AnimeART - The biggest place with anime pics.
+/get_awwnime - All kinds of moe art.
+/get_wholesomeyuri - Yuri. Everyone loves yuri.
+/get_Joshi_Kosei - Cute high school students.
+/get_AnimeBlush - Shy girls.
+/get_tsunderes - Cute tsunderes!
+/get_Usagimimi - Bunny girls!
+/get_kitsunemimi - Cat girls!
+/get_animeponytails - Cute ponytail girls.
+/get_tyingherhairup - Anime girls tying their hair up.
+/get_OfficialSenpaiHeat - Compilation of pictures.
+/get_ChurchofBelly - Tummies!
+/get_Moescape - Cute arts with cute girls.
+/get_MoeStash - More cute girls!
+/get_TwoDeeArt - Just 2D Art.
+/get_headpats - Girls getting a pat.
+/get_cutelittlefangs - Teeth and fangs and cute girls.
+/get_kemonomimi - Cute girls and animal ears!
+/get_twintails - Anime girls with twintails.
+/get_pouts - Cute girls with pouting cheeks.
+/get_gao - Girls make scary sounds!
+/get_animelegs - Legs!
+/get_ZettaiRyouiki - Thighs owo!
+/get_thighdeology - More thighs, but more open!
+/get_Animewallpaper - Beautiful wallpapers with cute girls.
+/get_pantsu - Pantsu shots owo!
+/get_Patchuu - Abstract, surreal, or just beautiful girls!
+/get_animehotbeverages - Girls drink hot drinks.
+/get_AnimeLounging - Cute girls are resting.
+/get_silverhair - Girls with silver hair.
+/get_longhairedwaifus - Cuties with long hair.
+/get_shorthairedwaifus - Girls with short hairstyles.
+/get_Smugs - Smug girls.
+/get_manga - Manga pages.
+/get_Lain - W̺̹̆̒ͪ͌̒ͦe͂̈́ ̜͕̮͉̥̔ͪ̃͗ͣa͛ͤ̌ŕ̭̈́̎̈ͯ͋e̠̤̫̪͙ͩͨ ͉̘̱͔̥͊͂́̍ͦ́ẃ̰̼̰͌̇iͧ̀̉ͫr͖̗̙̫̓e̥̣̲ͨ̄͌̑d̲͉͆ͥ
+
+/random - random picture from booru boards (such as konachan, yande.re)
+/random_reddit - random picture from a subreddit, listed above</value>
+    </data>
+    <data name="Info_Chat" xml:space="preserve">
+        <value>Hellowo, {0}! I'm owobot {1} - a bot that sends cute girls!
+
+I am written in C# using .NET 6, taking data from Booru werbsites Reddit, and multi-threaded. Do not be afraid to send me 25-50 requests at a time, I can handle it!
+
+If you’re tired of reading and you want to see anime girls already, then you are here: /get{2}
+By default, I will not send you NSFW content, however you can configure this here: /nsfw{2}
+You can also change the language here: /language{2}
+
+A few words about privacy - I save **only** the settings for each user.
+My github page: https://github.com/Rasmus715/owobot-csharp
+
+I hope that I will be useful to you, master!! (☆ω☆)</value>
+    </data>
+    <data name="LanguageInfo_Chat" xml:space="preserve">
+        <value>Oa, {0}! Are you decided to change language?
+
+At this moment used language to response is English.
+Here is what you can do:
+/language_en{1} to switch to English
+/language_ru{1} чтобы переключится на русский</value>
+    </data>
+    <data name="LewdDetected_Chat" xml:space="preserve">
+        <value>Oh, {0}! Request {1} contains LEWDS!
+
+I was told not to post NSFW posts!
+I can not show you this picture, sorry (｡ŏ﹏ŏ)</value>
+    </data>
+    <data name="NsfwSettingException_Chat" xml:space="preserve">
+        <value>Ehmm, {0}... You should read carefully about the commands in /nsfw{1}</value>
+    </data>
+    <data name="NsfwStatus_Chat" xml:space="preserve">
+        <value>Oagh, {0}! Have you decided to change the NSFW content settings?
+
+Currently NSFW is: {1}. Here is what you can do:
+/nsfw_on@{2} to turn on the lewds
+/nsfw_off@{2} to turn off all the erotic
+
+Be aware that only the admin of chat can change this setting.
+
+*No guarantee that all NSFW tags are correct!</value>
+    </data>
+    <data name="ReturnPic_Chat" xml:space="preserve">
+        <value>Pam, {0}! Here's your picture from {1}
+Post title: {2}
+NSFW: {3}
+Link to the original: {4}
+Post Link: {5}</value>
+    </data>
+    <data name="SetLanguage_Chat" xml:space="preserve">
+        <value>Understood, {0}! From now, I'll answer you in English!</value>
+    </data>
+    <data name="SetNsfwOff_Chat" xml:space="preserve">
+        <value>Understood, {0}. No more vulgarity in this chat!</value>
+    </data>
+    <data name="SetNsfwOn_Chat" xml:space="preserve">
+        <value>Got it, {0}! Now the lewds are enabled in this chat! ( ͡° ͜ʖ ͡°)</value>
+    </data>
+    <data name="NsfwSettingException_NotEnoughRights_Chat" xml:space="preserve">
+        <value>Sorry, {0}, but in chat this setting can be changed only by admin.</value>
+    </data>
+    <data name="OnSwitch" xml:space="preserve">
+        <value>ON</value>
+    </data>
+    <data name="OffSwitch" xml:space="preserve">
+        <value>OFF</value>
+    </data>
+    <data name="UnknownCommand_Chat" xml:space="preserve">
+        <value>Eaah, {0}? I don't understand you!</value>
+    </data>
+    <data name="Yes" xml:space="preserve">
+        <value>Yes</value>
+    </data>
+    <data name="No" xml:space="preserve">
+        <value>No</value>
+    </data>
+    <data name="ReturnPicBooru" xml:space="preserve">
+        <value>Pam! Here's your picture.
+NSFW: {0}
+Post Link: {1}</value>
+    </data>
+    <data name="ReturnPicBooru_Chat" xml:space="preserve">
+        <value>Pam, {0}! Here's your picture.
+NSFW: {1}
+Post Link: {2}</value>
+    </data>
+</root>

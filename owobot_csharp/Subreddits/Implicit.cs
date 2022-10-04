@@ -1,0 +1,32 @@
+namespace owobot_csharp.Subreddits;
+
+public enum Implicit
+{
+    manga,
+    AnimeART,
+    awwnime,
+    wholesomeyuri,
+    Joshi_Kosei,
+    tsunderes,
+    kitsunemimi,
+    animeponytails,
+    tyingherhairup,
+    OfficialSenpaiHeat,
+    ChurchofBelly,
+    Moescape,
+    MoeStash,
+    TwoDeeArt,
+    headpats,
+    cutelittlefangs,
+    kemonomimi,
+    twintails,
+    pouts,
+    gao,
+    ZettaiRyouiki,
+    Animewallpaper,
+    Patchuu,
+    animehotbeverages,
+    AnimeLounging,
+    silverhair,
+    shorthairedwaifus,
+}

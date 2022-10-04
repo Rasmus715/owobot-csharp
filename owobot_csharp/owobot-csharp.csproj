@@ -1,0 +1,73 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <RootNamespace>owobot_csharp</RootNamespace>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>disable</Nullable>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="BooruSharp" Version="3.5.5" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.9" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.9">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.9" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.9">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="6.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+      <PackageReference Include="Reddit" Version="1.5.2" />
+      <PackageReference Include="Telegram.Bot" Version="18.0.0" />
+      <PackageReference Include="Telegram.Bot.Extensions.Polling" Version="1.0.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Update="Resources\Handlers.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Handlers.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+      <EmbeddedResource Remove="owobot-csharp\Resources\Handlers.ru-RU.resx" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="Resources\Handlers.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Handlers.resx</DependentUpon>
+      </Compile>
+      <Compile Remove="owobot-csharp\Validator.cs" />
+      <Compile Remove="owobot-csharp\Subreddits\Implicit.cs" />
+      <Compile Remove="owobot-csharp\Services\UpdateHandler.cs" />
+      <Compile Remove="owobot-csharp\Services\ReceiverService.cs" />
+      <Compile Remove="owobot-csharp\Services\PollingService.cs" />
+      <Compile Remove="owobot-csharp\Resources\Handlers.Designer.cs" />
+      <Compile Remove="owobot-csharp\Program.cs" />
+      <Compile Remove="owobot-csharp\Models\User.cs" />
+      <Compile Remove="owobot-csharp\Migrations\ApplicationContextModelSnapshot.cs" />
+      <Compile Remove="owobot-csharp\Migrations\20220923123328_Init.Designer.cs" />
+      <Compile Remove="owobot-csharp\Abstract\RecieveServcieBase.cs" />
+      <Compile Remove="owobot-csharp\Abstract\PollingServiceBase.cs" />
+      <Compile Remove="TestProject1\UnitTest1.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="owobot-csharp\package.json" />
+      <None Remove="owobot-csharp\docker-compose.yaml" />
+      <None Remove="owobot-csharp\README.md" />
+      <None Remove="owobot-csharp\Dockerfile" />
+    </ItemGroup>
+
+</Project>
