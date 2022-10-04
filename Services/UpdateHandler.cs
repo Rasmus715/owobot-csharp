@@ -19,12 +19,19 @@ public class UpdateHandler : IUpdateHandler
 
     public async Task HandleUpdateAsync(ITelegramBotClient _, Update update, CancellationToken cancellationToken)
     {
-        var handler = BotOnMessageReceived(update.Message, cancellationToken);
-        await handler;
+        switch (update)
+        {
+            case {Message: { } message}:
+                await BotOnMessageReceived(message, cancellationToken);
+                break;
+            default:
+                await UnknownUpdateHandlerAsync();
+                break;
+        }
     }
 
-    private static Task UnknownUpdateHandlerAsync()
-    {
+    private Task UnknownUpdateHandlerAsync()
+    { 
         return Task.CompletedTask;
     }
 
@@ -66,21 +73,15 @@ public class UpdateHandler : IUpdateHandler
                 await _helperService.NsfwStatus(message, _botClient, cancellationToken);
                 break;
             case "/random":
-                async void BooruThread() =>
-                    await _helperService.GetRandomBooruPic(message, _botClient, cancellationToken);
-                new Thread(BooruThread).Start();
+                await _helperService.GetRandomBooruPic(message, _botClient, cancellationToken);
                 break;
             case "/random_reddit":
-                async void RedditThread() => 
-                    await _helperService.GetRandomPic(message, _botClient, cancellationToken);
-                new Thread(RedditThread).Start();
+                await _helperService.GetRandomPic(message, _botClient, cancellationToken);
                 break;
             default:
                 if (message.Text.Contains("/get_"))
                 {
-                    async void GetRedditThread() => 
-                        await _helperService.GetPicFromReddit(message, _botClient, cancellationToken);
-                    new Thread(GetRedditThread).Start();
+                    await _helperService.GetPicFromReddit(message, _botClient, cancellationToken);
                     break;
                 }
 

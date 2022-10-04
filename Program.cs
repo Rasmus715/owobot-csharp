@@ -27,13 +27,13 @@ IConfiguration configuration = new ConfigurationBuilder()
     .AddCommandLine(args)
     .Build();
 
-logger.LogInformation("Initializing migration...");
-
 if (!Directory.Exists("Essentials"))
 {
     logger.LogInformation(@"Creating ""Essentials"" Directory");
     Directory.CreateDirectory("Essentials");
 }
+
+logger.LogInformation("Initializing migration...");
 
 try
 {
@@ -102,7 +102,7 @@ var host = Host.CreateDefaultBuilder(args)
         
         services.AddTransient<UpdateHandler>(); 
         services.AddTransient<ReceiverService>(); 
-        services.AddTransient<IHelperService, HelperService>()
+        services.AddSingleton<IHelperService, HelperService>()
             .AddLogging(cfg => cfg.AddConsole())
             .Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = LogLevel.Information); 
         services.AddDbContext<ApplicationContext>(); 
