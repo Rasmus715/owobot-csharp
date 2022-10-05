@@ -137,12 +137,10 @@ public class HelperService : IHelperService
         var user = await GetUser(message, cancellationToken);
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
             Assembly.GetExecutingAssembly());
-
-        Console.WriteLine("In start block");
+        
         switch (message.Chat.Id)
         {
             case < 0:
-                Console.WriteLine("in < 0 block " + message.Chat.Id);
                 if (message.Text!.Equals($"/start@{botClient.GetMeAsync(cancellationToken).Result.Username}"))
                     _ = SendResponse(message, botClient, string.Format(
                             resourceManager.GetString("Start",
@@ -152,7 +150,6 @@ public class HelperService : IHelperService
                 break;
             default:
             {
-                Console.WriteLine("in > 0 block " + message.Chat.Id);
                 _ = SendResponse(message, botClient, string.Format(
                         resourceManager.GetString("Start",
                             CultureInfo.GetCultureInfo(user.Language ?? "en-US"))!, message.From?.FirstName ?? "User"),

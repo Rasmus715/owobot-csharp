@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using BooruSharp.Booru;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,15 +16,15 @@ var logger = LoggerFactory.Create(config =>
     config.AddConsole();
 }).CreateLogger("Program");
 
-if (Validate(args))
-    return 1;
-
-var proxy = ProxyChecker(args);
-
 IConfiguration configuration = new ConfigurationBuilder()
     .AddEnvironmentVariables()
     .AddCommandLine(args)
     .Build();
+
+if (Validate(configuration))
+    return 1;
+
+var proxy = ProxyChecker(configuration);
 
 if (!Directory.Exists("Essentials"))
 {

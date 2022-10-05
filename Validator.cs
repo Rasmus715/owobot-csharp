@@ -5,17 +5,12 @@ namespace owobot_csharp;
 
 public static class Validator
 {
-    public static bool Validate(string[] args)
+    public static bool Validate(IConfiguration configuration)
     {
         var logger = LoggerFactory.Create(config =>
         {
             config.AddConsole();
         }).CreateLogger("Validator");
-        
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddEnvironmentVariables()
-            .AddCommandLine(args)
-            .Build();
         
         var parseSuccessful = true;
 
@@ -91,13 +86,8 @@ public static class Validator
         return true; 
     }
 
-    public static string ProxyChecker(string[] args)
+    public static string ProxyChecker(IConfiguration configuration)
     {
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddEnvironmentVariables()
-            .AddCommandLine(args)
-            .Build();
-        
         var logger = LoggerFactory.Create(config =>
         {
             config.AddConsole();
