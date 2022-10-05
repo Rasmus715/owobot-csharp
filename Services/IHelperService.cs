@@ -197,6 +197,7 @@ public class HelperService : IHelperService
 
     public async Task Status(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
     {
+        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
             Assembly.GetExecutingAssembly());
         var configuration = new ConfigurationBuilder()
@@ -235,6 +236,7 @@ public class HelperService : IHelperService
 
     public async Task LanguageInfo(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
     {
+        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
             Assembly.GetExecutingAssembly());
         var user = await GetUser(message, cancellationToken);
@@ -259,6 +261,7 @@ public class HelperService : IHelperService
 
     public async Task GetStatus(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
     {
+        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
             Assembly.GetExecutingAssembly());
         var user = await GetUser(message, cancellationToken);
@@ -282,6 +285,7 @@ public class HelperService : IHelperService
 
     public async Task NsfwStatus(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
     {
+        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
             Assembly.GetExecutingAssembly());
         var user = await GetUser(message, cancellationToken);
@@ -422,12 +426,12 @@ public class HelperService : IHelperService
     public async Task GetPicFromReddit(Message message, ITelegramBotClient botClient,
         CancellationToken cancellationToken)
     {
+        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
             Assembly.GetExecutingAssembly());
 
         var user = await GetUser(message, cancellationToken);
         var chat = await GetChat(message, cancellationToken);
-        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
 
         //Console.WriteLine(message.Text?[5..]);
         var random = new Random();
@@ -441,6 +445,7 @@ public class HelperService : IHelperService
 
     public async Task GetRandomPic(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
     {
+        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
         var random = new Random();
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
             Assembly.GetExecutingAssembly());
@@ -633,6 +638,7 @@ public class HelperService : IHelperService
 
     public async Task SetLanguage(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
     {
+        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
         var user = await GetUser(message, cancellationToken);
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
             Assembly.GetExecutingAssembly());
@@ -663,6 +669,7 @@ public class HelperService : IHelperService
 
     public async Task TurnNsfw(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
     {
+        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
         var user = await GetUser(message, cancellationToken);
         var chat = await GetChat(message, cancellationToken);
 
@@ -747,9 +754,10 @@ public class HelperService : IHelperService
         }
     }
 
-    private static Task NsfwSettingException(Message message, ITelegramBotClient botClient, User user,
+    private static async Task NsfwSettingException(Message message, ITelegramBotClient botClient, User user,
         ResourceManager resourceManager, CancellationToken cancellationToken)
     {
+        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
         if (message.Chat.Id > 0)
             _ = SendResponse(message, botClient, resourceManager.GetString("NsfwSettingException",
                 CultureInfo.GetCultureInfo(user.Language))!, cancellationToken);
@@ -758,11 +766,11 @@ public class HelperService : IHelperService
                 resourceManager.GetString("NsfwSettingException_Chat",
                     CultureInfo.GetCultureInfo(user.Language))!, $"@{message.From!.Username}",
                 $"@{botClient.GetMeAsync(cancellationToken).Result.Username}"), cancellationToken);
-        return Task.CompletedTask;
     }
 
     public async Task UnknownCommand(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
     {
+        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
         var user = await GetUser(message, cancellationToken);
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
             Assembly.GetExecutingAssembly());
