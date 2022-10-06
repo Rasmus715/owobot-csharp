@@ -1,7 +1,9 @@
+using owobot_csharp.Interfaces;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InlineQueryResults;
 using Message = Telegram.Bot.Types.Message;
 
 namespace owobot_csharp.Services;
@@ -19,16 +21,22 @@ public class UpdateHandler : IUpdateHandler
 
     public async Task HandleUpdateAsync(ITelegramBotClient _, Update update, CancellationToken cancellationToken)
     {
-        switch (update)
+        var handler = update switch
         {
-            case {Message: { } message}:
-                await BotOnMessageReceived(message, cancellationToken);
-                break;
-            default:
-                await UnknownUpdateHandlerAsync();
-                break;
+            { InlineQuery: { } inlineQuery }               => BotOnInlineQueryReceived(inlineQuery, cancellationToken),
+            _ => Task.CompletedTask
+        };
+        await handler;
+    }
+
+    private async Task BotOnInlineQueryReceived(InlineQuery inlineQuery, CancellationToken cancellationToken)
+    {
+        if (inlineQuery.Query.Equals("random"))
+        {
+            await _helperService.GetRandomBooruPic(_botClient, inlineQuery, cancellationToken);
         }
     }
+
 
     private Task UnknownUpdateHandlerAsync()
     { 

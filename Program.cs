@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using owobot_csharp.Data;
+using owobot_csharp.Interfaces;
 using owobot_csharp.Services;
 using Telegram.Bot;
 using static owobot_csharp.Validator;
@@ -14,6 +15,7 @@ using static owobot_csharp.Validator;
 var logger = LoggerFactory.Create(config =>
 {
     config.AddConsole();
+    config.SetMinimumLevel(LogLevel.Debug);
 }).CreateLogger("Program");
 
 IConfiguration configuration = new ConfigurationBuilder()

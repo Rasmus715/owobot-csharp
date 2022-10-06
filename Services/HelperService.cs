@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using owobot_csharp.Data;
 using owobot_csharp.Exceptions;
+using owobot_csharp.Interfaces;
 using owobot_csharp.Subreddits;
 using Reddit;
 using Reddit.Controllers;
@@ -18,36 +19,12 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
+using Telegram.Bot.Types.InlineQueryResults;
 using static System.IO.File;
 using Chat = owobot_csharp.Models.Chat;
 using User = owobot_csharp.Models.User;
 
 namespace owobot_csharp.Services;
-
-public interface IHelperService
-{
-    Task SendCustomMessage(Message message, string customMessage, ITelegramBotClient bot,
-        CancellationToken cancellationToken);
-    Task Start(Message message, ITelegramBotClient bot,
-        CancellationToken cancellationToken);
-    Task Info(Message message, ITelegramBotClient bot, CancellationToken cancellationToken);
-    Task Status(Message message, ITelegramBotClient botClient,
-        CancellationToken cancellationToken);
-    Task LanguageInfo(Message message, ITelegramBotClient botClient,
-        CancellationToken cancellationToken);
-    Task GetStatus(Message message, ITelegramBotClient botClient,
-        CancellationToken cancellationToken);
-    Task NsfwStatus(Message message, ITelegramBotClient botClient,
-        CancellationToken cancellationToken);
-    Task GetRandomBooruPic(Message message, ITelegramBotClient botClient,
-        CancellationToken cancellationToken);
-    Task GetRandomPic(Message message, ITelegramBotClient botClient,
-        CancellationToken cancellationToken);
-    Task GetPicFromReddit(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken);
-    Task SetLanguage(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken);
-    Task TurnNsfw(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken);
-    Task UnknownCommand(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken);
-}
 
 public class HelperService : IHelperService
 {
@@ -364,6 +341,119 @@ public class HelperService : IHelperService
                     break;
             }
         }, cancellationToken);
+    }
+
+    public async Task GetRandomBooruPic(ITelegramBotClient botClient, InlineQuery inlineQuery, CancellationToken cancellationToken)
+    {
+        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
+
+        var random = new Random();
+
+        _ = Task.Run(async () =>
+        {
+
+            switch (random.Next(5))
+            {
+                case 0:
+                    await GetBooruPic(new Konachan(), botClient, inlineQuery, cancellationToken);
+                    break;
+                case 1:
+                    await GetBooruPic(new SankakuComplex(), botClient, inlineQuery, cancellationToken);
+                    break;
+                case 2:
+                    await GetBooruPic(new DanbooruDonmai(), botClient, inlineQuery,cancellationToken);
+                    break;
+                case 3:
+                    await GetBooruPic(new Lolibooru(), botClient, inlineQuery, cancellationToken);
+                    break;
+                case 4:
+                    await GetBooruPic(new Safebooru(), botClient, inlineQuery, cancellationToken);
+                    break;
+                case 5:
+                    await GetBooruPic(new Sakugabooru(), botClient, inlineQuery, cancellationToken);
+                    break;
+                case 6:
+                    await GetBooruPic(new Yandere(), botClient, inlineQuery, cancellationToken);
+                    break;
+                default:
+                    await GetBooruPic(new Konachan(), botClient, inlineQuery, cancellationToken);
+                    break;
+            }
+        }, cancellationToken);
+    }
+
+    private async Task GetBooruPic(ABooru booru, ITelegramBotClient botClient, InlineQuery inlineQuery, CancellationToken cancellationToken)
+    {
+        SearchResult post;
+        var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
+            Assembly.GetExecutingAssembly());
+        
+            do
+            {
+                post = await booru.GetRandomPostAsync();
+            } while (!post.Rating.Equals(Rating.Safe));
+
+        //Console.WriteLine("Got the pic");
+
+        var returnPicMessage = 
+            string.Format(resourceManager.GetString("ReturnPicBooru_Chat",
+                    CultureInfo.GetCultureInfo("en-US"))!, 
+                $"@{inlineQuery.From.Username}", 
+                post.Rating,
+                post.PostUrl);
+        try
+        {
+            // Console.WriteLine("Sending the pic");
+            // Console.WriteLine(post.FileUrl.AbsoluteUri);
+            // Console.WriteLine(post.PreviewUrl.AbsoluteUri.Contains("?") ? 
+            //     post.PreviewUrl.AbsoluteUri.Substring(0,post.PreviewUrl.AbsoluteUri.IndexOf("?", StringComparison.Ordinal)) 
+            //     : post.PreviewUrl.AbsoluteUri);
+            _=  SendResponse(inlineQuery, botClient, returnPicMessage, post.FileUrl.AbsoluteUri, 
+                post.PreviewUrl.AbsoluteUri.Contains('?') ? 
+                    post.PreviewUrl.AbsoluteUri[..post.PreviewUrl.AbsoluteUri.IndexOf('?')] 
+                    : post.PreviewUrl.AbsoluteUri,  cancellationToken);
+        }
+        catch (UnableToParseException)
+        {
+            await GetBooruPic(booru, botClient, inlineQuery, cancellationToken);
+        }
+    }
+
+    private static async Task SendResponse(InlineQuery inlineQuery, ITelegramBotClient botClient, string returnPicMessage, string fileUrlAbsoluteUri, string thumbnail, CancellationToken cancellationToken)
+    {
+        while (true)
+            try
+            {
+                
+                var results = new InlineQueryResult[]
+                {
+                    new InlineQueryResultPhoto("photo:random", fileUrlAbsoluteUri, thumbnail)
+                    {
+                    Title = "Random pic",
+                    Caption = returnPicMessage,
+                    Description = "Your result!",
+                    PhotoWidth = 158, PhotoHeight = 240,
+                        
+                    }
+                };
+                
+                await botClient.AnswerInlineQueryAsync(
+                    inlineQuery.Id,
+                    results,
+                    0,
+                    cancellationToken: cancellationToken);
+                break;
+            }
+            catch (ApiRequestException exception)
+            {
+                if (exception.Message.Contains("Bad Request"))
+                    throw new UnableToParseException();
+                await Task.Delay(1000, cancellationToken);
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
     }
 
 
