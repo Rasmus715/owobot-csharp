@@ -21,7 +21,10 @@ public class UpdateHandler : IUpdateHandler
     {
         switch (update)
         {
-            case {Message: { } message}:
+            case
+            {
+                Message: { } message
+            }:
                 await BotOnMessageReceived(message, cancellationToken);
                 break;
             default:

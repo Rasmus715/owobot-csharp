@@ -6,10 +6,10 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
+using owobot_csharp;
 using owobot_csharp.Data;
 using owobot_csharp.Services;
 using Telegram.Bot;
-using static owobot_csharp.Validator;
 
 var logger = LoggerFactory.Create(config =>
 {
@@ -21,10 +21,18 @@ IConfiguration configuration = new ConfigurationBuilder()
     .AddCommandLine(args)
     .Build();
 
-if (Validate(configuration))
+var validator = new Validator(configuration);
+try
+{
+    validator.Validate();
+}
+catch (ValidationException)
+{
+    logger.LogError("Please, fix the errors listed above and try again");
     return 1;
+}
 
-var proxy = ProxyChecker(configuration);
+var proxy = validator.ProxyChecker();
 
 if (!Directory.Exists("Essentials"))
 {
@@ -32,38 +40,40 @@ if (!Directory.Exists("Essentials"))
     Directory.CreateDirectory("Essentials");
 }
 
-logger.LogInformation("Initializing migration...");
-
 try
 {
-    var applicationContext = new ApplicationContext();
-    applicationContext.Database.Migrate();
-    applicationContext.Dispose();
+    await using var applicationContext = new ApplicationContext();
+
+    if (applicationContext.Database.GetAppliedMigrations().LastOrDefault() is null)
+    {
+        logger.LogInformation("Initializing migration...");
+        applicationContext.Database.Migrate();
+        logger.LogInformation("Migration successful");
+    }
 }
-catch (Exception)
+catch (Exception exception)
 {
-    logger.LogError("Something went wrong. Please, restart the bot");
+    logger.LogError("Something went wrong. Please, restart the bot.");
+    logger.LogError("If that won't help, don't hesitate to create issue on my GitHub page!");
+    logger.LogError("Exception type: {exceptionType}", exception.GetType());
+    logger.LogError("Exception message: {exceptionMessage}", exception.Message);
     return 1;
 }
-
-
-logger.LogInformation(@"Migration successful");
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
         // Register named HttpClient to benefits from IHttpClientFactory
         // and consume it with ITelegramBotClient typed client.
+        var bot = services.AddHttpClient("owobot-csharp")
+            .AddTypedClient<ITelegramBotClient>(
+                typedClient => new TelegramBotClient(new TelegramBotClientOptions(configuration.GetSection("TELEGRAM_TOKEN").Value), 
+                    typedClient));
+        
         switch (proxy)
         {
             case "HTTP":
-                services.AddHttpClient("owobot-csharp")
-                    .AddTypedClient<ITelegramBotClient>(httpClient =>
-                    {
-                        TelegramBotClientOptions options = new(configuration.GetSection("TELEGRAM_TOKEN").Value);
-                        return new TelegramBotClient(options, httpClient);
-                    })
-                    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { 
+                bot.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { 
                         Proxy = new WebProxy(configuration.GetSection("PROXY_ADDRESS").Value,
                             int.Parse(configuration.GetSection("PROXY_PORT").Value))
                         {
@@ -73,13 +83,7 @@ var host = Host.CreateDefaultBuilder(args)
                     });
                 break;
             case "SOCKS5":
-                services.AddHttpClient("owobot-csharp")
-                    .AddTypedClient<ITelegramBotClient>(httpClient =>
-                    {
-                        TelegramBotClientOptions options = new(configuration.GetSection("TELEGRAM_TOKEN").Value);
-                        return new TelegramBotClient(options, httpClient);
-                    })
-                    .ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
+                bot.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
                     {
                         Proxy = new WebProxy(configuration.GetSection("PROXY_ADDRESS").Value,
                             int.Parse(configuration.GetSection("PROXY_PORT").Value))
@@ -89,21 +93,17 @@ var host = Host.CreateDefaultBuilder(args)
                         }
                     });
                 break;
-            default:
-                services.AddHttpClient("owobot-csharp")
-                    .AddTypedClient<ITelegramBotClient>(httpClient =>
-                    {
-                        TelegramBotClientOptions options = new(configuration.GetSection("TELEGRAM_TOKEN").Value);
-                        return new TelegramBotClient(options, httpClient);
-                    });
-                break;
         }
         
         services.AddTransient<UpdateHandler>(); 
-        services.AddTransient<ReceiverService>(); 
-        services.AddSingleton<IHelperService, HelperService>()
+        services.AddTransient<ReceiverService>();
+        services.AddTransient<IHelperService, HelperService>()
             .AddLogging(cfg => cfg.AddConsole())
-            .Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = LogLevel.Information); 
+            .Configure<LoggerFilterOptions>(cfg => 
+                cfg.MinLevel = LogLevel.Information); 
+        // services.AddSingleton<IHelperService, HelperService>()
+        //     .AddLogging(cfg => cfg.AddConsole())
+        //     .Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = LogLevel.Information); 
         services.AddDbContext<ApplicationContext>(); 
         services.AddHostedService<PollingService>();
 

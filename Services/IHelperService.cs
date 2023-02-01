@@ -367,7 +367,7 @@ public class HelperService : IHelperService
     }
 
 
-    private static async Task GetBooruPic(ABooru booru, ITelegramBotClient botClient, Message message, User user,
+    private async Task GetBooruPic(ABooru booru, ITelegramBotClient botClient, Message message, User user,
         Chat? chat, CancellationToken cancellationToken)
     {
         try
@@ -488,7 +488,7 @@ public class HelperService : IHelperService
             cancellationToken);
     }
 
-    private static async Task GetPic(Message message, ITelegramBotClient botClient, ResourceManager resourceManager,
+    private async Task GetPic(Message message, ITelegramBotClient botClient, ResourceManager resourceManager,
         Chat? chat, User user, int randomValue, string subredditString, CancellationToken cancellationToken)
     {
         IConfiguration configuration = new ConfigurationBuilder()
@@ -751,7 +751,7 @@ public class HelperService : IHelperService
         }
     }
 
-    private static async Task NsfwSettingException(Message message, ITelegramBotClient botClient, User user,
+    private async Task NsfwSettingException(Message message, ITelegramBotClient botClient, User user,
         ResourceManager resourceManager, CancellationToken cancellationToken)
     {
         await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
@@ -781,7 +781,7 @@ public class HelperService : IHelperService
     }
 
     //Method that ensures response delivery
-    private static async Task SendResponse(Message message,
+    private async Task SendResponse(Message message,
         ITelegramBotClient botClient,
         string messageText,
         CancellationToken cancellationToken,

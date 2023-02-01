@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "9bFy1dT2n3dPUayPz8bTwZODSkOln8Pz4Mkj2oc2SmoiI8Pea/pnpTOUQEos5pyCns7uMFc72udCp/XpKMVG4Q==",
+  "dgSpecHash": "bMrGcv+KqQ+gt9eJTEkhpWRF1l6YR+3axuwqiZjGxgBp+a5AL/9cu+MQ8Lj5Z59omZyHqb9dWmGFEVOf8ibIiQ==",
   "success": true,
   "projectFilePath": "/Volumes/Media/Projects/owobot-csharp/owobot-csharp.csproj",
   "expectedPackageFiles": [
@@ -62,7 +62,10 @@
     "/Users/crackbargains/.nuget/packages/system.text.json/6.0.0/system.text.json.6.0.0.nupkg.sha512",
     "/Users/crackbargains/.nuget/packages/system.threading.channels/6.0.0/system.threading.channels.6.0.0.nupkg.sha512",
     "/Users/crackbargains/.nuget/packages/telegram.bot/18.0.0/telegram.bot.18.0.0.nupkg.sha512",
-    "/Users/crackbargains/.nuget/packages/telegram.bot.extensions.polling/1.0.2/telegram.bot.extensions.polling.1.0.2.nupkg.sha512"
+    "/Users/crackbargains/.nuget/packages/telegram.bot.extensions.polling/1.0.2/telegram.bot.extensions.polling.1.0.2.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/microsoft.netcore.app.ref/6.0.11/microsoft.netcore.app.ref.6.0.11.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/microsoft.aspnetcore.app.ref/6.0.11/microsoft.aspnetcore.app.ref.6.0.11.nupkg.sha512",
+    "/Users/crackbargains/.nuget/packages/microsoft.netcore.app.host.osx-x64/6.0.11/microsoft.netcore.app.host.osx-x64.6.0.11.nupkg.sha512"
   ],
   "logs": []
 }
