@@ -13,4 +13,4 @@ services:
       - PROXY= //optional
       - PROXY_ADDRESS= //optional
       - PROXY_USERNAME= //optional
-      - PROXY_PASSWORD= //optiona
+      - PROXY_PASSWORD= //optional
