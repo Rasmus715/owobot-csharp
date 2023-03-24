@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using owobot_csharp.Folder;
 
 namespace owobot_csharp;
 
@@ -27,28 +28,28 @@ public class Validator
         
         if (_configuration.GetSection("BOT_VERSION")?.Value is null or "")
         {
-            Environment.SetEnvironmentVariable("BOT_VERSION", "1.0.0");
+            Environment.SetEnvironmentVariable("BOT_VERSION", "1.0.1");
         }
 
         if (_configuration.GetSection("REDDIT_APP_ID").Exists() || 
             _configuration.GetSection("REDDIT_SECRET").Exists() || 
             _configuration.GetSection("REDDIT_REFRESH_TOKEN").Exists())
         {
-            if (_configuration.GetSection("REDDIT_APP_ID").Value.Equals(""))
+            if (_configuration.GetSection("REDDIT_APP_ID")?.Value is null or "")
             {
-                _logger.LogError("Reddit Secret is not present.");
+                _logger.LogError("Reddit App ID is not present.");
                 parseSuccessful = false;
             }
 
-            if (_configuration.GetSection("REDDIT_REFRESH_TOKEN").Value.Equals(""))
+            if (_configuration.GetSection("REDDIT_REFRESH_TOKEN")?.Value is null or "")
             { 
                 _logger.LogError("Reddit Refresh Token is not present.");
                 parseSuccessful = false;
             }
 
-            if (_configuration.GetSection("REDDIT_SECRET").Value.Equals(""))
+            if (_configuration.GetSection("REDDIT_SECRET")?.Value is null or "")
             {  
-                _logger.LogError("Reddit Secret is not present.");
+                _logger.LogError("Reddit Secret Key is not present.");
                 parseSuccessful = false; 
             } 
         }
@@ -60,13 +61,13 @@ public class Validator
             { 
                 if (_configuration.GetSection("PROXY_ADDRESS")?.Value is null or "") 
                 { 
-                    _logger.LogError("Proxy field is present but no address was provided."); 
+                    _logger.LogError("Proxy field is filled but no address was provided."); 
                     parseSuccessful = false; 
                 }
                 
                 if (_configuration.GetSection("PROXY_PORT")?.Value is null or "") 
                 {
-                    _logger.LogError("Proxy field is present but no port was provided."); 
+                    _logger.LogError("Proxy field is filled but no port was provided."); 
                     parseSuccessful = false; 
                 } 
             }
@@ -83,26 +84,14 @@ public class Validator
         _logger.LogInformation("Configuration looks OK.");
     }
 
-    public string ProxyChecker()
+    public Protocol? GetProxy()
     {
-        if (_configuration.GetSection("PROXY").Value?.Equals("HTTP") ?? false)
-        {
-            _logger.LogInformation("Using HTTP proxies, huh? Cool...");
-            _logger.LogInformation(
-                "I was too lazy to test their functionality so expect this function to work incorrectly or don't work at all.");
-            return "HTTP";
-        }
+        if (Enum.TryParse(_configuration.GetSection("PROXY").Value, true, out Protocol protocol).Equals(false))
+            return null;
 
-        if (_configuration.GetSection("PROXY").Value?.Equals("SOCKS5") ?? false) 
-        {
-            _logger.LogInformation(@"Using SOCKS5 proxies, huh? Cool..."); 
-            _logger.LogInformation(
-                @"I was too lazy to test their functionality so expect this function to work incorrectly or don't work at all.");
-            return "SOCKS5";
-            
-        }
-        
-        return "NO PROXY";
+        _logger.LogInformation("Using {protocol} proxies, huh? Cool...", protocol);
+        _logger.LogInformation("I was too lazy to test their functionality so expect this function to work incorrectly or don't work at all.");
+        return protocol;
     }
     
 }

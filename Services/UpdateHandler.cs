@@ -33,7 +33,7 @@ public class UpdateHandler : IUpdateHandler
         }
     }
 
-    private Task UnknownUpdateHandlerAsync()
+    private static Task UnknownUpdateHandlerAsync()
     { 
         return Task.CompletedTask;
     }

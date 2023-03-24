@@ -18,7 +18,7 @@ public abstract class ReceiverServiceBase<TUpdateHandler> : IReceiverService
 
     protected ReceiverServiceBase(
         ITelegramBotClient botClient,
-        TUpdateHandler updateHandler,
+        IUpdateHandler updateHandler,
         ILogger<ReceiverServiceBase<TUpdateHandler>> logger)
     {
         _botClient = botClient;
@@ -37,11 +37,11 @@ public abstract class ReceiverServiceBase<TUpdateHandler> : IReceiverService
         var receiverOptions = new ReceiverOptions
         {
             AllowedUpdates = Array.Empty<UpdateType>(),
-            ThrowPendingUpdates = true,
+            ThrowPendingUpdates = true
         };
 
         var me = await _botClient.GetMeAsync(stoppingToken);
-        _logger.LogInformation("Start receiving updates for @{BotName}", me.Username ?? "My Awesome Bot");
+        _logger.LogInformation("Start receiving updates for @{BotName}", me.Username ?? "Owobot");
 
         // Start receiving updates
         await _botClient.ReceiveAsync(_updateHandlers, receiverOptions, stoppingToken);

@@ -1,4 +1,4 @@
-namespace owobot_csharp.Subreddits;
+namespace owobot_csharp.Enums.Subreddits;
 
 public enum Explicit
 {

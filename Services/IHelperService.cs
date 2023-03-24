@@ -1,16 +1,19 @@
 #nullable enable
+using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Resources;
+using System.Threading;
 using BooruSharp.Booru;
 using BooruSharp.Search.Post;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using owobot_csharp.Data;
+using owobot_csharp.Enums.Subreddits;
 using owobot_csharp.Exceptions;
-using owobot_csharp.Subreddits;
+using owobot_csharp.Models;
 using Reddit;
 using Reddit.Controllers;
 using Reddit.Exceptions;
@@ -51,6 +54,8 @@ public interface IHelperService
 
 public class HelperService : IHelperService
 {
+    private const string TotalRequestsPath = "Essentials/TotalRequests.txt";
+
     private readonly ILogger<HelperService> _logger;
     private readonly ApplicationContext _context;
 
@@ -59,8 +64,6 @@ public class HelperService : IHelperService
         _logger = logger;
         _context = context;
     }
-
-    private const string TotalRequestsPath = "Essentials/TotalRequests.txt";
 
     private async Task<User> GetUser(Message message, CancellationToken cancellationToken)
     {
@@ -319,6 +322,27 @@ public class HelperService : IHelperService
             }
         }
     }
+    public static ABooru GetRandomBooru(Chat? chat, User user)
+    {
+        var random = new Random();
+
+        var choice = chat is not null ?
+            chat.Nsfw ? random.Next(6) : random.Next(5) :
+            user.Nsfw ? random.Next(6) : random.Next(5);
+
+        return choice switch
+        {
+            0 => new Konachan(),
+            1 => new SankakuComplex(),
+            2 => new DanbooruDonmai(),
+            3 => new Lolibooru(),
+            4 => new Safebooru(),
+            5 => new Sakugabooru(),
+            6 => new Yandere(),
+            _ => new Konachan()
+        };
+    }
+
 
     public async Task GetRandomBooruPic(Message message, ITelegramBotClient botClient,
         CancellationToken cancellationToken)
@@ -326,41 +350,39 @@ public class HelperService : IHelperService
         var chat = await GetChat(message, cancellationToken);
         var user = await GetUser(message, cancellationToken);
         await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
-        //Console.WriteLine("got user, chat");
 
         var random = new Random();
 
         _ = Task.Run(async () =>
         {
-            //Console.WriteLine("Inside the task");
             var choice = message.Chat.Id < 0 ? chat!.Nsfw ? random.Next(6) : random.Next(5) :
                 user.Nsfw ? random.Next(6) : random.Next(5);
 
             switch (choice)
             {
                 case 0:
-                    await GetBooruPic(new Konachan(), botClient, message, user, chat, cancellationToken);
+                    await GetBooruPic(GetRandomBooru(chat, user), botClient, message, user, chat, cancellationToken);
                     break;
                 case 1:
-                    await GetBooruPic(new SankakuComplex(), botClient, message, user, chat, cancellationToken);
+                    await GetBooruPic(GetRandomBooru(chat, user), botClient, message, user, chat, cancellationToken);
                     break;
                 case 2:
-                    await GetBooruPic(new DanbooruDonmai(), botClient, message, user, chat, cancellationToken);
+                    await GetBooruPic(GetRandomBooru(chat, user), botClient, message, user, chat, cancellationToken);
                     break;
                 case 3:
-                    await GetBooruPic(new Lolibooru(), botClient, message, user, chat, cancellationToken);
+                    await GetBooruPic(GetRandomBooru(chat, user), botClient, message, user, chat, cancellationToken);
                     break;
                 case 4:
-                    await GetBooruPic(new Safebooru(), botClient, message, user, chat, cancellationToken);
+                    await GetBooruPic(GetRandomBooru(chat, user), botClient, message, user, chat, cancellationToken);
                     break;
                 case 5:
-                    await GetBooruPic(new Sakugabooru(), botClient, message, user, chat, cancellationToken);
+                    await GetBooruPic(GetRandomBooru(chat, user), botClient, message, user, chat, cancellationToken);
                     break;
                 case 6:
-                    await GetBooruPic(new Yandere(), botClient, message, user, chat, cancellationToken);
+                    await GetBooruPic(GetRandomBooru(chat, user), botClient, message, user, chat, cancellationToken);
                     break;
                 default:
-                    await GetBooruPic(new Konachan(), botClient, message, user, chat, cancellationToken);
+                    await GetBooruPic(GetRandomBooru(chat, user), botClient, message, user, chat, cancellationToken);
                     break;
             }
         }, cancellationToken);
@@ -379,24 +401,36 @@ public class HelperService : IHelperService
             // ignored
         }
 
-
-        SearchResult post;
+        SearchResult post = default;
         var resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
             Assembly.GetExecutingAssembly());
 
-
-        if (message.Chat.Id < 0)
+        if (chat is not null)
             do
             {
-                post = await booru.GetRandomPostAsync();
-            } while (!chat!.Nsfw && !post.Rating.Equals(Rating.Safe));
+                try
+                {
+                    post = await booru.GetRandomPostAsync();
+                }
+                //TODO: Handle different exceptions?
+                catch
+                {
+                    booru = GetRandomBooru(chat, user);
+                }
+            } while (!chat.Nsfw && !post.Rating.Equals(Rating.Safe));
         else
             do
             {
-                post = await booru.GetRandomPostAsync();
+                try
+                {
+                    post = await booru.GetRandomPostAsync();
+                }
+                //TODO: Handle different exceptions?
+                catch
+                {
+                    booru = GetRandomBooru(chat, user);
+                }
             } while (!user.Nsfw && !post.Rating.Equals(Rating.Safe));
-
-        //Console.WriteLine("Got the pic");
 
         var returnPicMessage = message.Chat.Id > 0
             ? string.Format(resourceManager.GetString("ReturnPicBooru",
@@ -410,7 +444,6 @@ public class HelperService : IHelperService
                 post.PostUrl);
         try
         {
-            // Console.WriteLine("Sending the pic");
             await SendResponse(message, botClient, returnPicMessage, cancellationToken, post.FileUrl.AbsoluteUri);
         }
         catch (UnableToParseException)
@@ -435,9 +468,8 @@ public class HelperService : IHelperService
         var randomValue = random.Next(0, 999);
         //Console.WriteLine(@"Random value: " + randomValue);
 
-        _ = Task.Run(async () =>
-            await GetPic(message, botClient, resourceManager, chat, user, randomValue, message.Text?[5..]!,
-                cancellationToken), cancellationToken);
+        _ = GetPic(message, botClient, resourceManager, chat, user, randomValue, message.Text?[5..]!,
+                cancellationToken);
     }
 
     public async Task GetRandomPic(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
@@ -790,6 +822,7 @@ public class HelperService : IHelperService
         while (true)
             try
             {
+                
                 if (picUri != null)
                 {
                     await botClient.SendMediaGroupAsync(message.Chat.Id,
@@ -801,14 +834,19 @@ public class HelperService : IHelperService
                 await botClient.SendTextMessageAsync(message.Chat.Id, messageText,
                     cancellationToken: cancellationToken);
                 break;
+
             }
             catch (ApiRequestException exception)
             {
+
                 if (exception.Message.Contains("Bad Request"))
-                    //Console.WriteLine("Caught exception. Throwing custom one");
                     throw new UnableToParseException();
                 
                 await Task.Delay(1000, cancellationToken);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Unhandeled exception faced");
             }
     }
 }

@@ -8,4 +8,4 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = owobot_csharp
-build_property.ProjectDir = /Volumes/Media/Projects/owobot-csharp/
+build_property.ProjectDir = C:\Personal\owobot-csharp\

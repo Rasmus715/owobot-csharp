@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -7,9 +6,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using owobot_csharp;
+using owobot_csharp.Abstract;
 using owobot_csharp.Data;
+using owobot_csharp.Extensions;
 using owobot_csharp.Services;
 using Telegram.Bot;
+using Telegram.Bot.Polling;
 
 var logger = LoggerFactory.Create(config =>
 {
@@ -32,8 +34,6 @@ catch (ValidationException)
     return 1;
 }
 
-var proxy = validator.ProxyChecker();
-
 if (!Directory.Exists("Essentials"))
 {
     logger.LogInformation(@"Creating ""Essentials"" Directory");
@@ -53,7 +53,7 @@ try
 }
 catch (Exception exception)
 {
-    logger.LogError("Something went wrong. Please, restart the bot.");
+    logger.LogError("Something went wrong during migration process. Please, try restarting the bot.");
     logger.LogError("If that won't help, don't hesitate to create issue on my GitHub page!");
     logger.LogError("Exception type: {exceptionType}", exception.GetType());
     logger.LogError("Exception message: {exceptionMessage}", exception.Message);
@@ -69,34 +69,11 @@ var host = Host.CreateDefaultBuilder(args)
             .AddTypedClient<ITelegramBotClient>(
                 typedClient => new TelegramBotClient(new TelegramBotClientOptions(configuration.GetSection("TELEGRAM_TOKEN").Value), 
                     typedClient));
-        
-        switch (proxy)
-        {
-            case "HTTP":
-                bot.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { 
-                        Proxy = new WebProxy(configuration.GetSection("PROXY_ADDRESS").Value,
-                            int.Parse(configuration.GetSection("PROXY_PORT").Value))
-                        {
-                            Credentials = new NetworkCredential(configuration.GetSection("PROXY_USERNAME").Value,
-                                configuration.GetSection("PROXY_PASSWORD").Value)
-                        }
-                    });
-                break;
-            case "SOCKS5":
-                bot.ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
-                    {
-                        Proxy = new WebProxy(configuration.GetSection("PROXY_ADDRESS").Value,
-                            int.Parse(configuration.GetSection("PROXY_PORT").Value))
-                        {
-                            Credentials = new NetworkCredential(configuration.GetSection("PROXY_USERNAME").Value,
-                                configuration.GetSection("PROXY_PASSWORD").Value)
-                        }
-                    });
-                break;
-        }
-        
-        services.AddTransient<UpdateHandler>(); 
-        services.AddTransient<ReceiverService>();
+
+        services.ConfigureOwobot(configuration, validator.GetProxy());
+        services.AddTransient<IUpdateHandler, UpdateHandler>(); 
+        services.AddTransient<IReceiverService, ReceiverService>();
+
         services.AddTransient<IHelperService, HelperService>()
             .AddLogging(cfg => cfg.AddConsole())
             .Configure<LoggerFilterOptions>(cfg => 
