@@ -1,7 +1,7 @@
 # owobot-csharp
 ![example branch parameter](https://github.com/Rasmus715/owobot-csharp/actions/workflows/docker-publish.yml/badge.svg?branch=develop)
 [![CodeFactor](https://www.codefactor.io/repository/github/rasmus715/owobot-csharp/badge/develop)](https://www.codefactor.io/repository/github/rasmus715/owobot-csharp/overview/develop) <br/>
-An anime pics bot for Telegram, written on C# using .NET 6, taking data from Booru sites and Reddit.   
+An anime pics bot for Telegram, written on C# using .NET 7, taking data from Booru sites and Reddit.   
 Бот для Telegram, присылающий аниме девочек, написанный на C# с использованием .NET 6, берущий данные с Booru-сайтов и Reddit.
 
 ### Features
@@ -26,7 +26,7 @@ If for some reason you want to run it by yourself:
  - PROXY_USERNAME, PROXY_PASSWORD (Optional) - credentials of your proxy server 
 ### Native execution
 1. Clone code somewhere
-2. Install .NET 6 SDK and type the next command into shell, filling parameters with your own values
+2. Install .NET 6 SDK and paste the next command into the shell, filling parameters with your own values
 
 ```shell
 BOT_VERSION= TELEGRAM_TOKEN= REDDIT_APP_ID= REDDIT_SECRET= REDDIT_REFRESH_TOKEN= PROXY= PROXY_ADDRESS= PROXY_USERNAME= PROXY_PASSWORD= dotnet run
@@ -77,7 +77,7 @@ The whole idea of this project was to learn how to work with Telegram, Reddit cl
 2. ~~Add chats compatibility.~~ Done. Needs additional testing
 3. ~~Push docker image to dockerhub.~~ Done.
 4. ~~Add more sources (such as yande.re, konachan)~~ Done.
-5. MINOR: Update and configure Pipeline properely
+5. MINOR: Update and configure GH Pipeline properely
 
 P.S. The reddit API is a slow mess and using `/random` command will always give you pics from booru boards.<br/>
 To use reddit exclusively, proceed with `/random_reddit` 

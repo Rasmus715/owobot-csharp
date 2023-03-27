@@ -19,18 +19,10 @@ public class UpdateHandler : IUpdateHandler
 
     public async Task HandleUpdateAsync(ITelegramBotClient _, Update update, CancellationToken cancellationToken)
     {
-        switch (update)
-        {
-            case
-            {
-                Message: { } message
-            }:
-                await BotOnMessageReceived(message, cancellationToken);
-                break;
-            default:
-                await UnknownUpdateHandlerAsync();
-                break;
-        }
+        if (update.Message is not null) 
+            await BotOnMessageReceived(update.Message, cancellationToken);
+        else
+            await UnknownUpdateHandlerAsync();
     }
 
     private static Task UnknownUpdateHandlerAsync()
@@ -46,61 +38,66 @@ public class UpdateHandler : IUpdateHandler
     private async Task BotOnMessageReceived(Message message,
         CancellationToken cancellationToken)
     {
+
         if (message.Type != MessageType.Text)
             return;
+
+        await _helperService.SetUser(message, cancellationToken);
+        await _helperService.SetChat(message, cancellationToken);
+        await _helperService.WriteTotalRequests(await _helperService.ReadTotalRequests(cancellationToken), cancellationToken);
 
         switch (message.Text!.ToLower().Split("@")[0])
         {
             case "owo":
-                await _helperService.SendCustomMessage(message, "uwu", _botClient, cancellationToken);
+                _= _helperService.SendCustomMessage(message, "uwu", _botClient, cancellationToken);
                 break;
             case "uwu":
-                await _helperService.SendCustomMessage(message, "owo", _botClient, cancellationToken);
+                _ = _helperService.SendCustomMessage(message, "owo", _botClient, cancellationToken);
                 break;
             case "/start":
-                await _helperService.Start(message,_botClient, cancellationToken);
+                _ = _helperService.Start(message,_botClient, cancellationToken);
                 break;
             case "/info":
-                await _helperService.Info(message, _botClient, cancellationToken);
+                _ = _helperService.Info(message, _botClient, cancellationToken);
                 break;
             case "/status":
-                await _helperService.Status(message, _botClient, cancellationToken);
+                _ = _helperService.Status(message, _botClient, cancellationToken);
                 break;
             case "/language":
-                await _helperService.LanguageInfo(message, _botClient, cancellationToken);
+                _ = _helperService.LanguageInfo(message, _botClient, cancellationToken);
                 break;
             case "/get":
-                await _helperService.GetStatus(message, _botClient, cancellationToken);
+                _ = _helperService.GetStatus(message, _botClient, cancellationToken);
                 break;
             case "/nsfw":
-                await _helperService.NsfwStatus(message, _botClient, cancellationToken);
+                _ = _helperService.NsfwStatus(message, _botClient, cancellationToken);
                 break;
             case "/random":
-                await _helperService.GetRandomBooruPic(message, _botClient, cancellationToken);
+                _ = _helperService.GetBooruPic(message, _botClient, cancellationToken);
                 break;
             case "/random_reddit":
-                await _helperService.GetRandomPic(message, _botClient, cancellationToken);
+                _ = _helperService.GetRandomPic(message, _botClient, cancellationToken);
                 break;
             default:
                 if (message.Text.Contains("/get_"))
                 {
-                    await _helperService.GetPicFromReddit(message, _botClient, cancellationToken);
+                    _ = _helperService.GetPicFromReddit(message, _botClient, cancellationToken);
                     break;
                 }
 
                 if (message.Text.Contains("/language"))
                 {
-                    await _helperService.SetLanguage(message, _botClient, cancellationToken);
+                    _ = _helperService.SetLanguage(message, _botClient, cancellationToken);
                     break;
                 }
 
                 if (message.Text.Contains("/nsfw"))
                 {
-                    await _helperService.TurnNsfw(message, _botClient, cancellationToken);
+                    _ = _helperService.TurnNsfw(message, _botClient, cancellationToken);
                 }
                 else
                 {
-                    await _helperService.UnknownCommand(message, _botClient, cancellationToken);
+                    _ = _helperService.UnknownCommand(message, _botClient, cancellationToken);
                 }
                 break;
         }

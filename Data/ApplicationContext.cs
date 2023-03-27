@@ -11,6 +11,6 @@ public class ApplicationContext : DbContext
         base.OnConfiguring(optionsBuilder);
     }
 
-    public DbSet<User> Users {get; set;}
+    public DbSet<User> Users { get; set; }
     public DbSet<Chat> Chats { get; set; }
 }

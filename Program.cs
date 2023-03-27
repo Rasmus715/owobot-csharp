@@ -78,9 +78,6 @@ var host = Host.CreateDefaultBuilder(args)
             .AddLogging(cfg => cfg.AddConsole())
             .Configure<LoggerFilterOptions>(cfg => 
                 cfg.MinLevel = LogLevel.Information); 
-        // services.AddSingleton<IHelperService, HelperService>()
-        //     .AddLogging(cfg => cfg.AddConsole())
-        //     .Configure<LoggerFilterOptions>(cfg => cfg.MinLevel = LogLevel.Information); 
         services.AddDbContext<ApplicationContext>(); 
         services.AddHostedService<PollingService>();
 
