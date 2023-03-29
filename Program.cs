@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using owobot_csharp;
 using owobot_csharp.Abstract;
 using owobot_csharp.Data;
+using owobot_csharp.Exceptions;
 using owobot_csharp.Extensions;
 using owobot_csharp.Services;
 using Singularity;
