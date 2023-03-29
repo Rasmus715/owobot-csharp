@@ -26,36 +26,23 @@ namespace owobot_csharp.Services;
 
 public interface IHelperService
 {
-    Task SendCustomMessage(Message message, string customMessage, 
-        ITelegramBotClient bot, CancellationToken cancellationToken);
-    Task Start(Message message, ITelegramBotClient bot,
-        CancellationToken cancellationToken);
-    Task Info(Message message, ITelegramBotClient bot, 
-        CancellationToken cancellationToken);
-    Task Status(Message message, ITelegramBotClient botClient,
-        CancellationToken cancellationToken);
-    Task LanguageInfo(Message message, ITelegramBotClient botClient,
-        CancellationToken cancellationToken);
-    Task GetStatus(Message message, ITelegramBotClient botClient,
-        CancellationToken cancellationToken);
-    Task NsfwStatus(Message message, ITelegramBotClient botClient,
-        CancellationToken cancellationToken);
-    Task GetRandomPic(Message message, ITelegramBotClient botClient,
-        CancellationToken cancellationToken);
-    Task GetPicFromReddit(Message message, ITelegramBotClient botClient, 
-        CancellationToken cancellationToken);
-    Task SetLanguage(Message message, ITelegramBotClient botClient, 
-        CancellationToken cancellationToken);
-    Task TurnNsfw(Message message, ITelegramBotClient botClient, 
-        CancellationToken cancellationToken);
-    Task UnknownCommand(Message message, ITelegramBotClient botClient,
-        CancellationToken cancellationToken);
+    Task SendCustomMessage(Message message, string customMessage, CancellationToken cancellationToken);
+    Task Start(Message message, CancellationToken cancellationToken);
+    Task Info(Message message, CancellationToken cancellationToken);
+    Task Status(Message message, CancellationToken cancellationToken);
+    Task LanguageInfo(Message message, CancellationToken cancellationToken);
+    Task GetStatus(Message message, CancellationToken cancellationToken);
+    Task NsfwStatus(Message message, CancellationToken cancellationToken);
+    Task GetRandomPic(Message message, CancellationToken cancellationToken);
+    Task GetPicFromReddit(Message message, CancellationToken cancellationToken);
+    Task SetLanguage(Message message, CancellationToken cancellationToken);
+    Task TurnNsfw(Message message, CancellationToken cancellationToken);
+    Task UnknownCommand(Message message, CancellationToken cancellationToken);
     Task SetUser(Message message, CancellationToken cancellationToken);
     Task SetChat(Message message, CancellationToken cancellationToken);
     Task WriteTotalRequests(int requests, CancellationToken cancellationToken);
     Task<int> ReadTotalRequests(CancellationToken cancellationToken);
-    Task GetBooruPic(Message message, ITelegramBotClient botClient,  CancellationToken cancellationToken);
-    ABooru GetRandomBooru();
+    Task GetBooruPic(Message message,  CancellationToken cancellationToken);
 }
 
 public class HelperService : IHelperService
@@ -63,18 +50,35 @@ public class HelperService : IHelperService
     private const string TotalRequestsPath = "Essentials/TotalRequests.txt";
 
     private readonly ILogger<HelperService> _logger;
+    private readonly ITelegramBotClient _botClient;
+    private readonly IConfiguration _configuration;
     private readonly ApplicationContext _context;
     private readonly ResourceManager _resourceManager;
     private User _user;
     private Chat? _chat;
 
-    public HelperService(ILogger<HelperService> logger, ApplicationContext context)
+    public HelperService(ILogger<HelperService> logger, 
+        ApplicationContext context, 
+        ITelegramBotClient telegramBotClient,
+        IConfiguration configuration)
     {
         _logger = logger;
         _context = context;
         _resourceManager = new ResourceManager("owobot_csharp.Resources.Handlers",
            Assembly.GetExecutingAssembly());
+        _botClient = telegramBotClient;
+        _configuration = configuration;
+        // To suppress compiler warning. This prop cannot be null anyway.
+        _user = new User();
     }
+
+    public async Task<User> GetUser(Message message, CancellationToken cancellationToken)
+    {
+        return await _context.Users.FirstOrDefaultAsync(
+            c => c.Id == message.From!.Id,
+            cancellationToken) ?? await RegisterUser(message, cancellationToken);
+    }
+
     public async Task SetUser(Message message, CancellationToken cancellationToken)
     {
         _user = await _context.Users.FirstOrDefaultAsync(
@@ -87,7 +91,6 @@ public class HelperService : IHelperService
         var entity = new User
         {
             Id = message.From!.Id,
-            Nsfw = false,
             Language = "en-US"
         };
 
@@ -109,8 +112,7 @@ public class HelperService : IHelperService
     {
         var entity = new Chat
         {
-            Id = message.Chat.Id,
-            Nsfw = false
+            Id = message.Chat.Id
         };
 
         await _context.Chats.AddAsync(entity, cancellationToken);
@@ -138,179 +140,132 @@ public class HelperService : IHelperService
         }
     }
 
-    public async Task SendCustomMessage(Message message, string customMessage, ITelegramBotClient bot,
+    public async Task SendCustomMessage(Message message, string customResponse,
         CancellationToken cancellationToken)
     {
-        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
-        _ = SendResponse(message, bot, customMessage, cancellationToken);
+        await SendResponse(message, customResponse, cancellationToken);
     }
 
-    public async Task Start(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
+    public async Task Start(Message message, CancellationToken cancellationToken)
     {
-
-        switch (message.Chat.Id)
-        {
-            case < 0:
-                if (message.Text!.Equals($"/start@{botClient.GetMeAsync(cancellationToken).Result.Username}"))
-                    _ = SendResponse(message, botClient, string.Format(
-                            _resourceManager.GetString("Start",
-                                CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!,
-                            $"@{message.From?.Username}"),
-                        cancellationToken);
-                break;
-            default:
-            {
-                _ = SendResponse(message, botClient, string.Format(
-                        _resourceManager.GetString("Start",
-                            CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!, message.From?.FirstName ?? "User"),
-                    cancellationToken);
-                break;
-            }
-        }
+        if (_chat is not null && message.Text!.Equals($"/start@{_botClient.GetMeAsync(cancellationToken).Result.Username}"))
+            await SendResponse(message, string.Format(
+                               _resourceManager.GetString("Start",
+                                   CultureInfo.GetCultureInfo(_user.Language))!,
+                               $"@{message.From?.Username ?? "User"}"), cancellationToken);
+        else
+            await SendResponse(message, string.Format(
+                              _resourceManager.GetString("Start",
+                                  CultureInfo.GetCultureInfo(_user.Language))!,
+                              message.From?.Username ?? "User"), cancellationToken);
     }
 
-    public async Task Info(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
+    public async Task Info(Message message, CancellationToken cancellationToken)
     {
-        var configuration = new ConfigurationBuilder()
-            .AddEnvironmentVariables()
-            .Build();
-
-        //Console.WriteLine(message.Text);
-        switch (message.Chat.Id)
-        {
-            case < 0:
-                if (message.Text!.Equals($"/info@{botClient.GetMeAsync(cancellationToken).Result.Username}"))
-                    _ = SendResponse(message, botClient, string.Format(
+        if (_chat is not null && message.Text!.Equals($"/start@{_botClient.GetMeAsync(cancellationToken).Result.Username}"))
+            await SendResponse(message, string.Format(
                         _resourceManager.GetString("Info_Chat",
-                            CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!,
-                        $"@{message.From?.Username}", configuration.GetSection("BOT_VERSION").Value,
-                        $"@{botClient.GetMeAsync(cancellationToken).Result.Username}"), cancellationToken);
-                break;
-            case > 0:
-            {
-                _ = SendResponse(message, botClient, string.Format(
-                    _resourceManager.GetString("Info",
-                        CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!,
-                    configuration.GetSection("BOT_VERSION").Value), cancellationToken);
-            }
-                break;
-        }
+                            CultureInfo.GetCultureInfo(_user.Language))!,
+                        $"@{message.From?.Username}", _configuration.GetSection("BOT_VERSION").Value,
+                        $"@{_botClient.GetMeAsync(cancellationToken).Result.Username}"), cancellationToken);
+       else
+            await SendResponse(message, string.Format(
+                _resourceManager.GetString("Info",
+                CultureInfo.GetCultureInfo(_user.Language))!,
+                _configuration.GetSection("BOT_VERSION").Value), cancellationToken);
     }
 
-    public async Task Status(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
+    public async Task Status(Message message, CancellationToken cancellationToken)
     {
-        var configuration = new ConfigurationBuilder()
-            .AddEnvironmentVariables()
-            .Build();
-
         var uptime = DateTime.UtcNow - Process.GetCurrentProcess().StartTime.ToUniversalTime();
 
-        if (message.Chat.Id < 0 &&
-            message.Text!.Equals($"/status@{botClient.GetMeAsync(cancellationToken).Result.Username}"))
-            _ = SendResponse(message, botClient, string.Format(_resourceManager.GetString("Status",
-                    CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!,
+        if (_chat is not null && message.Text!.Equals($"/start@{_botClient.GetMeAsync(cancellationToken).Result.Username}"))
+            _ = SendResponse(message, string.Format(_resourceManager.GetString("Status",
+                    CultureInfo.GetCultureInfo(_user.Language))!,
                 uptime.Days,
                 $"{uptime:hh\\:mm\\:ss}",
                 await ReadTotalRequests(cancellationToken),
-                _chat!.Nsfw
-                    ? string.Format(_resourceManager.GetString("OnSwitch",
-                        CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!)
-                    : string.Format(_resourceManager.GetString("OffSwitch",
-                        CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!),
-                configuration.GetSection("BOT_VERSION").Value), cancellationToken);
+                string.Format(_resourceManager.GetString(_chat.Nsfw ? "OnSwitch" : "OffSwitch",
+                        CultureInfo.GetCultureInfo(_user.Language))!),
+                _configuration.GetSection("BOT_VERSION").Value), cancellationToken);
         else
-            _ = SendResponse(message, botClient, string.Format(_resourceManager.GetString("Status",
-                    CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!,
+            _ = SendResponse(message, string.Format(_resourceManager.GetString("Status",
+                    CultureInfo.GetCultureInfo(_user.Language))!,
                 uptime.Days,
                 $"{uptime:hh\\:mm\\:ss}",
                 await ReadTotalRequests(cancellationToken),
-                _user.Nsfw
-                    ? string.Format(_resourceManager.GetString("OnSwitch",
-                        CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!)
-                    : string.Format(_resourceManager.GetString("OffSwitch",
-                        CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!),
-                configuration.GetSection("BOT_VERSION").Value), cancellationToken);
+                string.Format(_resourceManager.GetString(_user.Nsfw ? "OnSwitch" : "OffSwitch",
+                        CultureInfo.GetCultureInfo(_user.Language))!),
+                _configuration.GetSection("BOT_VERSION").Value), cancellationToken);
     }
 
-    public async Task LanguageInfo(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
+    public async Task LanguageInfo(Message message, CancellationToken cancellationToken)
     {
-
         switch (message.Chat.Id)
         {
             case < 0:
-                if (message.Text!.Equals($"/language@{botClient.GetMeAsync(cancellationToken).Result.Username}"))
-                    _ = SendResponse(message, botClient, string.Format(_resourceManager.GetString("LanguageInfo_Chat",
+                if (message.Text!.Equals($"/language@{_botClient.GetMeAsync(cancellationToken).Result.Username}"))
+                    await SendResponse(message, string.Format(_resourceManager.GetString("LanguageInfo_Chat",
                             CultureInfo.GetCultureInfo(_user.Language))!,
                         $"@{message.From?.Username}",
-                        $"@{botClient.GetMeAsync(cancellationToken).Result.Username}"), cancellationToken);
+                        $"@{_botClient.GetMeAsync(cancellationToken).Result.Username}"), cancellationToken);
                 break;
             case > 0:
             {
-                _ = SendResponse(message, botClient, string.Format(_resourceManager.GetString("LanguageInfo",
+                _ = SendResponse(message, string.Format(_resourceManager.GetString("LanguageInfo",
                     CultureInfo.GetCultureInfo(_user.Language))!), cancellationToken);
                 break;
             }
         }
     }
 
-    public async Task GetStatus(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
+    public async Task GetStatus(Message message, CancellationToken cancellationToken)
     {
         switch (message.Chat.Id)
         {
             case < 0:
-                if (message.Text!.Equals($"/get@{botClient.GetMeAsync(cancellationToken).Result.Username}"))
-                    _ = SendResponse(message, botClient, string.Format(_resourceManager.GetString("GetStatus_Chat",
-                            CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!, $"@{message.From?.Username}"),
+                if (message.Text!.Equals($"/get@{_botClient.GetMeAsync(cancellationToken).Result.Username}"))
+                    await SendResponse(message, string.Format(_resourceManager.GetString("GetStatus_Chat",
+                            CultureInfo.GetCultureInfo(_user.Language))!, $"@{message.From?.Username}"),
                         cancellationToken);
                 break;
             case > 0:
             {
-                _ = SendResponse(message, botClient, string.Format(_resourceManager.GetString("GetStatus",
-                    CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!), cancellationToken);
+                await SendResponse(message, string.Format(_resourceManager.GetString("GetStatus",
+                    CultureInfo.GetCultureInfo(_user.Language))!), cancellationToken);
                 break;
             }
         }
     }
 
-    public async Task NsfwStatus(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
+    public async Task NsfwStatus(Message message, CancellationToken cancellationToken)
     {
 
-        switch (message.Chat.Id)
+        if (_chat is not null || message.Text!.Equals($"/nsfw@{_botClient.GetMeAsync(cancellationToken).Result.Username}"))
         {
-            case < 0:
-                if (message.Text!.Equals($"/nsfw@{botClient.GetMeAsync(cancellationToken).Result.Username}"))
-                    _ = SendResponse(message, botClient, string.Format(
-                        _resourceManager.GetString("NsfwStatus_Chat",
-                            CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!,
-                        $"@{message.From!.Username}",
-                        _chat!.Nsfw
-                            ? string.Format(_resourceManager.GetString("OnSwitch",
-                                CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!)
-                            : string.Format(_resourceManager.GetString("OffSwitch",
-                                CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!),
-                        botClient.GetMeAsync(cancellationToken).Result.Username), cancellationToken);
-                break;
-            case > 0:
-            {
-                _ = SendResponse(message, botClient, string.Format(
-                    _resourceManager.GetString("NsfwStatus",
-                        CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!,
-                    _user.Nsfw
-                        ? string.Format(_resourceManager.GetString("OnSwitch",
-                            CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!)
-                        : string.Format(_resourceManager.GetString("OffSwitch",
-                            CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!),
-                    botClient.GetMeAsync(cancellationToken).Result.Username), cancellationToken);
-
-                break;
-            }
+                await SendResponse(message, string.Format(
+                    _resourceManager.GetString("NsfwStatus_Chat",
+                        CultureInfo.GetCultureInfo(_user.Language))!,
+                    $"@{message.From!.Username}",
+                    string.Format(_resourceManager.GetString(_chat?.Nsfw ?? _user.Nsfw ? "OnSwitch" : "OffSwitch",
+                            CultureInfo.GetCultureInfo(_user.Language))!),
+                    _botClient.GetMeAsync(cancellationToken).Result.Username), cancellationToken); 
+        }
+        else
+        {
+            await SendResponse(message, string.Format(
+                   _resourceManager.GetString("NsfwStatus",
+                       CultureInfo.GetCultureInfo(_user.Language))!,
+                    string.Format(_resourceManager.GetString(_user.Nsfw ? "OnSwitch" : "OffSwitch",
+                           CultureInfo.GetCultureInfo(_user.Language))!),
+                   _botClient.GetMeAsync(cancellationToken).Result.Username), cancellationToken);
         }
     }
-    public async Task GetBooruPic(Message message, ITelegramBotClient botClient,  CancellationToken cancellationToken)
+    public async Task GetBooruPic(Message message,  CancellationToken cancellationToken)
     {
         try
         {
-            await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing, cancellationToken);
+            await _botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing, cancellationToken);
         }
         catch (ApiRequestException)
         {
@@ -342,7 +297,7 @@ public class HelperService : IHelperService
                     post = await booru.GetRandomPostAsync();
                 }
                 //TODO: Handle different exceptions?
-                catch
+                catch (HttpRequestException)
                 {
                     booru = GetRandomBooru();
                 }
@@ -360,37 +315,31 @@ public class HelperService : IHelperService
                 post.PostUrl);
         try
         {
-            await SendResponse(message, botClient, returnPicMessage, cancellationToken, post.FileUrl.AbsoluteUri);
+            await SendResponse(message, returnPicMessage, cancellationToken, post.FileUrl.AbsoluteUri);
         }
         catch (UnableToParseException)
         {
-            await GetBooruPic(message, botClient, cancellationToken);
+            await GetBooruPic(message, cancellationToken);
         }
     }
 
 
-    public async Task GetPicFromReddit(Message message, ITelegramBotClient botClient,
+    public async Task GetPicFromReddit(Message message,
         CancellationToken cancellationToken)
     {
-        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
-
-        //Console.WriteLine(message.Text?[5..]);
         var random = new Random();
-        var randomValue = random.Next(0, 999);
-        //Console.WriteLine(@"Random value: " + randomValue);
 
-        _ = GetPic(message, botClient, randomValue, message.Text?[5..]!,
+        await GetPic(message, random.Next(0, 999), message.Text?[5..]!,
                 cancellationToken);
     }
 
-    public async Task GetRandomPic(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
+    public async Task GetRandomPic(Message message, CancellationToken cancellationToken)
     {
-        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
         var random = new Random();
 
         if ((message.Chat.Id >= 0 ||
              !message.Text!.Equals(
-                 $"/random_reddit@{botClient.GetMeAsync(cancellationToken).Result.Username}")) &&
+                 $"/random_reddit@{_botClient.GetMeAsync(cancellationToken).Result.Username}")) &&
             (message.Chat.Id <= 0 || !message.Text!.Equals("/random_reddit"))) return;
         var values = new List<Enum>();
 
@@ -422,20 +371,16 @@ public class HelperService : IHelperService
         var randomSubreddit = values.ElementAt(random.Next(values.Count));
         //Console.WriteLine(randomSubreddit);
 
-        _ = GetPic(message, botClient, random.Next(0, 999), randomSubreddit.ToString(),
+        await GetPic(message, random.Next(0, 999), randomSubreddit.ToString(),
             cancellationToken);
     }
 
-    private async Task GetPic(Message message, ITelegramBotClient botClient,
+    private async Task GetPic(Message message,
        int randomValue, string subredditString, CancellationToken cancellationToken)
     {
-        IConfiguration configuration = new ConfigurationBuilder()
-            .AddEnvironmentVariables()
-            .Build();
-
-        if (!configuration.GetSection("REDDIT_APP_ID").Exists())
+        if (!_configuration.GetSection("REDDIT_APP_ID").Exists())
         {
-            _ = SendResponse(message, botClient,
+            await SendResponse(message,
                 "Whoops! Something went wrong!!\nReddit credentials isn't present in bot configuration.\nTo use this functionality, please follow the guide listed in README.md file",
                 cancellationToken);
             return;
@@ -443,7 +388,7 @@ public class HelperService : IHelperService
 
         try
         {
-            await botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing, cancellationToken);
+            await _botClient.SendChatActionAsync(message.Chat.Id, ChatAction.Typing, cancellationToken);
         }
         catch (ApiRequestException)
         {
@@ -456,13 +401,13 @@ public class HelperService : IHelperService
         var lastPostName = "";
         var randomValueMinimized = randomValue;
         var postsCounter = 0;
-        var redditClient = new RedditClient(configuration.GetSection("REDDIT_APP_ID").Value,
-            appSecret: configuration.GetSection("REDDIT_SECRET").Value,
-            refreshToken: configuration.GetSection("REDDIT_REFRESH_TOKEN").Value);
+        var redditClient = new RedditClient(_configuration.GetSection("REDDIT_APP_ID").Value,
+            appSecret: _configuration.GetSection("REDDIT_SECRET").Value,
+            refreshToken: _configuration.GetSection("REDDIT_REFRESH_TOKEN").Value);
 
         //In order not to collect the whole collection of [randomValue] posts, minimize this number to specific one in pack of 25.
-        while (randomValueMinimized > 25)
-            randomValueMinimized -= 25;
+        while (randomValue > 25)
+            randomValue -= 25;
         //Console.WriteLine(@"RandomValue Minimized = " + randomValueMinimized);
 
         var posts = new List<Post>();
@@ -473,7 +418,8 @@ public class HelperService : IHelperService
             {
                 //If there is no more posts in subreddit
                 var testPosts = subreddit.Posts.GetNew(lastPostName, limit: 25);
-                if (testPosts.Count == 0) break;
+                if (testPosts.Count == 0)
+                    break;
 
                 posts = testPosts;
                 postsCounter += posts.Count;
@@ -483,28 +429,13 @@ public class HelperService : IHelperService
             var post = posts.Last();
 
             //If post is marked as NSFW, try to get the previous one in collection and see, if it tagged as nsfw 
-            if (message.Chat.Id < 0)
+            if (_chat?.Nsfw ?? _user.Nsfw == false)
             {
-                if (_chat?.Nsfw == false)
+                var postsInCollection = posts.Count;
+                while (post.NSFW)
                 {
-                    var postsInCollection = posts.Count;
-                    while (post.NSFW)
-                    {
-                        postsInCollection -= 1;
-                        post = posts[postsInCollection];
-                    }
-                }
-            }
-            else
-            {
-                if (_user.Nsfw == false)
-                {
-                    var postsInCollection = posts.Count;
-                    while (post.NSFW)
-                    {
-                        postsInCollection -= 1;
-                        post = posts[postsInCollection];
-                    }
+                    postsInCollection -= 1;
+                    post = posts[postsInCollection];
                 }
             }
 
@@ -532,49 +463,46 @@ public class HelperService : IHelperService
                             CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!),
                     post.Listing.URL,
                     $"https://reddit.com{post.Permalink}");
-
-            await SendResponse(message, botClient, returnPicMessage, cancellationToken, post.Listing.URL);
+            await SendResponse(message, returnPicMessage, cancellationToken, post.Listing.URL);
         }
         //Different reddit exception handlers
         catch (RedditForbiddenException)
         {
-            await SendResponse(message, botClient, "Whoops! Something went wrong!!\nThis subreddit is banned.",
+            await SendResponse(message, "Whoops! Something went wrong!!\nThis subreddit is banned.",
                 cancellationToken);
         }
         catch (RedditNotFoundException)
         {
-            await SendResponse(message, botClient, "Whoops! Something went wrong!!\nThere is no such subreddit.",
+            await SendResponse(message, "Whoops! Something went wrong!!\nThere is no such subreddit.",
                 cancellationToken);
         }
         catch (ApiRequestException)
         {
-            await SendResponse(message, botClient, "Whoops! Bot is overheated!!!\nPlease, try again later.",
+            await SendResponse(message, "Whoops! Bot is overheated!!!\nPlease, try again later.",
                 cancellationToken);
         }
         //If there is no non-NSFW post in collection.
         catch (ArgumentException)
         {
             if (message.Chat.Id < 0)
-                await SendResponse(message, botClient, string.Format(_resourceManager.GetString("LewdDetected_Chat",
+                await SendResponse(message, string.Format(_resourceManager.GetString("LewdDetected_Chat",
                         CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!, $"@{message.From?.Username}",
                     message.Text), cancellationToken);
             else
-                await SendResponse(message, botClient, string.Format(_resourceManager.GetString("LewdDetected",
+                await SendResponse(message, string.Format(_resourceManager.GetString("LewdDetected",
                     CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!, message.Text), cancellationToken);
         }
 
         //General handler is something goes wrong
         catch (Exception ex)
         {
-            await SendResponse(message, botClient, $"Whoops! Something went wrong!!!\n{ex.Message}.",
+            await SendResponse(message, $"Whoops! Something went wrong!!!\n{ex.Message}.",
                 cancellationToken);
         }
     }
 
-    public async Task SetLanguage(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
+    public async Task SetLanguage(Message message, CancellationToken cancellationToken)
     {
-        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
-
         var language = message.Text?[10..12];
 
         switch (language)
@@ -588,24 +516,22 @@ public class HelperService : IHelperService
                 await _context.SaveChangesAsync(cancellationToken);
                 break;
             default:
-                _ = SendResponse(message, botClient, "This language is currently not supported", cancellationToken);
+                await SendResponse(message, "This language is currently not supported", cancellationToken);
                 return;
         }
 
         var setLanguageMessage = string.Format(_resourceManager.GetString("SetLanguage",
             CultureInfo.GetCultureInfo(_user.Language))!);
 
-        _ = SendResponse(message, botClient, setLanguageMessage, cancellationToken);
+        _ = SendResponse(message, setLanguageMessage, cancellationToken);
     }
 
 
-    public async Task TurnNsfw(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
+    public async Task TurnNsfw(Message message, CancellationToken cancellationToken)
     {
-        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
-
         string param;
         if (message.Chat.Id < 0 &&
-            message.Text!.EndsWith($"@{botClient.GetMeAsync(cancellationToken).Result.Username}"))
+            message.Text!.EndsWith($"@{_botClient.GetMeAsync(cancellationToken).Result.Username}"))
             param = message.Text[6..].Split("@")[0];
         else
             param = message.Text![6..];
@@ -614,8 +540,8 @@ public class HelperService : IHelperService
         {
             //(bot.GetMeAsync(cancellationToken).Result.Username);
             //Console.WriteLine(param);
-            if (message.Text!.EndsWith(botClient.GetMeAsync(cancellationToken).Result.Username!)) return;
-            var admins = await botClient.GetChatAdministratorsAsync(message.Chat.Id, cancellationToken);
+            if (message.Text!.EndsWith(_botClient.GetMeAsync(cancellationToken).Result.Username!)) return;
+            var admins = await _botClient.GetChatAdministratorsAsync(message.Chat.Id, cancellationToken);
             var isSenderAdmin = admins.Any(member => member.User.Id == message.From!.Id);
 
             if (isSenderAdmin)
@@ -630,24 +556,19 @@ public class HelperService : IHelperService
                         nsfwSetting = false;
                         break;
                     default:
-                        await NsfwSettingException(message, botClient, _user, cancellationToken);
+                        await NsfwSettingException(message, cancellationToken);
                         return;
                 }
 
                 _chat!.Nsfw = nsfwSetting;
                 await _context.SaveChangesAsync(cancellationToken);
 
-                _ = SendResponse(message, botClient, nsfwSetting switch
-                {
-                    true => string.Format(_resourceManager.GetString("SetNsfwOn_Chat",
-                        CultureInfo.GetCultureInfo(_user.Language))!, $"@{message.From?.Username}"),
-                    false => string.Format(_resourceManager.GetString("SetNsfwOff_Chat",
-                        CultureInfo.GetCultureInfo(_user.Language))!, $"@{message.From?.Username}")
-                }, cancellationToken);
+                await SendResponse(message, string.Format(_resourceManager.GetString(nsfwSetting ? "SetNsfwOn_Chat" : "SetNsfwOff_Chat",
+                        CultureInfo.GetCultureInfo(_user.Language))!, $"@{message.From?.Username}"), cancellationToken);
             }
             else
             {
-                _ = SendResponse(message, botClient, string.Format(_resourceManager.GetString(
+                _ = SendResponse(message, string.Format(_resourceManager.GetString(
                     "NsfwSettingException_NotEnoughRights_Chat",
                     CultureInfo.GetCultureInfo(_user.Language))!), cancellationToken);
             }
@@ -664,52 +585,50 @@ public class HelperService : IHelperService
                     nsfwSetting = false;
                     break;
                 default:
-                    await NsfwSettingException(message, botClient, _user, cancellationToken);
+                    await NsfwSettingException(message, cancellationToken);
                     return;
             }
 
             _user.Nsfw = nsfwSetting;
             await _context.SaveChangesAsync(cancellationToken);
 
-            _ = SendResponse(message, botClient, nsfwSetting switch
-            {
-                true => string.Format(_resourceManager.GetString("SetNsfwOn",
-                    CultureInfo.GetCultureInfo(_user.Language))!),
-                false => string.Format(_resourceManager.GetString("SetNsfwOff",
-                    CultureInfo.GetCultureInfo(_user.Language))!)
-            }, cancellationToken);
+            _ = SendResponse(message, string.Format(_resourceManager.GetString(nsfwSetting ? 
+                "SetNsfwOn" : 
+                "SetNsfwOff",
+                CultureInfo.GetCultureInfo(_user.Language))!), cancellationToken);
         }
     }
 
-    private async Task NsfwSettingException(Message message, ITelegramBotClient botClient, User user,
+    private async Task NsfwSettingException(Message message,
         CancellationToken cancellationToken)
     {
-        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
         if (message.Chat.Id > 0)
-            _ = SendResponse(message, botClient, _resourceManager.GetString("NsfwSettingException",
+            await SendResponse(message, _resourceManager.GetString("NsfwSettingException",
                 CultureInfo.GetCultureInfo(_user.Language))!, cancellationToken);
         else
-            _ = SendResponse(message, botClient, string.Format(
+            await SendResponse(message, string.Format(
                 _resourceManager.GetString("NsfwSettingException_Chat",
                     CultureInfo.GetCultureInfo(_user.Language))!, $"@{message.From!.Username}",
-                $"@{botClient.GetMeAsync(cancellationToken).Result.Username}"), cancellationToken);
+                $"@{_botClient.GetMeAsync(cancellationToken).Result.Username}"), cancellationToken);
     }
 
-    public async Task UnknownCommand(Message message, ITelegramBotClient botClient, CancellationToken cancellationToken)
+    public async Task UnknownCommand(Message message, CancellationToken cancellationToken)
     {
-        await WriteTotalRequests(await ReadTotalRequests(cancellationToken), cancellationToken);
-
-        if (message.Chat.Id < 0 && message.Text!.StartsWith("/") &&
-            message.Text!.EndsWith($"@{botClient.GetMeAsync(cancellationToken).Result.Username}"))
-            _ = SendResponse(message, botClient, string.Format(
+/*        if (message.Chat.Id < 0 && message.Text!.StartsWith("/") &&
+            message.Text!.EndsWith($"@{_botClient.GetMeAsync(cancellationToken).Result.Username}"))
+            await SendResponse(message, string.Format(
                 _resourceManager.GetString("UnknownCommand_Chat",
                     CultureInfo.GetCultureInfo(_user.Language))!,
                 $"@{message.From?.Username}"), cancellationToken);
+        else
+        {*/
+            await SendResponse(message, _resourceManager.GetString("UnknownCommand",
+                 CultureInfo.GetCultureInfo(_user.Language ?? "en-US"))!, cancellationToken);
+        //    
     }
 
     //Method that ensures response delivery
     private async Task SendResponse(Message message,
-        ITelegramBotClient botClient,
         string messageText,
         CancellationToken cancellationToken,
         string? picUri = null)
@@ -720,13 +639,13 @@ public class HelperService : IHelperService
                 
                 if (picUri != null)
                 {
-                    await botClient.SendMediaGroupAsync(message.Chat.Id,
+                    await _botClient.SendMediaGroupAsync(message.Chat.Id,
                         new IAlbumInputMedia[] {new InputMediaPhoto(picUri) {Caption = messageText}},
                         cancellationToken: cancellationToken);
                     break;
                 }
 
-                await botClient.SendTextMessageAsync(message.Chat.Id, messageText,
+                await _botClient.SendTextMessageAsync(message.Chat.Id, messageText,
                     cancellationToken: cancellationToken);
                 break;
 
@@ -745,7 +664,7 @@ public class HelperService : IHelperService
             }
     }
 
-    public ABooru GetRandomBooru()
+    private ABooru GetRandomBooru()
     {
         var random = new Random();
 

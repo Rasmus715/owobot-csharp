@@ -10,6 +10,7 @@ using owobot_csharp.Abstract;
 using owobot_csharp.Data;
 using owobot_csharp.Extensions;
 using owobot_csharp.Services;
+using Singularity;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 
@@ -26,7 +27,7 @@ IConfiguration configuration = new ConfigurationBuilder()
 var validator = new Validator(configuration);
 try
 {
-    validator.Validate();
+   validator.Validate();
 }
 catch (ValidationException)
 {
@@ -43,11 +44,11 @@ if (!Directory.Exists("Essentials"))
 try
 {
     await using var applicationContext = new ApplicationContext();
-
-    if (applicationContext.Database.GetAppliedMigrations().LastOrDefault() is null)
+    var pendingMigrations = await applicationContext.Database.GetPendingMigrationsAsync();
+    if (pendingMigrations.Any())
     {
         logger.LogInformation("Initializing migration...");
-        applicationContext.Database.Migrate();
+        await applicationContext.Database.MigrateAsync();
         logger.LogInformation("Migration successful");
     }
 }
@@ -60,32 +61,24 @@ catch (Exception exception)
     return 1;
 }
 
+
 var host = Host.CreateDefaultBuilder(args)
+    .UseSingularity()
+    .ConfigureContainer<ContainerBuilder>(builder => 
+    {
+        builder.Register<IUpdateHandler, UpdateHandler>(configuration => configuration.With(Lifetimes.Transient));
+        builder.Register<IReceiverService, ReceiverService>(configuration => configuration.With(Lifetimes.Transient));
+        builder.Register<IHelperService, HelperService>(configuration => configuration.With(Lifetimes.Transient));
+        builder.Register<DbContext, ApplicationContext>(configuration => configuration.With(Lifetimes.PerScope));
+    })
     .ConfigureServices(services =>
     {
-        // Register named HttpClient to benefits from IHttpClientFactory
-        // and consume it with ITelegramBotClient typed client.
-        var bot = services.AddHttpClient("owobot-csharp")
-            .AddTypedClient<ITelegramBotClient>(
-                typedClient => new TelegramBotClient(new TelegramBotClientOptions(configuration.GetSection("TELEGRAM_TOKEN").Value), 
-                    typedClient));
-
         services.ConfigureOwobot(configuration, validator.GetProxy());
-        services.AddTransient<IUpdateHandler, UpdateHandler>(); 
-        services.AddTransient<IReceiverService, ReceiverService>();
-
-        services.AddTransient<IHelperService, HelperService>()
-            .AddLogging(cfg => cfg.AddConsole())
-            .Configure<LoggerFilterOptions>(cfg => 
-                cfg.MinLevel = LogLevel.Information); 
-        services.AddDbContext<ApplicationContext>(); 
         services.AddHostedService<PollingService>();
-
         //Removing all logs with requests info due to privacy settings
         services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
     })
     .Build();
-
 await host.RunAsync();
 return 0;
 

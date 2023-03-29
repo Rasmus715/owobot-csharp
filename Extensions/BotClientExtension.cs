@@ -10,6 +10,8 @@ namespace owobot_csharp.Extensions
     {
         public static IHttpClientBuilder ConfigureOwobot(this IServiceCollection services, IConfiguration configuration, Protocol? protocol = null)
         {
+            // Register named HttpClient to benefits from IHttpClientFactory
+            // and consume it with ITelegramBotClient typed client.
             return services.AddHttpClient("owobot-csharp")
                     .AddTypedClient<ITelegramBotClient>(httpClient =>
                     {
