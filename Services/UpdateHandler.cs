@@ -25,6 +25,8 @@ public class UpdateHandler : IUpdateHandler
             await _helperService.WriteTotalRequests(await _helperService.ReadTotalRequests(cancellationToken), cancellationToken);
             if (update.Message.Type.Equals(MessageType.Text))
             {
+                if (update.Message.ReplyToMessage is not null)
+                    return;
                 await BotOnMessageReceived(update.Message, cancellationToken);
             }
             else 
