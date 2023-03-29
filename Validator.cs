@@ -21,13 +21,13 @@ public class Validator
     {
         var parseSuccessful = true;
 
-        if (!string.IsNullOrEmpty(_configuration.GetSection("TELEGRAM_TOKEN")?.Value))
+        if (string.IsNullOrEmpty(_configuration.GetSection("TELEGRAM_TOKEN")?.Value))
         {
             _logger.LogError("Telegram Token field is not present.");
             parseSuccessful = false;
         }
         
-        if (!string.IsNullOrEmpty(_configuration.GetSection("BOT_VERSION")?.Value))
+        if (string.IsNullOrEmpty(_configuration.GetSection("BOT_VERSION")?.Value))
         {
             Environment.SetEnvironmentVariable("BOT_VERSION", "1.0.1");
         }
@@ -36,19 +36,19 @@ public class Validator
             _configuration.GetSection("REDDIT_SECRET").Exists() || 
             _configuration.GetSection("REDDIT_REFRESH_TOKEN").Exists())
         {
-            if (!string.IsNullOrEmpty(_configuration.GetSection("REDDIT_APP_ID")?.Value))
+            if (string.IsNullOrEmpty(_configuration.GetSection("REDDIT_APP_ID")?.Value))
             {
                 _logger.LogError("Reddit App ID is not present.");
                 parseSuccessful = false;
             }
 
-            if (!string.IsNullOrEmpty(_configuration.GetSection("REDDIT_REFRESH_TOKEN")?.Value))
+            if (string.IsNullOrEmpty(_configuration.GetSection("REDDIT_REFRESH_TOKEN")?.Value))
             { 
                 _logger.LogError("Reddit Refresh Token is not present.");
                 parseSuccessful = false;
             }
 
-            if (!string.IsNullOrEmpty(_configuration.GetSection("REDDIT_SECRET")?.Value))
+            if (string.IsNullOrEmpty(_configuration.GetSection("REDDIT_SECRET")?.Value))
             {  
                 _logger.LogError("Reddit Secret Key is not present.");
                 parseSuccessful = false; 
@@ -60,13 +60,13 @@ public class Validator
             if (_configuration.GetSection("PROXY").Value.Equals("HTTP") || 
                 _configuration.GetSection("PROXY").Value.Equals("SOCKS5")) 
             { 
-                if (!string.IsNullOrEmpty(_configuration.GetSection("PROXY_ADDRESS")?.Value)) 
+                if (string.IsNullOrEmpty(_configuration.GetSection("PROXY_ADDRESS")?.Value)) 
                 { 
                     _logger.LogError("Proxy field is filled but no address was provided."); 
                     parseSuccessful = false; 
                 }
                 
-                if (!string.IsNullOrEmpty(_configuration.GetSection("PROXY_PORT")?.Value)) 
+                if (string.IsNullOrEmpty(_configuration.GetSection("PROXY_PORT")?.Value)) 
                 {
                     _logger.LogError("Proxy field is filled but no port was provided."); 
                     parseSuccessful = false; 
