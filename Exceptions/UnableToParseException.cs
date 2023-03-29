@@ -1,5 +1,3 @@
 namespace owobot_csharp.Exceptions;
 
-public class UnableToParseException : Exception
-{
-}
+public class UnableToParseException : Exception { }

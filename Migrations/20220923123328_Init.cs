@@ -14,7 +14,7 @@ namespace owobot_csharp.Migrations
                 {
                     Id = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Nsfw = table.Column<bool>(type: "INTEGER", nullable: false)
+                    Nsfw = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false)
                 },
                 constraints: table =>
                 {
@@ -27,8 +27,8 @@ namespace owobot_csharp.Migrations
                 {
                     Id = table.Column<long>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    Nsfw = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Language = table.Column<string>(type: "TEXT", nullable: true)
+                    Nsfw = table.Column<bool>(type: "INTEGER", nullable: false, defaultValue: false),
+                    Language = table.Column<string>(type: "TEXT", nullable: true, defaultValue: "en-US")
                 },
                 constraints: table =>
                 {

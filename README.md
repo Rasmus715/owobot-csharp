@@ -1,11 +1,11 @@
 # owobot-csharp
 ![example branch parameter](https://github.com/Rasmus715/owobot-csharp/actions/workflows/docker-publish.yml/badge.svg?branch=develop)
-[![CodeFactor](https://www.codefactor.io/repository/github/rasmus715/owobot-csharp/badge/develop)](https://www.codefactor.io/repository/github/rasmus715/owobot-csharp/overview/develop) <br>
-An anime pics bot for Telegram, written on C# using .NET 6, taking data from Booru sites and Reddit.   
-Бот для Telegram, присылающий аниме девочек, написанный на C# с использованием .NET 6, берущий данные с Booru-сайтов и Reddit.
+[![CodeFactor](https://www.codefactor.io/repository/github/rasmus715/owobot-csharp/badge/develop)](https://www.codefactor.io/repository/github/rasmus715/owobot-csharp/overview/develop) <br/>
+An anime pics bot for Telegram, written on C# using .NET 7, taking data from Booru sites and Reddit.   
+Бот для Telegram, присылающий аниме девочек, написанный на C# с использованием .NET 7, берущий данные с Booru-сайтов и Reddit.
 
 ### Features
-* Multithreading
+* Parallel requests processing
 * Preventing timeout errors
 * User related NSFW settings
 * User related language settings (English and Russian)
@@ -26,7 +26,7 @@ If for some reason you want to run it by yourself:
  - PROXY_USERNAME, PROXY_PASSWORD (Optional) - credentials of your proxy server 
 ### Native execution
 1. Clone code somewhere
-2. Install .NET 6 SDK and type the next command into shell, filling parameters with your own values
+2. Install .NET 7 SDK and paste the next command into the shell, filling parameters with your own values
 
 ```shell
 BOT_VERSION= TELEGRAM_TOKEN= REDDIT_APP_ID= REDDIT_SECRET= REDDIT_REFRESH_TOKEN= PROXY= PROXY_ADDRESS= PROXY_USERNAME= PROXY_PASSWORD= dotnet run
@@ -68,15 +68,15 @@ docker run -d \
 
 ### Reason of choosing some questionable solutions
 
-First of all, I'm a C# newbie.<br />
-The whole idea of this project was to learn how to work with Telegram, Reddit client libraries aswell how to set up EF Core in console application and use local database.
+First of all, I'm a C# newbie.<br/>
+The whole idea of this project was to learn how to work with Telegram, Reddit client libraries aswell of how to set up EF Core in console application and use local database.
 
 
 ### TODO: 
-1. ~~Add external, user-friendly configuration.~~ Done
+1. ~~Add external, user-friendly configuration.~~ Done.
 2. ~~Add chats compatibility.~~ Done. Needs additional testing
 3. ~~Push docker image to dockerhub.~~ Done.
-4. ~~Add more sources (such as yande.re, konachan)~~
+4. ~~Add more sources (such as yande.re, konachan)~~ Done.
 
-P.S. The reddit API is a slow mess and using `/random` command will always give you pics from booru boards. <br>
+P.S. The reddit API is a slow mess and using `/random` command will always give you pics from booru boards.<br/>
 To use reddit exclusively, proceed with `/random_reddit` 

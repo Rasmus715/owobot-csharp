@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using owobot_csharp.Abstract;
+using Telegram.Bot.Types;
 
 namespace Telegram.Bot.Abstract;
 
@@ -16,13 +17,15 @@ public abstract class PollingServiceBase<TReceiverService> : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly ILogger _logger;
+    private readonly IReceiverService _receiver;
 
     protected PollingServiceBase(
         IServiceProvider serviceProvider,
-        ILogger logger)
+        ILogger logger, IReceiverService reciever)
     {
         _serviceProvider = serviceProvider;
         _logger = logger;
+        _receiver = reciever;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -44,9 +47,8 @@ public abstract class PollingServiceBase<TReceiverService> : BackgroundService
                 // This way we can leverage benefits of Scoped TReceiverService
                 // and typed HttpClient - we'll grab "fresh" instance each time
                 using var scope = _serviceProvider.CreateScope();
-                var receiver = scope.ServiceProvider.GetRequiredService<TReceiverService>();
 
-                await receiver.ReceiveAsync(stoppingToken);
+                await _receiver.ReceiveAsync(stoppingToken);
             }
             // Update Handler only captures exception inside update polling loop
             // We'll catch all other exceptions here

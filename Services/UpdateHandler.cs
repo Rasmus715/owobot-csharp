@@ -1,3 +1,4 @@
+using Reddit.Things;
 using Telegram.Bot;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
@@ -8,31 +9,27 @@ namespace owobot_csharp.Services;
 
 public class UpdateHandler : IUpdateHandler
 {
-    private readonly ITelegramBotClient _botClient;
     private readonly IHelperService _helperService;
-
-    public UpdateHandler(ITelegramBotClient bot, IHelperService helperService)
+    public UpdateHandler(IHelperService helperService)
     {
-        _botClient = bot;
         _helperService = helperService;
     }
 
-    public async Task HandleUpdateAsync(ITelegramBotClient _, Update update, CancellationToken cancellationToken)
+    public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
     {
-        switch (update)
-        {
-            case {Message: { } message}:
-                await BotOnMessageReceived(message, cancellationToken);
-                break;
-            default:
-                await UnknownUpdateHandlerAsync();
-                break;
-        }
-    }
+        await _helperService.SetChat(update.Message, cancellationToken);
+        await _helperService.SetUser(update.Message, cancellationToken);
 
-    private Task UnknownUpdateHandlerAsync()
-    { 
-        return Task.CompletedTask;
+        if (update.Message is not null)
+        {
+            await _helperService.WriteTotalRequests(await _helperService.ReadTotalRequests(cancellationToken), cancellationToken);
+            if (update.Message.Type.Equals(MessageType.Text))
+            {
+                await BotOnMessageReceived(update.Message, cancellationToken);
+            }
+            else 
+                _ = _helperService.UnknownCommand(update.Message, cancellationToken);
+        }
     }
 
     public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
@@ -40,64 +37,60 @@ public class UpdateHandler : IUpdateHandler
         throw new IndexOutOfRangeException();
     }
 
-    private async Task BotOnMessageReceived(Message message,
-        CancellationToken cancellationToken)
+    private async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
     {
-        if (message.Type != MessageType.Text)
-            return;
-
         switch (message.Text!.ToLower().Split("@")[0])
         {
             case "owo":
-                await _helperService.SendCustomMessage(message, "uwu", _botClient, cancellationToken);
+                _ = _helperService.SendCustomMessage(message, "uwu", cancellationToken);
                 break;
             case "uwu":
-                await _helperService.SendCustomMessage(message, "owo", _botClient, cancellationToken);
+                _ = _helperService.SendCustomMessage(message, "owo", cancellationToken);
                 break;
             case "/start":
-                await _helperService.Start(message,_botClient, cancellationToken);
+                _ = _helperService.Start(message, cancellationToken);
                 break;
             case "/info":
-                await _helperService.Info(message, _botClient, cancellationToken);
+                _ = _helperService.Info(message,  cancellationToken);
                 break;
             case "/status":
-                await _helperService.Status(message, _botClient, cancellationToken);
+                _ = _helperService.Status(message, cancellationToken);
                 break;
             case "/language":
-                await _helperService.LanguageInfo(message, _botClient, cancellationToken);
+                _ = _helperService.LanguageInfo(message, cancellationToken);
                 break;
             case "/get":
-                await _helperService.GetStatus(message, _botClient, cancellationToken);
+                _ = _helperService.GetStatus(message, cancellationToken);
                 break;
             case "/nsfw":
-                await _helperService.NsfwStatus(message, _botClient, cancellationToken);
+                _ = _helperService.NsfwStatus(message, cancellationToken);
                 break;
             case "/random":
-                await _helperService.GetRandomBooruPic(message, _botClient, cancellationToken);
+                _ = _helperService.GetBooruPic(message, cancellationToken);
                 break;
             case "/random_reddit":
-                await _helperService.GetRandomPic(message, _botClient, cancellationToken);
+                _ = _helperService.GetRandomPic(message, cancellationToken);
                 break;
             default:
                 if (message.Text.Contains("/get_"))
                 {
-                    await _helperService.GetPicFromReddit(message, _botClient, cancellationToken);
+                    _ = _helperService.GetPicFromReddit(message, cancellationToken);
                     break;
                 }
 
                 if (message.Text.Contains("/language"))
                 {
-                    await _helperService.SetLanguage(message, _botClient, cancellationToken);
+                    await _helperService.SetLanguage(message, cancellationToken);
                     break;
                 }
 
                 if (message.Text.Contains("/nsfw"))
                 {
-                    await _helperService.TurnNsfw(message, _botClient, cancellationToken);
+                    await _helperService.TurnNsfw(message, cancellationToken);
                 }
                 else
                 {
-                    await _helperService.UnknownCommand(message, _botClient, cancellationToken);
+                    _ = _helperService.UnknownCommand(message, cancellationToken);
                 }
                 break;
         }
