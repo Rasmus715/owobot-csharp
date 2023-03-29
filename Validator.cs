@@ -93,10 +93,6 @@ public class Validator
         _logger.LogInformation("I was too lazy to test their functionality so expect this function to work incorrectly or don't work at all.");
         return protocol;
     }
-    
 }
 
-public class ValidationException : Exception
-{
-    
-}
+public class ValidationException : Exception { }
