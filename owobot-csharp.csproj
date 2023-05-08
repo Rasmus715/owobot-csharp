@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -32,7 +32,7 @@
       <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
       <PackageReference Include="Reddit" Version="1.5.2" />
       <PackageReference Include="Singularity.AspNetCore.Hosting" Version="0.18.0" />
-      <PackageReference Include="Telegram.Bot" Version="18.0.0" />
+      <PackageReference Include="Telegram.Bot" Version="19.0.0" />
     </ItemGroup>
 
     <ItemGroup>
